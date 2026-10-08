@@ -47,8 +47,8 @@ def enabled(name):
     return os.environ.get(name, "").lower() in {"true", "1", "yes"}
 
 
-def evaluate_identity(identity, expected):
-    if identity.get("Arn", "").endswith(":root"):
+def evaluate_identity(identity, expected, allow_root_read_only=False):
+    if identity.get("Arn", "").endswith(":root") and not allow_root_read_only:
         return "FAIL", "Root identity is forbidden for development"
     if not expected:
         return "FAIL", "Set EXPECTED_AWS_ACCOUNT_ID locally before account reads"
@@ -60,6 +60,8 @@ def evaluate_identity(identity, expected):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--aws", action="store_true")
+    parser.add_argument("--allow-root-read-only", action="store_true",
+                        help="Explicit exception for this script's read-only checks; not deployment approval")
     parser.add_argument("--profile", default=os.environ.get("AWS_PROFILE"))
     parser.add_argument("--region", default=os.environ.get("AWS_REGION", "ap-south-1"))
     parser.add_argument("--json-out", type=Path)
@@ -139,10 +141,13 @@ def aws_checks(args, budget_ok):
     if not ok:
         record("AWS identity", "FAIL", value + "; configure/login to temporary profile locally")
         return
-    status, detail = evaluate_identity(json.loads(value), os.environ.get("EXPECTED_AWS_ACCOUNT_ID"))
+    status, detail = evaluate_identity(json.loads(value), os.environ.get("EXPECTED_AWS_ACCOUNT_ID"),
+                                       args.allow_root_read_only)
     record("AWS identity", status, detail)
     if status != "PASS":
         return
+    if json.loads(value).get("Arn", "").endswith(":root"):
+        record("Root session", "WARN", "explicit read-only exception; use scoped roles for workloads")
     if args.region != os.environ.get("EXPECTED_AWS_REGION", "ap-south-1"):
         record("AWS region gate", "FAIL", "region mismatch; further account reads stopped")
         return

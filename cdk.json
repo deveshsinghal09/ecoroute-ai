@@ -1,4 +1,8 @@
 {
   "app": "python infra/app.py",
-  "context": {"project": "ecoroute-ai", "phase": "0-no-resources"}
+  "context": {
+    "project": "ecoroute-ai",
+    "phase": "1-foundation",
+    "@aws-cdk/core:defaultCrossStackReferences": "strong"
+  }
 }
