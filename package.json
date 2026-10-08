@@ -2,6 +2,6 @@
   "name": "ecoroute-ai-infra-tools",
   "private": true,
   "description": "Local CDK CLI only; no frontend",
-  "scripts": {"synth": "cdk synth --no-lookups"},
+  "scripts": {"synth": "python infra/app.py", "cdk:version": "cdk --version"},
   "devDependencies": {"aws-cdk": "^2.1000.0"}
 }

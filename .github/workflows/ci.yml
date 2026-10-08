@@ -18,6 +18,7 @@ jobs:
       - run: python -m pip check
       - run: python -m ruff check .
       - run: python -m pytest -q
+      - run: python scripts/smoke_local.py
       - run: python scripts/check_repo.py
       - run: npm ci --ignore-scripts
       - run: npm run synth
