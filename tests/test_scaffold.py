@@ -7,12 +7,15 @@ from ecoroute.main import create_app
 
 
 def test_health_is_explicit_about_scaffold():
-    client = TestClient(create_app(Settings(_env_file=None)))
+    client = TestClient(create_app(Settings(_env_file=None, local_db_path=":memory:")))
     assert client.get("/healthz").json() == {
-        "status": "ok", "profile": "local", "phase": "0-scaffold",
-        "integrations_enabled": False,
+        "status": "ok", "profile": "local", "phase": "1-foundation",
+        "live_domain_providers": False,
     }
     assert client.post("/v1/routes").status_code == 404
+    assert client.get("/api/v1/health").status_code == 200
+    assert client.get("/api/v1/ready").status_code == 503
+    assert client.get("/docs").status_code == 200
 
 
 @pytest.mark.parametrize("setting", [

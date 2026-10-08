@@ -1,4 +1,13 @@
-# Project state — Phase 0
+# Project state — Phase 1 in progress
+
+Phase 1 is now authorized and supersedes the historical Phase 0 stop below. Implemented locally:
+versioned FastAPI routers, RS256 Cognito access-token verification, scoped SQLite/DynamoDB adapters,
+idempotent journeys/telemetry, notification preferences, Docker setup and mocked integration tests.
+Infrastructure synthesis and documentation are being finalized. No AWS resources have been deployed.
+User explicitly authorized the existing root session for this work; only read-only account checks
+are being performed, while deployment still requires separate resource/cost approval.
+
+## Historical Phase 0 report (retained for audit)
 
 As of 2026-10-08, India time. Architecture, credential checklist, diagnostics and secure scaffold
 are complete. **Stop at Phase 0.** Domain APIs, real data ingestion, trained ML, AWS infrastructure
