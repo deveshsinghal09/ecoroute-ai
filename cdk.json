@@ -1,0 +1,4 @@
+{
+  "app": "python infra/app.py",
+  "context": {"project": "ecoroute-ai", "phase": "0-no-resources"}
+}
