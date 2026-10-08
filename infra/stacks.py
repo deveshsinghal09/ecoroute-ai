@@ -12,8 +12,10 @@ from aws_cdk import aws_iam as iam
 from aws_cdk import aws_iot as iot
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_lambda_event_sources as sources
+from aws_cdk import aws_lambda_destinations as destinations
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_s3 as s3
+from aws_cdk import aws_s3_notifications as s3_notifications
 from aws_cdk import aws_scheduler as scheduler
 from aws_cdk import aws_secretsmanager as secrets
 from aws_cdk import aws_sns as sns
@@ -37,7 +39,7 @@ class DataStack(Stack):
     def __init__(self, scope: Construct, name: str, **kwargs):
         super().__init__(scope, name, **kwargs)
         self.tables = {}
-        for table_name in ("journeys", "preferences", "route_metadata", "idempotency", "alerts"):
+        for table_name in ("journeys", "preferences", "route_metadata", "idempotency", "alerts", "environment"):
             table = dynamodb.Table(
                 self, table_name, partition_key=dynamodb.Attribute(name="pk", type=dynamodb.AttributeType.STRING),
                 sort_key=dynamodb.Attribute(name="sk", type=dynamodb.AttributeType.STRING),
@@ -49,7 +51,15 @@ class DataStack(Stack):
             )
             self.tables[table_name] = table
             CfnOutput(self, table_name + "Table", value=table.table_name)
-        self.bucket = bucket(self, "AirData", [("raw/", 30), ("cleaned/", 90), ("reports/", 30)])
+        self.bucket = bucket(self, "AirData", [("raw/", 30), ("curated/", 90), ("reports/", 30)])
+        self.dlq = sqs.Queue(self, "DeadLetters", encryption=sqs.QueueEncryption.SQS_MANAGED,
+                             enforce_ssl=True, retention_period=Duration.days(14))
+        self.queue = sqs.Queue(self, "Tasks", encryption=sqs.QueueEncryption.SQS_MANAGED,
+            enforce_ssl=True, retention_period=Duration.days(4), visibility_timeout=Duration.seconds(180),
+            dead_letter_queue=sqs.DeadLetterQueue(queue=self.dlq, max_receive_count=3))
+        # S3 raw-object events feed the existing cleaning queue; no raw response is sent through SQS.
+        self.bucket.add_event_notification(s3.EventType.OBJECT_CREATED,
+            s3_notifications.SqsDestination(self.queue), s3.NotificationKeyFilter(prefix="raw/source="))
         CfnOutput(self, "DataBucket", value=self.bucket.bucket_name)
 
 
@@ -63,13 +73,17 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None,
-                 provider_secret_arn=None, **kwargs):
+                 provider_secret_arn=None, ingestion_interval_minutes=60, **kwargs):
         super().__init__(scope, name, **kwargs)
+        if not 60 <= ingestion_interval_minutes <= 1440:
+            raise ValueError("Collection interval must be 60..1440 minutes")
         api_logs = logs.LogGroup(self, "ApiLogs", retention=logs.RetentionDays.ONE_WEEK,
                                  removal_policy=RemovalPolicy.DESTROY)
         worker_logs = logs.LogGroup(self, "WorkerLogs", retention=logs.RetentionDays.ONE_WEEK,
                                     removal_policy=RemovalPolicy.DESTROY)
         access_logs = logs.LogGroup(self, "AccessLogs", retention=logs.RetentionDays.ONE_WEEK,
+                                    removal_policy=RemovalPolicy.DESTROY)
+        ingest_logs = logs.LogGroup(self, "IngestionLogs", retention=logs.RetentionDays.ONE_WEEK,
                                     removal_policy=RemovalPolicy.DESTROY)
         api_role = iam.Role(self, "ApiRole", assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
         worker_role = iam.Role(self, "WorkerRole", assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
@@ -111,6 +125,8 @@ class CoreStack(Stack):
                       "ALERTS_TABLE": "alerts"}
         environment = {"ECOROUTE_PROFILE": "aws", "COGNITO_USER_POOL_ID": self.pool.user_pool_id,
                        "COGNITO_CLIENT_ID": self.client.user_pool_client_id,
+                       "S3_DATA_BUCKET": data.bucket.bucket_name,
+                       "ENVIRONMENT_TABLE": data.tables["environment"].table_name,
                        **{env: data.tables[key].table_name for env, key in table_vars.items()}}
         # Runtime only uses get/put and transactional puts; DynamoDB authorizes transactions via PutItem.
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:PutItem"],
@@ -119,40 +135,60 @@ class CoreStack(Stack):
                                                   resources=[data.tables["alerts"].table_arn]))
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:DescribeTable"],
                                                   resources=[t.table_arn for t in data.tables.values()]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:Query"],
+            resources=[data.tables["environment"].table_arn]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["s3:GetObject"],
+            resources=[data.bucket.arn_for_objects("curated/*")]))
         code = lambda_.Code.from_asset(str(Path(asset_path).resolve()))
         self.api_function = lambda_.Function(self, "Api", runtime=lambda_.Runtime.PYTHON_3_11,
             architecture=lambda_.Architecture.X86_64, handler="ecoroute.handlers.api.handler",
             code=code, role=api_role, environment=environment, timeout=Duration.seconds(20),
             memory_size=512, reserved_concurrent_executions=3, log_group=api_logs)
-        self.dlq = sqs.Queue(self, "DeadLetters", encryption=sqs.QueueEncryption.SQS_MANAGED,
-                             enforce_ssl=True, retention_period=Duration.days(14))
-        self.queue = sqs.Queue(self, "Tasks", encryption=sqs.QueueEncryption.SQS_MANAGED,
-            enforce_ssl=True, retention_period=Duration.days(4), visibility_timeout=Duration.seconds(180),
-            dead_letter_queue=sqs.DeadLetterQueue(queue=self.dlq, max_receive_count=3))
+        self.queue, self.dlq = data.queue, data.dlq
+        worker_role.add_to_policy(iam.PolicyStatement(actions=["s3:GetObject"],
+                                                       resources=[data.bucket.arn_for_objects("raw/*")]))
         worker_role.add_to_policy(iam.PolicyStatement(actions=["s3:PutObject"],
-                                                       resources=[data.bucket.arn_for_objects("reports/ingestion/*")]))
-        worker_env = {"S3_DATA_BUCKET": data.bucket.bucket_name}
+                                                       resources=[data.bucket.arn_for_objects("curated/*")]))
+        worker_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:PutItem"],
+                                                       resources=[data.tables["environment"].table_arn]))
+        worker_env = {"S3_DATA_BUCKET": data.bucket.bucket_name, "ECOROUTE_PROFILE": "aws",
+                      "ENVIRONMENT_TABLE": data.tables["environment"].table_name}
+        ingest_role = iam.Role(self, "IngestionRole", assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
+        ingest_role.add_to_policy(iam.PolicyStatement(actions=["logs:CreateLogStream", "logs:PutLogEvents"],
+                                                      resources=[ingest_logs.log_group_arn]))
+        ingest_role.add_to_policy(iam.PolicyStatement(actions=["s3:PutObject"],
+                                                      resources=[data.bucket.arn_for_objects("raw/*")]))
+        ingest_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"],
+                                                      resources=[data.tables["environment"].table_arn]))
+        ingest_env = {**worker_env, "PROVIDER_DAILY_REQUEST_LIMIT": "100", "PROVIDER_HOURLY_REQUEST_LIMIT": "30"}
         if provider_secret_arn:
             imported = secrets.Secret.from_secret_complete_arn(self, "ProviderSecret", provider_secret_arn)
-            worker_env["POLLUTION_SECRET_ARN"] = imported.secret_arn
-            # Reference only: no secret read grant until ingestion implementation actually uses it.
+            ingest_env["OPENAQ_SECRET_ARN"] = imported.secret_arn
+            ingest_role.add_to_policy(iam.PolicyStatement(actions=["secretsmanager:GetSecretValue"],
+                                                          resources=[imported.secret_arn]))
+        collector = lambda_.Function(self, "Collector", runtime=lambda_.Runtime.PYTHON_3_11,
+            architecture=lambda_.Architecture.X86_64, handler="ecoroute.handlers.ingestion.collect",
+            code=code, role=ingest_role, environment=ingest_env, timeout=Duration.seconds(180),
+            memory_size=256, reserved_concurrent_executions=1, log_group=ingest_logs)
         worker = lambda_.Function(self, "Worker", runtime=lambda_.Runtime.PYTHON_3_11,
-            architecture=lambda_.Architecture.X86_64, handler="ecoroute.handlers.tasks.handler",
+            architecture=lambda_.Architecture.X86_64, handler="ecoroute.handlers.ingestion.clean",
             code=code, role=worker_role, environment=worker_env, timeout=Duration.seconds(30),
-            memory_size=256, reserved_concurrent_executions=2, log_group=worker_logs)
+            memory_size=512, reserved_concurrent_executions=2, log_group=worker_logs)
         worker.add_event_source(sources.SqsEventSource(self.queue, batch_size=5,
                                                        report_batch_item_failures=True, max_concurrency=2))
         schedule_role = iam.Role(self, "ScheduleRole", assumed_by=iam.ServicePrincipal(
             "scheduler.amazonaws.com", conditions={"StringEquals": {"aws:SourceAccount": self.account},
                 "ArnEquals": {"aws:SourceArn": self.format_arn(service="scheduler", resource="schedule-group",
                                                                resource_name="default")}}))
-        self.queue.grant_send_messages(schedule_role)
+        collector.grant_invoke(schedule_role)
         scheduler.CfnSchedule(self, "IngestionSchedule", state="DISABLED",
-            schedule_expression="rate(1 hour)", flexible_time_window={"mode": "OFF"},
+            schedule_expression=f"rate({ingestion_interval_minutes} minutes)", flexible_time_window={"mode": "OFF"},
             target=scheduler.CfnSchedule.TargetProperty(
-                arn=self.queue.queue_arn, role_arn=schedule_role.role_arn,
-                input='{"type":"ingestion_tick","event_id":"<aws.scheduler.execution-id>"}',
+                arn=collector.function_arn, role_arn=schedule_role.role_arn,
+                input='{"source":"open_meteo","request":{"latitude":28.6139,"longitude":77.209}}',
                 retry_policy={"maximum_event_age_in_seconds": 3600, "maximum_retry_attempts": 2}))
+        collector.configure_async_invoke(retry_attempts=1, max_event_age=Duration.hours(1),
+                                          on_failure=destinations.SqsDestination(self.dlq))
         issuer = f"https://cognito-idp.{self.region}.amazonaws.com/{self.pool.user_pool_id}"
         authorizer = authorizers.HttpJwtAuthorizer("Cognito", issuer,
                                                    jwt_audience=[self.client.user_pool_client_id])
@@ -181,6 +217,7 @@ class CoreStack(Stack):
             cloudwatch.Alarm(self, "ApiDuration", metric=self.api_function.metric_duration(statistic="p95"),
                              threshold=10000, evaluation_periods=2),
             cloudwatch.Alarm(self, "WorkerErrors", metric=worker.metric_errors(), threshold=1, evaluation_periods=1),
+            cloudwatch.Alarm(self, "CollectorErrors", metric=collector.metric_errors(), threshold=1, evaluation_periods=1),
             cloudwatch.Alarm(self, "DeadLettersAlarm", metric=self.dlq.metric_approximate_number_of_messages_visible(),
                              threshold=1, evaluation_periods=1),
             cloudwatch.Alarm(self, "Http5xx", metric=cloudwatch.Metric(namespace="AWS/ApiGateway",

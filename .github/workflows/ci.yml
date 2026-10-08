@@ -21,4 +21,6 @@ jobs:
       - run: python scripts/smoke_local.py
       - run: python scripts/check_repo.py
       - run: npm ci --ignore-scripts
+      - run: python scripts/build_lambda.py
+      - run: PYTHONPATH=build/lambda python -S -c "import pyarrow; import ecoroute.handlers.api; import ecoroute.handlers.ingestion; print('Linux asset imports passed')"
       - run: npm run synth

@@ -16,6 +16,7 @@ from ecoroute.auth import CognitoVerifier
 from ecoroute.config import Settings
 from ecoroute.routers import ROUTERS
 from ecoroute.storage import Conflict, DynamoStore, LocalStore, Unavailable
+from ecoroute.environment.api import router as environmental_router
 
 logger = logging.getLogger("ecoroute")
 logger.setLevel(logging.INFO)
@@ -29,7 +30,7 @@ def error(request, status, code, headers=None):
 def create_app(settings: Settings | None = None, *, store=None, verifier=None) -> FastAPI:
     settings = settings or Settings()
     app = FastAPI(title="EcoRoute AI", version="0.1.0", docs_url="/docs", redoc_url=None,
-                  description="Backend foundation. Live routing/pollution/forecast providers are not connected.")
+                  description="Backend and environmental dataset APIs. Routing and trained ML are not connected.")
     app.state.settings = settings
     app.state.verifier = verifier or CognitoVerifier(settings)
     if store is None and settings.ecoroute_profile == "aws":
@@ -106,6 +107,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
 
     for router in ROUTERS:
         app.include_router(router, prefix="/api/v1")
+    app.include_router(environmental_router, prefix="/api/v1")
     return app
 
 

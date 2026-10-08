@@ -38,7 +38,7 @@ def test_no_idle_compute_or_nat(templates):
 
 def test_tables_retention_encryption_and_caps(templates):
     tables = resources(templates["data"], "AWS::DynamoDB::Table")
-    assert len(tables) == 5
+    assert len(tables) == 6
     for table in tables:
         props = table["Properties"]
         assert props["BillingMode"] == "PAY_PER_REQUEST"
@@ -84,17 +84,17 @@ def test_jwt_protects_all_domain_routes(templates):
 
 def test_queue_worker_schedule_and_alarms(templates):
     template = templates["core"]
-    queues = resources(template, "AWS::SQS::Queue")
+    queues = resources(templates["data"], "AWS::SQS::Queue")
     assert len(queues) == 2
     assert all(q["Properties"]["SqsManagedSseEnabled"] for q in queues)
     source = resources(template, "AWS::Lambda::EventSourceMapping")[0]["Properties"]
     assert source["FunctionResponseTypes"] == ["ReportBatchItemFailures"]
     assert source["ScalingConfig"]["MaximumConcurrency"] == 2
     assert resources(template, "AWS::Scheduler::Schedule")[0]["Properties"]["State"] == "DISABLED"
-    assert len(resources(template, "AWS::CloudWatch::Alarm")) == 5
+    assert len(resources(template, "AWS::CloudWatch::Alarm")) == 6
     for group in resources(template, "AWS::Logs::LogGroup"):
         assert group["Properties"]["RetentionInDays"] == 7
-    assert len(resources(template, "AWS::Lambda::Function")) == 2
+    assert len(resources(template, "AWS::Lambda::Function")) == 3
 
 
 def test_no_broad_runtime_permissions_or_embedded_secrets(templates):
@@ -106,5 +106,5 @@ def test_no_broad_runtime_permissions_or_embedded_secrets(templates):
             assert statement["Resource"] != "*"
     assert not resources(templates["core"], "AWS::SecretsManager::Secret")
     functions = resources(templates["core"], "AWS::Lambda::Function")
-    assert any("POLLUTION_SECRET_ARN" in fn["Properties"]["Environment"]["Variables"] for fn in functions)
+    assert any("OPENAQ_SECRET_ARN" in fn["Properties"]["Environment"]["Variables"] for fn in functions)
     assert "AWS_SECRET_ACCESS_KEY" not in json.dumps(functions)
