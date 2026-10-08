@@ -108,3 +108,26 @@ def test_no_broad_runtime_permissions_or_embedded_secrets(templates):
     functions = resources(templates["core"], "AWS::Lambda::Function")
     assert any("OPENAQ_SECRET_ARN" in fn["Properties"]["Environment"]["Variables"] for fn in functions)
     assert "AWS_SECRET_ACCESS_KEY" not in json.dumps(functions)
+
+
+def test_location_is_explicit_and_scoped(tmp_path, templates):
+    assert "geo-routes:CalculateRoutes" not in json.dumps(templates["core"])
+    asset = tmp_path / "asset"
+    asset.mkdir()
+    (asset / "handler.py").write_text("# structural test")
+    app = cdk.App(outdir=str(tmp_path / "assembly"))
+    env = cdk.Environment(account="123456789012", region="ap-south-1")
+    data = DataStack(app, "Data", env=env)
+    core = CoreStack(app, "Core", data=data, asset_path=asset, env=env, enable_location=True)
+    template = Template.from_stack(core).to_json()
+    statements = [s for p in resources(template, "AWS::IAM::Policy")
+                  for s in p["Properties"]["PolicyDocument"]["Statement"]]
+    geo = [s for s in statements if "geo-" in json.dumps(s["Action"])]
+    assert len(geo) == 2
+    for s in geo:
+        assert "ap-south-1::provider/default" in json.dumps(s["Resource"])
+        assert "*" not in json.dumps(s)
+    api = next(f["Properties"] for f in resources(template, "AWS::Lambda::Function")
+               if f["Properties"]["Handler"] == "ecoroute.handlers.api.handler")
+    assert api["Environment"]["Variables"]["ENABLE_AWS_LOCATION"] == "true"
+    assert api["Timeout"] < 30

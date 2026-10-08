@@ -31,6 +31,15 @@ def main():
                         raise AssertionError("Protected endpoint accepted missing token")
                     except HTTPError as denied:
                         assert denied.code == 401
+                    for endpoint in ("compare", "optimize", "exposure", "departure-time-analysis"):
+                        request = urllib.request.Request(
+                            "http://127.0.0.1:8765/api/v1/routes/" + endpoint,
+                            data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
+                        try:
+                            urllib.request.urlopen(request, timeout=2)
+                            raise AssertionError("Routing endpoint accepted missing token")
+                        except HTTPError as denied:
+                            assert denied.code == 401
                     try:
                         with urllib.request.urlopen("http://127.0.0.1:8765/api/v1/ready", timeout=2) as ready:
                             assert ready.status == 200

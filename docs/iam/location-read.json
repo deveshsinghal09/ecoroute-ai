@@ -1,0 +1,7 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {"Sid":"EcoRouteRoutesMumbai","Effect":"Allow","Action":"geo-routes:CalculateRoutes","Resource":"arn:aws:geo-routes:ap-south-1::provider/default"},
+    {"Sid":"EcoRoutePlacesMumbai","Effect":"Allow","Action":"geo-places:Geocode","Resource":"arn:aws:geo-places:ap-south-1::provider/default"}
+  ]
+}

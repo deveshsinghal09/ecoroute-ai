@@ -51,7 +51,7 @@ class DataStack(Stack):
             )
             self.tables[table_name] = table
             CfnOutput(self, table_name + "Table", value=table.table_name)
-        self.bucket = bucket(self, "AirData", [("raw/", 30), ("curated/", 90), ("reports/", 30)])
+        self.bucket = bucket(self, "AirData", [("raw/", 30), ("curated/", 90), ("reports/", 30), ("reports/routes/", 7), ("routes/", 7)])
         self.dlq = sqs.Queue(self, "DeadLetters", encryption=sqs.QueueEncryption.SQS_MANAGED,
                              enforce_ssl=True, retention_period=Duration.days(14))
         self.queue = sqs.Queue(self, "Tasks", encryption=sqs.QueueEncryption.SQS_MANAGED,
@@ -73,7 +73,7 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None,
-                 provider_secret_arn=None, ingestion_interval_minutes=60, **kwargs):
+                 provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, **kwargs):
         super().__init__(scope, name, **kwargs)
         if not 60 <= ingestion_interval_minutes <= 1440:
             raise ValueError("Collection interval must be 60..1440 minutes")
@@ -127,10 +127,13 @@ class CoreStack(Stack):
                        "COGNITO_CLIENT_ID": self.client.user_pool_client_id,
                        "S3_DATA_BUCKET": data.bucket.bucket_name,
                        "ENVIRONMENT_TABLE": data.tables["environment"].table_name,
+                       "ENABLE_AWS_LOCATION": str(enable_location).lower(),
+                       "EXPECTED_AWS_ACCOUNT_ID": self.account,
+                       "LOCATION_DAILY_LIMIT": "100", "LOCATION_HOURLY_LIMIT": "30",
                        **{env: data.tables[key].table_name for env, key in table_vars.items()}}
         # Runtime only uses get/put and transactional puts; DynamoDB authorizes transactions via PutItem.
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:PutItem"],
-            resources=[data.tables[k].table_arn for k in ("journeys", "preferences", "idempotency")]))
+            resources=[data.tables[k].table_arn for k in ("journeys", "preferences", "idempotency", "route_metadata")]))
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem"],
                                                   resources=[data.tables["alerts"].table_arn]))
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:DescribeTable"],
@@ -139,10 +142,20 @@ class CoreStack(Stack):
             resources=[data.tables["environment"].table_arn]))
         api_role.add_to_policy(iam.PolicyStatement(actions=["s3:GetObject"],
             resources=[data.bucket.arn_for_objects("curated/*")]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["s3:GetObject", "s3:PutObject"],
+            resources=[data.bucket.arn_for_objects("routes/*")]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["s3:PutObject"],
+            resources=[data.bucket.arn_for_objects("reports/routes/*")]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:UpdateItem"],
+            resources=[data.tables["environment"].table_arn]))
+        if enable_location:
+            for service, action in (("geo-routes", "CalculateRoutes"), ("geo-places", "Geocode")):
+                api_role.add_to_policy(iam.PolicyStatement(actions=[service + ":" + action],
+                    resources=[self.format_arn(service=service, account="", resource="provider", resource_name="default")]))
         code = lambda_.Code.from_asset(str(Path(asset_path).resolve()))
         self.api_function = lambda_.Function(self, "Api", runtime=lambda_.Runtime.PYTHON_3_11,
             architecture=lambda_.Architecture.X86_64, handler="ecoroute.handlers.api.handler",
-            code=code, role=api_role, environment=environment, timeout=Duration.seconds(20),
+            code=code, role=api_role, environment=environment, timeout=Duration.seconds(28),
             memory_size=512, reserved_concurrent_executions=3, log_group=api_logs)
         self.queue, self.dlq = data.queue, data.dlq
         worker_role.add_to_policy(iam.PolicyStatement(actions=["s3:GetObject"],

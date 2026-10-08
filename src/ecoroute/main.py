@@ -17,6 +17,8 @@ from ecoroute.config import Settings
 from ecoroute.routers import ROUTERS
 from ecoroute.storage import Conflict, DynamoStore, LocalStore, Unavailable
 from ecoroute.environment.api import router as environmental_router
+from ecoroute.routing.api import router as routing_router
+from ecoroute.routing.models import RoutingError
 
 logger = logging.getLogger("ecoroute")
 logger.setLevel(logging.INFO)
@@ -30,7 +32,7 @@ def error(request, status, code, headers=None):
 def create_app(settings: Settings | None = None, *, store=None, verifier=None) -> FastAPI:
     settings = settings or Settings()
     app = FastAPI(title="EcoRoute AI", version="0.1.0", docs_url="/docs", redoc_url=None,
-                  description="Backend and environmental dataset APIs. Routing and trained ML are not connected.")
+                  description="Backend, environmental datasets and provider-backed route comparison. Trained ML is not connected.")
     app.state.settings = settings
     app.state.verifier = verifier or CognitoVerifier(settings)
     if store is None and settings.ecoroute_profile == "aws":
@@ -39,7 +41,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
                                            retries={"max_attempts": 2, "mode": "standard"}))
         store = DynamoStore(client, {
             "journeys": settings.journeys_table, "telemetry": settings.journeys_table,
-            "preferences": settings.preferences_table, "routes": settings.route_metadata_table,
+            "preferences": settings.preferences_table, "routes": settings.route_metadata_table, "route_cache": settings.route_metadata_table,
             "alerts": settings.alerts_table,
         }, settings.idempotency_table)
     app.state.store = store if store is not None else LocalStore(settings.local_db_path)
@@ -81,6 +83,10 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     async def validation_error(request, exc):
         return error(request, 422, "validation_error")
 
+    @app.exception_handler(RoutingError)
+    async def routing_error(request, exc):
+        return error(request, exc.status, exc.code)
+
     @app.exception_handler(Conflict)
     async def conflict_error(request, exc):
         return error(request, 409, "idempotency_conflict")
@@ -108,6 +114,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     for router in ROUTERS:
         app.include_router(router, prefix="/api/v1")
     app.include_router(environmental_router, prefix="/api/v1")
+    app.include_router(routing_router, prefix="/api/v1")
     return app
 
 

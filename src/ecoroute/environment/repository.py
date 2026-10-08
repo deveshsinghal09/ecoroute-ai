@@ -3,6 +3,8 @@ import io
 import json
 import sqlite3
 import time
+from functools import wraps
+from threading import RLock
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -30,14 +32,24 @@ def pack(rows):
     return buffer.getvalue()
 
 
+def locked(method):
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        with self.lock:
+            return method(self, *args, **kwargs)
+    return call
+
+
 class LocalRepository:
     def __init__(self, root="work/environment"):
+        self.lock = RLock()
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(self.root / "index.sqlite3", check_same_thread=False)
         self.db.execute("CREATE TABLE IF NOT EXISTS entries(pk TEXT, sk TEXT, payload TEXT, expires INTEGER, PRIMARY KEY(pk,sk))")
         self.db.execute("CREATE TABLE IF NOT EXISTS budget(key TEXT PRIMARY KEY, count INTEGER)")
 
+    @locked
     def put_bytes(self, key, data, content_type):
         path = self.root / key
         if not path.resolve().is_relative_to(self.root.resolve()):
@@ -45,27 +57,32 @@ class LocalRepository:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
 
+    @locked
     def get_bytes(self, key):
         path = (self.root / key).resolve()
         if not path.is_relative_to(self.root.resolve()):
             raise ValueError("invalid object key")
         return path.read_bytes()
 
+    @locked
     def put(self, pk, sk, payload, ttl=90 * 86400):
         with self.db:
             self.db.execute("INSERT OR REPLACE INTO entries VALUES(?,?,?,?)",
                             (pk, sk, json.dumps(payload), int(time.time()) + ttl))
 
+    @locked
     def get(self, pk, sk):
         row = self.db.execute("SELECT payload FROM entries WHERE pk=? AND sk=? AND expires>?",
                               (pk, sk, int(time.time()))).fetchone()
         return json.loads(row[0]) if row else None
 
+    @locked
     def query(self, pk, start="", end="~", limit=100):
         rows = self.db.execute("SELECT payload FROM entries WHERE pk=? AND sk>=? AND sk<=? AND expires>? ORDER BY sk DESC LIMIT ?",
                                (pk, start, end, int(time.time()), limit + 1)).fetchall()
         return [json.loads(r[0]) for r in rows[:limit]], len(rows) > limit
 
+    @locked
     def reserve(self, source, daily=100, hourly=30):
         stamp = datetime.now(UTC)
         with self.db:
@@ -86,7 +103,7 @@ class AwsRepository:
                            ContentType=content_type, ServerSideEncryption="AES256")
 
     def get_bytes(self, key):
-        if not key.startswith(("raw/source=", "curated/source=")) or ".." in key:
+        if not key.startswith(("raw/source=", "curated/source=", "routes/")) or ".." in key:
             raise ValueError("invalid object key")
         response = self.s3.get_object(Bucket=self.bucket, Key=key)
         if response["ContentLength"] > 6 * 1024 * 1024:

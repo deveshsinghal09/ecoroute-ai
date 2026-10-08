@@ -11,9 +11,10 @@ data = DataStack(app, "EcoRouteData", env=env)
 MlStack(app, "EcoRouteML", env=env)
 CoreStack(app, "EcoRouteCore", data=data, asset_path="build/lambda", env=env,
           callback_urls=app.node.try_get_context("callback_urls"),
+          enable_location=str(app.node.try_get_context("enable_location")).lower() == "true",
           provider_secret_arn=app.node.try_get_context("provider_secret_arn"),
           ingestion_interval_minutes=int(app.node.try_get_context("ingestion_interval_minutes") or 60))
-if app.node.try_get_context("enable_iot") is True:
+if str(app.node.try_get_context("enable_iot")).lower() == "true":
     IotStack(app, "EcoRouteIoT", env=env)
 cdk.Tags.of(app).add("Project", "ecoroute-ai")
 cdk.Tags.of(app).add("Environment", "hackathon")

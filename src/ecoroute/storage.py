@@ -77,6 +77,13 @@ class LocalStore:
             ).fetchone()
         return json.loads(row[0]) if row else None
 
+    def put_record(self, kind, owner, identifier, data, ttl):
+        record = {**data, "id": identifier, "expires_at": int(time.time()) + ttl}
+        with self.lock, self.db:
+            self.db.execute("INSERT OR REPLACE INTO records VALUES(?,?,?,?,?)",
+                            (owner, kind, identifier, json.dumps(record), record["expires_at"]))
+        return record
+
     def put_preferences(self, owner, data):
         expires = int(time.time()) + 90 * 86400
         with self.lock, self.db:
@@ -138,6 +145,13 @@ class DynamoStore:
             if prior is None:
                 raise Conflict() from exc
             return prior, False
+
+    def put_record(self, kind, owner, identifier, data, ttl):
+        record = {**data, "id": identifier, "expires_at": int(time.time()) + ttl}
+        self.client.put_item(TableName=self.tables[kind], Item={
+            "pk": {"S": owner}, "sk": {"S": kind + "#" + identifier},
+            "payload": {"S": json.dumps(record)}, "expires_at": {"N": str(record["expires_at"])}})
+        return record
 
     def put_preferences(self, owner, data):
         self.client.put_item(TableName=self.tables["preferences"], Item={
