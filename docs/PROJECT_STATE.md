@@ -52,7 +52,9 @@ handlers.ingestion.collect/clean for the actual Phase 2 workflow.
 | lambda get-account-settings; EC2 DescribeRegions; CFN DescribeStacks (earlier reads) | SubscriptionRequiredException / OptInRequired; entitlement and bootstrap blocked/unverified |
 
 Cloud behavior is structural/mocked validation only. Windows cannot execute Linux native wheels;
-CI includes built-asset import checks. See latest GitHub workflow for remote results.
+CI includes built-asset import checks. GitHub run 37824934626 succeeded at commit e70742e:
+https://github.com/deveshsinghal09/ecoroute-ai/actions/runs/37824934626 . This verified Ubuntu
+tests, lint, smoke, secret heuristic, native Linux package imports and CDK synthesis.
 No model was trained or evaluated; no wearable data was retrieved from a real watch.
 
 ## Real environmental evidence
@@ -90,3 +92,9 @@ User confirms all three teammates jointly work in this chat/laptop. New joint co
 Mayank Gupta <mayankcoding73@gmail.com> and Devesh Raj <deveshraj003@gmail.com> using Co-authored-by
 trailers while retaining the configured primary author. No fabricated individual work or history
 rewrite to balance counts. GitHub attribution requires each account to associate the email.
+
+Final verification update: tracked-file secret heuristic and git diff --check passed; no local
+changes to credentials or live cloud resources. Added scripts/commit-joint.ps1 after GitHub's
+co-author API revealed that blank-separated trailers in the first two Phase 2 commits recognized
+only the final co-author. The helper preserves both teammates in a contiguous final trailer block.
+Published earlier history is preserved. Remote attribution is checked on the helper/report commit.

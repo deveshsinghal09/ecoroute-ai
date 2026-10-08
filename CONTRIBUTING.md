@@ -47,3 +47,16 @@ Co-authored-by: Devesh Raj <deveshraj003@gmail.com>
 Earlier history is preserved. Co-author credit does not promise equal primary-author commit
 counts or immediate inclusion in every GitHub contributors view. Each teammate must associate
 and verify their supplied email in their own GitHub account; nobody needs to share passwords.
+
+For this confirmed joint session, stage and review meaningful changes, then use:
+
+```powershell
+.\scripts\commit-joint.ps1 -Title 'docs: record verified pipeline results'
+```
+
+The helper keeps both co-author lines in one final trailer paragraph. Separate `git commit -m`
+arguments introduce blank paragraphs and can cause GitHub to recognize only the final co-author.
+GitHub's authors API detected this in commits 7a3bb17/e70742e: Devesh Raj was recognized, while
+Mayank's line was outside the parsed trailer block. Those published commits are not rewritten;
+the helper fixes subsequent joint attribution. Credits are verified on the next joint commit.
+See [GitHub co-author instructions](https://docs.github.com/en/pull-requests/how-tos/commit-changes/creating-a-commit-with-multiple-authors).
