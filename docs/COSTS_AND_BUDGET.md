@@ -87,19 +87,19 @@ neither is verified. Alerts do not stop resources. Do not consume credits merely
 A NAT Gateway is intentionally absent: at a hypothetical $0.045/hour,730hours alone would be
 $32.85/month before data processing/public IPv4; this is arithmetic illustration, not a Mumbai
 SKU quote. Lambda outside a VPC can reach provider APIs without that recurring gateway.
-# Phase 3 cost update (2026-10-09)
+
+## Phase 3 cost update (2026-10-09)
 
 No AWS resources deployed or measured bill obtained. Routing reuses the existing API Lambda,
 data bucket and route_metadata/environment tables; no NAT Gateway, ECS service or database server.
 Uncached coordinate comparison uses one CalculateRoutes request; two textual endpoints add
 up to two Geocode requests (Storage intended use). Three-departure analysis can require five
-requests. Default application budget is100 calls/day and30/hour, including failed attempts;
-cache reuse5min reduces repeats but does not cap spending elsewhere in the account.
+requests. Default application budget is 100 calls/day and 30/hour, including failed attempts;
+cache reuse 5min reduces repeats but does not cap spending elsewhere in the account.
 
 Add `route calls × current Mumbai Core rate + stored geocodes × current Mumbai Storage rate`
-to the existing small-demo estimate below, plus incremental S3/DynamoDB/API/Lambda/log usage.
+to the existing small-demo estimate above, plus incremental S3/DynamoDB/API/Lambda/log usage.
 Exact regional unit prices, credit eligibility/expiry and taxes remain deployment prerequisites;
 the old planning envelope is not an all-inclusive quote. Review the [Location price page](https://aws.amazon.com/location/pricing/)
 and [billing categories](https://docs.aws.amazon.com/location/latest/developerguide/routes-pricing.html)
 when preparing the concrete deployment approval. Budget alerts do not hard-cap costs.
-

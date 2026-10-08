@@ -36,6 +36,12 @@ Legacy /navigation/routes stays a placeholder; callers use /routes/compare and /
   notes and the current credential gates. Joint commits retain the actual primary author
   and credit Mayank Gupta and Devesh Raj with contiguous Co-authored-by trailers.
 
+GitHub's authors API verified that adfa4a1 links all three accounts: deveshsinghal09,
+Mayank2142 and DEVESH859. The final follow-up replaces the interim reason on unselected
+routes with eligibility/coverage explanations; all 35 routing tests pass again. Documentation
+whitespace was corrected and git diff --check passes. GitHub CI is also run on each push;
+local passing checks do not by themselves establish its result.
+
 ### Commands and verified results
 
 | Command/check | Result |

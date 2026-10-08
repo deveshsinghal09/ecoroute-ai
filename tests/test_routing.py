@@ -300,6 +300,7 @@ def test_api_auth_validation_retrieval_and_exposure(secured, engine, request_mod
     response = secured.client.post("/api/v1/routes/compare", json=data, headers=headers)
     assert response.status_code == 200, response.text
     result = response.json()
+    assert all(r["recommendation_reason"] != "Not yet ranked" for r in result["routes"])
     route_id = result["selected_route_id"]
     assert secured.client.get("/api/v1/routes/" + route_id, headers=headers).status_code == 200
     other = {"Authorization": "Bearer " + secured.token(sub="bob")}

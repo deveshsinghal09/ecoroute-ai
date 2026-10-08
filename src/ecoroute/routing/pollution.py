@@ -171,8 +171,14 @@ def rank_routes(routes, request):
         r["balanced_score"] = None
         if r["within_detour_limit"]:
             eligible.append(r)
+            r["recommendation_reason"] = (
+                "Eligible provider candidate; compare the selected route and objective scores."
+                if r["estimated_pm25_exposure_ug_h_m3"] is not None
+                else "Navigable provider candidate; full exposure ranking unavailable because pollution coverage is incomplete."
+            )
         else:
             r["warnings"].append("Excluded from recommendation by maximum time detour.")
+            r["recommendation_reason"] = "Excluded from recommendation by maximum time detour."
         base = baseline["estimated_pm25_exposure_ug_h_m3"]
         value = r["estimated_pm25_exposure_ug_h_m3"]
         if base is not None and base > 0 and value is not None:
