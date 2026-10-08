@@ -33,3 +33,17 @@ Commit after meaningful units: design decision, tested feature, fix, validation.
 message. Avoid empty/churn commits and avoid secrets/real trip data. Prefer pull requests for
 later work, no force-push over teammates' commits. CI contains no AWS credentials or deployment.
 GitHub Actions private-repository minutes have limits; check Billing before extending CI usage.
+
+## Confirmed joint session (2026-10-08)
+
+The user confirms all three teammates are working together on this laptop and in this chat.
+New joint Phase 1/2 commits keep the configured primary author and include:
+
+```text
+Co-authored-by: Mayank Gupta <mayankcoding73@gmail.com>
+Co-authored-by: Devesh Raj <deveshraj003@gmail.com>
+```
+
+Earlier history is preserved. Co-author credit does not promise equal primary-author commit
+counts or immediate inclusion in every GitHub contributors view. Each teammate must associate
+and verify their supplied email in their own GitHub account; nobody needs to share passwords.

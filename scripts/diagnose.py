@@ -58,12 +58,17 @@ def evaluate_identity(identity, expected, allow_root_read_only=False):
 
 
 def main():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(override=False)
+    except ImportError:
+        pass
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--aws", action="store_true")
     parser.add_argument("--allow-root-read-only", action="store_true",
                         help="Explicit exception for this script's read-only checks; not deployment approval")
     parser.add_argument("--profile", default=os.environ.get("AWS_PROFILE"))
-    parser.add_argument("--region", default=os.environ.get("AWS_REGION", "ap-south-1"))
+    parser.add_argument("--region", default=(os.environ.get("AWS_REGION") or "ap-south-1"))
     parser.add_argument("--json-out", type=Path)
     args = parser.parse_args()
     record("Python", "PASS" if (3, 11) <= sys.version_info[:2] < (3, 14) else "FAIL",
@@ -80,7 +85,7 @@ def main():
     if shutil.which("docker"):
         ok, _ = run(["docker", "info", "--format", "{{.ServerVersion}}"])
         record("Docker engine", "PASS" if ok else "WARN",
-               "reachable" if ok else "stopped/unreachable; optional for Phase 0")
+               "reachable" if ok else "stopped/unreachable; optional for local Python checks")
     cdk = Path("node_modules/.bin/cdk.cmd" if os.name == "nt" else "node_modules/.bin/cdk")
     record("CDK CLI", "PASS" if cdk.exists() else "WARN",
            "local CLI installed" if cdk.exists() else "run npm ci; global install unnecessary")
@@ -89,8 +94,12 @@ def main():
                       ("ENABLE_WEARABLE", "WEARABLE_CLIENT_SECRET")]:
         record(key, "PASS" if present(key) else ("FAIL" if enabled(flag) else "SKIP"),
                "present (not validated)" if present(key) else "absent; needed only for selected adapter")
-    record("Region expectation", "PASS" if args.region == os.environ.get(
-        "EXPECTED_AWS_REGION", "ap-south-1") else "FAIL", "selected=" + args.region)
+    record("OPEN_METEO_API_KEY", "PASS" if present("OPEN_METEO_API_KEY") else "SKIP",
+           "present (not validated)" if present("OPEN_METEO_API_KEY") else "optional commercial key absent; eligible free service needs none")
+    for key in ("COGNITO_USER_POOL_ID", "COGNITO_CLIENT_ID"):
+        record(key, "PASS" if present(key) else "WARN",
+               "configured (not validated)" if present(key) else "missing; protected live login unavailable")
+    record("Region expectation", "PASS" if args.region == (os.environ.get("EXPECTED_AWS_REGION") or "ap-south-1") else "FAIL", "selected=" + args.region)
     try:
         budget = float(os.environ.get("MONTHLY_BUDGET_USD", ""))
         budget_ok = budget > 0 and budget < float("inf")
@@ -148,7 +157,7 @@ def aws_checks(args, budget_ok):
         return
     if json.loads(value).get("Arn", "").endswith(":root"):
         record("Root session", "WARN", "explicit read-only exception; use scoped roles for workloads")
-    if args.region != os.environ.get("EXPECTED_AWS_REGION", "ap-south-1"):
+    if args.region != (os.environ.get("EXPECTED_AWS_REGION") or "ap-south-1"):
         record("AWS region gate", "FAIL", "region mismatch; further account reads stopped")
         return
     account = json.loads(value)["Account"]
@@ -158,6 +167,10 @@ def aws_checks(args, budget_ok):
                                for r in json.loads(value).get("Regions", []))
     record("Account region access", "PASS" if region_enabled else "WARN",
            "enabled" if region_enabled else "unverified/disabled; check ec2:DescribeRegions")
+    ok, value = run([*base, "lambda", "get-account-settings"])
+    record("Lambda account service access", "PASS" if ok else "WARN",
+           "account settings readable; review concurrency before reserving six slots" if ok
+           else value + "; resolve service entitlement/permission before deployment")
     qualifier = os.environ.get("CDK_BOOTSTRAP_QUALIFIER") or "hnb659fds"
     stack = os.environ.get("CDK_TOOLKIT_STACK_NAME") or "CDKToolkit"
     ok, value = run([*base, "cloudformation", "describe-stacks", "--stack-name", stack])

@@ -1,43 +1,58 @@
-# EcoRoute AI architecture — Phase 0
+# EcoRoute AI architecture — Phases 1 and 2
 
-Decision date: 2026-10-08. Target: Delhi, India. Primary region: ap-south-1 (Mumbai).
-These are design decisions, not deployed integrations. See VERIFIED_SOURCES.md for evidence.
+Decision date: 2026-10-08. Delhi; AWS target ap-south-1 (Mumbai). Infrastructure is implemented
+and synthesized, not deployed. See INGESTION.md and API_CONTRACT.md for the working contracts.
 
-## Scope and profiles
+## Execution profiles and implemented workflow
 
-LOCAL runs Python FastAPI on loopback. Phase 0 implements /healthz only. Phase 1 will add
-provider interfaces with recorded/synthetic fixtures explicitly marked as such, local files
-for objects and SQLite for application state. SQLite is an adapter, not an emulation of
-DynamoDB transactions/TTL. Later use botocore Stubber and AWS integration tests separately.
-Each real adapter requires an explicit feature flag, prerequisite validation and an approved
-spending envelope. No automatic fallback from an unavailable real provider to fake observations.
+LOCAL: FastAPI on loopback; SQLite for owned journeys/preferences/idempotency; local object
+files + SQLite for environmental metadata. Provider adapters use real HTTP only through an
+explicit ingestion command. Tests inject synthetic contract fixtures and botocore Stubber.
+Missing real data never falls back to invented readings. Local SQLite is not a DynamoDB emulator.
 
-AWS will run the same FastAPI business layer through Mangum on Lambda behind API Gateway
-HTTP API. REST-style resources do not require API Gateway's more expensive REST API product.
-Separate Lambda handlers handle ingest and events. No VPC is needed initially; this avoids NAT
-Gateway baseline cost. Runtime packages must be built for Lambda Linux, not copied from Windows.
+AWS: API Gateway HTTP API -> Cognito JWT scopes -> FastAPI/Mangum Lambda. API handlers verify
+JWT signature, issuer, client, access-token type and scopes again. Stored personal records use
+the verified subject, consent and expiry enforcement. Production CORS requires explicit HTTPS
+origins. No frontend exists; /docs is developer documentation.
 
 ```mermaid
 flowchart TD
-  Client[Future client / phone bridge] --> Auth[Cognito access token]
-  Auth --> API[API Gateway HTTP API JWT authorizer]
-  API --> App[FastAPI + Mangum / Lambda]
-  App --> Routes[Amazon Location Routes V2]
-  App --> DDB[DynamoDB: users, jobs, latest cells]
-  App --> S3[S3: observations, forecasts, model artifacts]
-  Schedule[EventBridge Scheduler] --> Q[SQS ingest tasks + DLQ]
-  Q --> Ingest[Ingest Lambda]
-  Ingest --> Provider[Selected pollution / weather provider]
-  Ingest --> S3
-  Ingest --> DDB
-  S3 --> ML[Local training first; optional SageMaker batch jobs]
-  ML --> S3
-  App --> Notify[SNS opt-in notifications, later]
-  Device[Optional supported sensor, not assumed Noise watch] --> IoT[IoT Core]
-  IoT --> Q
+  Client[Future authenticated client] --> Gateway[HTTP API + Cognito JWT]
+  Gateway --> API[FastAPI Lambda]
+  API --> Personal[DynamoDB owned user state]
+  API --> Curated[S3 curated Parquet]
+  API --> Index[DynamoDB environmental metadata]
+  Schedule[Disabled EventBridge Scheduler] --> Collector[Collector Lambda]
+  Collector --> Providers[Open-Meteo / OpenAQ]
+  Collector --> Raw[S3 raw JSON]
+  Raw --> Queue[SQS object events]
+  Queue --> Cleaner[Cleaning Lambda]
+  Cleaner --> Curated
+  Cleaner --> Index
+  Queue --> DLQ[SQS dead letters]
+  Collector --> DLQ
+  Logs[CloudWatch logs + alarms] --> SNS[SNS operational alerts]
 ```
 
-Diagram is the target architecture. Phase 0 contains none of these cloud resources.
+Data stack owns six on-demand tables, private data bucket, processing queue/DLQ and notification
+wiring. Core owns API/Cognito, three business Lambdas, disabled schedule, alarms and SNS.
+ML stack owns only datasets/models storage: no training job, endpoint or model accuracy claim.
+Optional IoT stack defines a thing and restrictive policy only; no certificate, working device
+or end-to-end telemetry integration is claimed. SNS email subscription is a deployment prerequisite.
+
+S3 lifecycle: raw30d, curated90d, reports30d, datasets90d, models180d; buckets retained on teardown.
+DynamoDB TTL is enforced on reads as well as scheduled deletion; personal journeys/telemetry7d,
+idempotency1d, preferences90d. Tables retain data on stack removal with deletion protection.
+Raw environmental data contains station/model locations, not personal wearable paths.
+
+CDK creates an additional S3-notification custom-resource Lambda in Data; its deployment role
+is separate from business runtime roles. Its generated managed logging policy is broader than
+the business policies. Review the synthesized helper role and CloudFormation execution boundary
+before deployment; do not claim every generated deployment permission is resource-exact.
+No NAT/VPC/ECS/RDS/Bedrock/SageMaker endpoint/Location requests are provisioned in this phase.
+
+The remaining spatial, ML and hardware sections below describe future capabilities, not working
+Phase 1/2 integrations. Implemented storage and workflow above supersede older conceptual plans.
 
 ## Lambda versus Fargate
 
@@ -71,7 +86,7 @@ Fargate is not deployed merely because FastAPI can run in a container.
 6. Do not integrate AQI numbers as if they were concentrations. If an Indian AQI view is added,
    verify the chosen standard's pollutant breakpoints and averaging windows before implementation.
 
-Sparse Delhi stations do not establish street-level truth. Phase 1 must audit station coverage,
+Sparse Delhi stations do not establish street-level truth. The next credential-enabled integration must audit station coverage,
 recency, units, provider licenses and missingness. Define maximum age and spatial radius from
 that audit, then expose data coverage and unknown sections. Never fill unknown pollution with
 zero or label the result "safe". A route can remain navigable while pollution ranking is unavailable.
@@ -83,21 +98,11 @@ requires a separate cost/security decision, private networking and connection ma
 
 ## Storage, events and reliability
 
-- S3 prefixes: raw/provider/date, curated/city/pollutant/date, models/version, forecasts/version.
-  Preserve data lineage and license metadata. Block public access, enforce TLS and encryption.
-- DynamoDB access patterns: USER#subject / SESSION#id; SESSION#id / timestamp#event_id;
-  CELL#city#cell / pollutant#valid_time; JOB#id / META. Query bounded time ranges, never table scans
-  on the request path. Large geometry/time series belong in S3. Application ownership checks
-  use verified token subject, never a client-supplied user ID.
-- Scheduler creates polling tasks, not arbitrary external requests. SQS absorbs provider delay.
-  Use provider+station+pollutant+timestamp as observation idempotency key, conditional writes,
-  retries with jitter, partial-batch failure handling and a DLQ. Set visibility timeout to at
-  least six times handler timeout plus batching window before deployment.
-- Forecast publish: write immutable artifact, validate, then conditionally update active pointer.
-  API must reject stale versions beyond policy and explicitly report missing coverage.
-- Suggested retention, pending consent: precise trip/device events 7 days, aggregates 30 days,
-  logs 7 days; public observations as license permits. TTL is asynchronous; enforce expiry on
-  reads. User deletion must cover DynamoDB, S3 versions and any retained backups by documented policy.
+Implemented object layouts, metadata access patterns, idempotency, request budgets, bounded
+backfill and limitations are specified in INGESTION.md. DynamoDB metadata partitions include
+FILES#source, STATIONS#openaq, QUALITY#source, CACHE#source and BUDGET#source. No table scans.
+The API reads bounded objects; a complete large export is a separate future workflow.
+
 
 ## ML plan (no trained model exists)
 

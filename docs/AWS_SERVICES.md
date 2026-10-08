@@ -1,6 +1,6 @@
 # AWS service decisions and IAM boundaries
 
-All cloud resources are **planned / not created**. Primary region ap-south-1; official documentation
+Core/Data/ML templates are **implemented and synthesized / not deployed**. Primary region ap-south-1; official documentation
 and SDK checks are evidence of service support, not proof of account entitlement or quota sufficiency.
 Runtime permissions below apply to separate roles and exact project ARNs. They are not one combined
 developer policy. Account/region/resource placeholders must be resolved before deployment.
@@ -12,7 +12,7 @@ developer policy. Account/region/resource placeholders must be resolved before d
 | Location Routes V2: core real routing | Candidate paths consumed by API | geo-routes:CalculateRoutes on arn:aws:geo-routes:ap-south-1::provider/default | Per-request tier/features; no route calculator needed; never log precise trips; respect caching/attribution terms |
 | S3: core | Raw/curated observations, model and forecast artifacts | Ingest s3:PutObject raw prefix; trainer s3:GetObject input and PutObject output; API GetObject forecast prefix; ListBucket only with required prefix condition | Storage, requests, egress/version retention; block public access, TLS, encryption; deletion role separate |
 | DynamoDB: core | Latest cell/forecast index, jobs, user exposure metadata | dynamodb:GetItem, Query, PutItem, UpdateItem on selected tables/indexes; DeleteItem only deletion worker; no Scan | On-demand units + storage; conditional writes and owner isolation; TTL is not instant deletion |
-| EventBridge Scheduler: core ingestion | Creates periodic polling tasks consumed by SQS | Scheduler execution role sqs:SendMessage on ingest queue; trusted by scheduler.amazonaws.com with source restrictions | Invocation billing/free allowance depends on account; bounded schedule frequency; no custom event bus needed initially |
+| EventBridge Scheduler: core ingestion | Invokes collector; raw S3 events feed SQS | Scheduler execution role lambda:InvokeFunction on collector Lambda; trusted by scheduler.amazonaws.com with source restrictions | Invocation billing/free allowance depends on account; bounded schedule frequency; no custom event bus needed initially |
 | SQS + DLQ: core ingestion | Buffer, retry isolation, dead-letter recovery for Lambda | Producer sqs:SendMessage; consumer ReceiveMessage, DeleteMessage, GetQueueAttributes on exact queue | Request billing (including polling/retries); SSE, bounded retries, poison-message quarantine |
 | Cognito User Pools: core before public users | User identity for HTTP API JWT authorizer | JWT verification itself requires no Cognito IAM permission; runtime has no Admin* actions. User OAuth operations use user tokens | Tier/MAUs plus email/SMS costs; PKCE public client, scopes, no SMS MFA in initial demo |
 | CloudWatch: core AWS operations | Handler logs, alarms consumed by operators | logs actions above; optional cloudwatch:PutMetricData uses Resource * with namespace condition | Logs/metrics/alarms can exceed compute bill; 7-day logs, no location/health payload logs |
@@ -31,7 +31,7 @@ developer policy. Account/region/resource placeholders must be resolved before d
 
 ## Deployment role is distinct from runtime
 
-No deployment policy is installed in Phase 0. Bootstrap can create privileged roles; do not run
+No deployment policy has been installed. Bootstrap can create privileged roles; do not run
 default bootstrap assuming it is harmless or use AdministratorAccess as its execution policy.
 An account operator should review `cdk bootstrap --show-template`, supply a project-scoped
 CloudFormation execution policy and a permissions boundary, and allow the developer to assume
@@ -60,3 +60,32 @@ DynamoDB item limit 400 KB; use S3 for series/geometry. Confirm account concurre
 queue throughput and selected SageMaker instance quota in Service Quotas before real use.
 Model availability and quotas are model-specific for Bedrock and instance-specific for SageMaker.
 Do not request quota increases or enable optional regions automatically.
+
+## Implemented Phase 1/2 role boundaries
+
+These exact action groups are generated in infra/stacks.py with per-resource ARNs:
+
+- API: logs CreateLogStream/PutLogEvents; DynamoDB GetItem/PutItem for journeys/preferences/
+  idempotency, GetItem alerts, DescribeTable for readiness, Query environmental metadata;
+  S3 GetObject curated/* only. DynamoDB transactional writes use PutItem authorization.
+- Collector: logs; S3 PutObject raw/*; DynamoDB GetItem/PutItem/UpdateItem environment table;
+  optional GetSecretValue only the imported OpenAQ secret ARN; SendMessage to failure DLQ.
+- Cleaner: logs; S3 GetObject raw/* and PutObject curated/*; DynamoDB PutItem environment;
+  SQS ReceiveMessage/DeleteMessage/ChangeMessageVisibility/GetQueueAttributes/GetQueueUrl
+  on the processing queue (CDK grant), no secret access.
+- Scheduler: InvokeFunction collector only; source-account/default-schedule-group trust restriction.
+- S3: queue resource policy permits SendMessage from the specific bucket. TLS enforced.
+- Cognito authorizer: user-scoped access JWT, no runtime Admin* permissions or private client secret.
+
+Data has 6 on-demand tables capped 10 read/10 write request units each (throttling safeguards,
+not a billing cap),2 queues and1 bucket; ML has1 bucket. Core has 3 business Lambdas,1 HTTP API,
+Cognito pool/public client/domain/resource-server scopes,4 log groups,6 alarms,1 SNS topic,
+1 disabled schedule. Data additionally has CDK's S3-notification custom-resource helper function
+and generated policies; its managed logging role is a documented deployment-only exception.
+No paid ML/IoT workloads or Location calls have been enabled.
+
+Account blockers: default root STS identity succeeded, but Lambda GetAccountSettings returned
+SubscriptionRequiredException; EC2 DescribeRegions and CloudFormation DescribeStacks returned
+OptInRequired. Quota listing alone does not resolve entitlement. Verify account activation and
+actual Lambda concurrency before deployment (reserved API 3 + collector 1 + cleaner 2 needs enough
+regional concurrency above AWS's required unreserved pool). Do not interpret root as service access.

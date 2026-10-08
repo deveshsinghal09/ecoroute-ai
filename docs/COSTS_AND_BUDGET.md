@@ -1,8 +1,7 @@
 # Cost estimate and AWS Budget proposal
 
-2026-10-08. **Proposal only: no budget or resource created; no spending approved.**
-User reports a Free Tier hackathon account with **US$100 AWS credits**. This is available credit,
-not approval to spend US$100. Balance is not independently verified; expiry, eligible services and
+2026-10-08. **No budget or resource created. User authorizes up to reported US$100 credits for the project; specific deployment approval remains required.**
+User reports a Free Tier hackathon account with **US$100 AWS credits**. This is the user-authorized overall credit ceiling, not a spending target or proof that a specific deployment was approved. Balance is not independently verified; expiry, eligible services and
 cash-spend tolerance are unknown. Do not assume AWS usage is free or credits cover all charges.
 AWS bills may show USD-equivalent usage and local taxes/conversion; confirm actual billing currency.
 
@@ -16,9 +15,9 @@ not verified Mumbai SKU quotes; exact pricing and request tier must be repriced 
 
 | Component | Planning allowance USD/month | Cost driver |
 |---|---:|---|
-| API Gateway HTTP API | 0.01–0.10 | 10k requests × regional request rate |
+| API Gateway HTTP API | 0.01–0.10 | 10k requests Ã— regional request rate |
 | Lambda API + ingest | 0.85–2.00 | 50k GB-seconds + 100k requests; reference x86 compute around $0.0000166667/GB-s and $0.20/million requests, region/architecture dependent |
-| Amazon Location | 0.50–2.00 | 1k requests × selected route pricing bucket; advanced features may change billing |
+| Amazon Location | 0.50–2.00 | 1k requests Ã— selected route pricing bucket; advanced features may change billing |
 | S3 | 0.10–0.50 | GB-month + object operations, versions/egress additional |
 | DynamoDB on-demand | 0.10–0.50 | rounded read/write request units + storage; do not apply provisioned free allowance blindly |
 | Scheduler + SQS | 0.01–0.20 | invocations plus send/receive/delete and polling |
@@ -41,7 +40,7 @@ Obtain exact region/instance/model quote before enabling any deferred service.
 
 ## Budget proposal and steps (not executed)
 
-Propose a monthly USD **10** gross-usage cost budget, pending the user's numeric choice, with
+Propose a monthly USD **10** gross-usage cost budget, as an early-warning threshold within the $100 overall credit ceiling, with
 actual-spend alerts at 50%, 80%, 100% and a forecast alert at 100%. Also create an account-wide
 budget (not just region/tag filtered) to catch unexpected-region resources. If account is shared
 with other projects, choose a separate total threshold rather than silently using $10 for all work.
@@ -69,3 +68,22 @@ Sources: [Lambda pricing](https://aws.amazon.com/lambda/pricing/),
 [S3](https://aws.amazon.com/s3/pricing/), [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/),
 [Budgets pricing](https://aws.amazon.com/aws-cost-management/aws-budgets/pricing/),
 [Budget behavior](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html).
+
+## Concrete Phase 1/2 deployment proposal (not executed)
+
+Resources are inventoried in AWS_SERVICES.md. No routing requests, ML jobs, NAT Gateway,
+Fargate, RDS or IoT traffic are in this template. Reuse the $10-15/month conservative allowance
+for <=10,000API calls, hourly model collection for one Delhi cell, <=1GB environmental data,
+small user tables and <=0.5GBlogs; provider costs/taxes are separate. The allowance is not a
+verified regional quote. Six CloudWatch alarms, SQS polling, retained/bootstrap assets and any
+Secrets Manager secret can cost money even at very low API traffic. Reprice using the official
+pricing links before requesting deployment approval, then state the selected assumptions.
+
+Keep a $10 monthly gross-cost early-warning budget plus an account-wide $100 ceiling-warning
+budget (actual alerts50/80/100% and forecast100%). Credit expiry or ineligible services can
+cause a cash bill below $100. Confirm billing-console credit balance/eligibility and alert email;
+neither is verified. Alerts do not stop resources. Do not consume credits merely to show usage.
+
+A NAT Gateway is intentionally absent: at a hypothetical $0.045/hour,730hours alone would be
+$32.85/month before data processing/public IPv4; this is arithmetic illustration, not a Mumbai
+SKU quote. Lambda outside a VPC can reach provider APIs without that recurring gateway.

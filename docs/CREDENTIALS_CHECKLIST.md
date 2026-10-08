@@ -1,11 +1,13 @@
 # Credentials and configuration checklist
 
 Never paste keys, passwords, session tokens, private certificates or provider tokens into chat.
-Current missing items: valid temporary AWS login, expected account ID, numeric monthly budget,
-credit expiry/eligibility, alert recipient, OpenAQ key, confirmed watch model/app/phone OS.
-User reports US$100 AWS credits for the hackathon; balance is not independently verified.
-Existing default AWS profile is invalid and points to us-east-1. It was not modified.
-Project name is ecoroute-ai; proposed region ap-south-1; target Delhi; all live flags remain false.
+Current status: default profile STS succeeds as root; the user authorized this existing root
+session for read-only checks. The named hackathon profile was not found in this environment.
+Default profile region is us-east-1, workload target is ap-south-1; always pass an explicit region.
+Lambda/EC2/CloudFormation account service access failed with subscription/opt-in errors. No
+bootstrap or deployment verified. User allows up to reported $100 credits; expiry/eligibility,
+alert email, OpenAQ key, Cognito identifiers/callback URL and workload deployment permissions
+remain missing. Project ecoroute-ai; Delhi. Open-Meteo free noncommercial API needs no key.
 
 ## 1. AWS human identity — required before any authenticated AWS integration
 
@@ -100,3 +102,75 @@ Do not paste secrets into PowerShell command history; edit ignored .env in a loc
 your OS secret tooling. AWS temporary credentials should remain in the CLI provider chain.
 Offline Phase 1 development can proceed without AWS, OpenAQ or watch credentials. Real-data work
 must wait for each relevant gate. Do not run cdk bootstrap/deploy, enable models or start training yet.
+
+## Phase 1/2 exact setup gates
+
+1. **AWS account entitlement (mandatory for AWS, non-secret):** sign in to AWS Console ->
+   account/billing overview, complete any activation/payment/identity steps AWS actually lists.
+   Check Mumbai service consoles. If SubscriptionRequiredException/OptInRequired persists, open
+   AWS Support -> Account and billing case with error codes (never credentials). Do not create
+   extra keys or add administrator policies to work around subscription failures. An account
+   operator handles this; no application IAM permission can activate an account subscription.
+   Verification: `aws lambda get-account-settings --profile default --region ap-south-1` and
+   `aws cloudformation describe-stacks --stack-name CDKToolkit --profile default --region ap-south-1`.
+   These reads require lambda:GetAccountSettings and cloudformation:DescribeStacks; they do not
+   provision resources. A missing CDKToolkit stack means bootstrap is still required.
+2. **Temporary scoped human profile (recommended before deployment):** follow Identity Center
+   steps above; AWS_PROFILE is non-secret, cached credentials are sensitive and stay in CLI cache.
+   Configure region with `aws configure set region ap-south-1 --profile ecoroute-dev` only after
+   creating that profile. Do not paste login URLs, keys or tokens in chat. Root exception above
+   does not change the separate scoped workload roles or authorize paid provisioning.
+3. **OpenAQ key (mandatory only for OpenAQ, sensitive):** visit https://explore.openaq.org/,
+   sign up/login, open account settings/API keys and obtain the API key. Store as OPENAQ_API_KEY
+   in ignored local .env or a process environment; no AWS permission is needed for local use.
+   Run `python scripts/ingest_air.py --source openaq --stations --max-pages 1` to verify auth and
+   actual Delhi coverage without printing the key. Inspect returned station licenses before
+   redistribution. Standard plan quotas apply; paid/provider plans require separate review.
+4. **Open-Meteo key (optional; sensitive for commercial service):** the free noncommercial endpoint
+   needs none. Commercial use: open https://open-meteo.com/en/pricing, choose the appropriate
+   plan, obtain customer key, store OPEN_METEO_API_KEY privately. The adapter selects the
+   customer air-quality endpoint only when a key is present. Verify via the same CLI model ingest,
+   which prints counts/keys only. Paid subscription charges may apply outside AWS credits.
+5. **Provider secret ARN (optional until AWS OpenAQ, non-secret identifier; value sensitive):**
+   after approved deployment setup, Secrets Manager in Mumbai -> Store a new secret -> Other
+   type -> key api_key, enter the provider value locally -> aws/secretsmanager encryption ->
+   name ecoroute/openaq -> store. Operator needs secretsmanager:CreateSecret/TagResource (and
+   PutSecretValue for rotation); collector needs GetSecretValue on that secret only. Default
+   managed encryption avoids an extra customer KMS key; custom KMS requires scoped Decrypt.
+   Copy the ARN only into CDK context provider_secret_arn; CDK sets OPENAQ_SECRET_ARN on collector.
+   Verify existence with `aws secretsmanager describe-secret --secret-id YOUR_ARN --profile YOUR_PROFILE
+   --region ap-south-1` (DescribeSecret permission; no value output). Then invoke only a bounded
+   approved ingest job to verify retrieval. Secret-month/API charges apply. OPEN_METEO_SECRET_ARN
+   is supported by adapter code but no CDK grant is created for it; add a reviewed exact-ARN
+   import/grant before enabling commercial Open-Meteo on AWS. No secrets are created by CDK now.
+6. **Cognito IDs and callback URL (mandatory for protected live API, non-secret):** after approved
+   Core deployment, use stack UserPoolId/ClientId outputs or Cognito -> User pools -> EcoRoute
+   pool -> App integration -> app client. In CDK context callback_urls set an exact HTTPS callback
+   for your chosen OAuth test client (localhost callback only for a controlled local client).
+   Without callback_urls the client has OAuth disabled, so custom scopes cannot be obtained via
+   a basic SRP login. Configure authorization-code flow with PKCE, openid, ecoroute/read/write.
+   Operator needs cognito-idp:AdminCreateUser for demo users; app runtime has no Admin permissions.
+   Complete login yourself, store short-lived access token only locally, configure pool/client
+   in .env and call a protected endpoint. Never use an ID token as an API access token. MAU/email
+   costs may apply. No pool, user, token or login has been created/tested against AWS yet.
+7. **Deployed outputs (mandatory for AWS mode, non-secret):** copy table/bucket/queue outputs into
+   matching .env names only for explicit live integration work. CDK supplies Lambda environments
+   automatically. ENVIRONMENT_TABLE is the sixth table; S3_DATA_BUCKET stores raw and curated.
+   Local mode needs none. Keep ECOROUTE_PROFILE=local until deployment is verified.
+8. **Budget email and credit eligibility (mandatory before deployment, email is personal data):**
+   inspect Billing -> Credits for remaining balance/expiry/services. Configure Budgets as described
+   in COSTS_AND_BUDGET.md; permissions budgets:ViewBudget/ModifyBudget plus authorized billing
+   console access. Store BUDGET_NAME/MONTHLY_BUDGET_USD locally, email in console. SNS -> Topics ->
+   OperationalAlerts -> Create subscription -> Email -> enter your address, then confirm email
+   yourself; requires sns:Subscribe exact topic. No subscription was created; alarms otherwise
+   have no confirmed human recipient. Budget and SNS charges depend on features/delivery.
+
+No secret must be printed to verify presence: Python can load dotenv and print only
+`bool(os.getenv("OPENAQ_API_KEY"))`. The ingestion script redacts provider errors and does not
+print request headers or customer URLs. Do not run CLI `--debug` when handling credentials.
+
+Offline diagnostics: `python scripts/diagnose.py --region ap-south-1`.
+User-authorized root read-only exception, if still deliberately using that profile:
+`python scripts/diagnose.py --aws --profile default --region ap-south-1 --allow-root-read-only`.
+Set EXPECTED_AWS_ACCOUNT_ID privately to the account you verified first. This script only reads;
+actual service entitlement, bootstrap execution boundary and costs still gate deployment.

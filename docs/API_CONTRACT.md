@@ -1,34 +1,48 @@
-# API contract — version 0.0.1
+# API contract — backend foundation and environmental datasets
 
-Only `GET /healthz` and `GET /openapi.json` exist. `/healthz` returns HTTP 200 with
-`{"status":"ok","profile":"local","phase":"0-scaffold","integrations_enabled":false}`.
-Liveness is not proof of AWS access, pollution coverage or model readiness. No frontend exists.
-Interactive Swagger/Redoc pages are disabled; OpenAPI JSON remains available.
+Base path `/api/v1`. Exact request/response schemas are generated at `/openapi.json` and `/docs`.
+All domain routes require RS256 Cognito access JWTs: issuer, client_id, expiry, token_use and scope
+are verified in FastAPI and JWT/scopes additionally in API Gateway. No user identity in request
+payloads can override token ownership. `ecoroute/read` for GET; `ecoroute/write` for POST/PUT.
 
-## Proposed Phase 1+ endpoints (not implemented)
+| Endpoint | Behavior |
+|---|---|
+| GET /api/v1/health (alias /healthz) | Public 200 liveness; no downstream calls |
+| GET /api/v1/ready | 200 or 503 for storage/auth configuration; gateway-protected in AWS, loopback diagnostic locally; not a provider or JWKS network probe |
+| GET /docs, /openapi.json | Public technical API documentation |
+| POST /api/v1/trips | Consent and validated trip details; Idempotency-Key; 201 first create, 200 identical replay, 409 changed body |
+| GET /api/v1/trips/{trip_id} | Owner only; 404 for expired, missing or another user's trip |
+| POST /api/v1/wearables/telemetry | Consent, ordered timestamped batch <=100, past 7 days; idempotency required; returns ID/count without private samples; no claimed device connection |
+| GET, PUT /api/v1/alerts/preferences | Owner-scoped notification preferences; no messages sent |
+| GET /api/v1/alerts/{alert_id} | Owner-scoped stored alert; no generation engine yet |
+| POST /api/v1/navigation/routes | Validates coordinates/travel inputs then 503 routing_provider_not_connected |
+| GET /api/v1/predictions | Validates coordinates and horizon 1..6h then 503 forecast_model_unavailable |
+| GET /api/v1/school-safety | Validates coordinates then 503 school_safety_data_unavailable |
+| GET /api/v1/air-quality | Legacy point query validates coordinates then 503; no unsupported street interpolation |
+| GET /api/v1/air-quality/current | Required location_id; source=openaq (default) or open_meteo; latest non-null per sensor/pollutant within 6h |
+| GET /api/v1/air-quality/forecast | Required model location_id; hours 1..48 (default24); Open-Meteo latest retrieval vintage <=24h old |
+| GET /api/v1/air-quality/stations | Locally indexed OpenAQ station metadata, max 100; empty until station discovery/measurement ingestion |
+| GET /api/v1/air-quality/history | source, location_id, timezone-aware start/end, maximum 7d |
+| GET /api/v1/data/quality | source (default open_meteo); latest 10 ingestion quality reports |
 
-| Endpoint | Auth / input | Response / constraints |
-|---|---|---|
-| POST /v1/routes | routes:read; origin/destination lon+lat, departure_at RFC3339 UTC, travel_mode, maximum detour ratio, pollution weight | 200 alternatives with GeoJSON LineString, duration_s, distance_m, concentration-time exposure, units, coverage_fraction, provenance, warnings and ranking version; 503 when route provider unavailable |
-| GET /v1/air-quality | air:read; bbox or lon+lat, pollutant, time | measured/estimated/missing status, source, timestamps, units, quality flags; never synthetic data labeled observed |
-| GET /v1/forecasts | air:read; bounded area, horizon | forecast series, model_version, issued_at, valid_at, evaluation reference; 503 forecast_unavailable until trained/published |
-| POST /v1/exposure/sessions | exposure:write; consent and start time | 201 opaque session ID owned by token subject |
-| POST /v1/exposure/sessions/{id}/samples | exposure:write; timestamped GPS samples and accuracy; Idempotency-Key | 202 accepted event count/job ID; deduplicate, cap batch 100 points / 256 KiB |
-| GET /v1/exposure/sessions/{id} | exposure:read, owner | summary and coverage, 404 for absent or other-user objects |
-| DELETE /v1/exposure/sessions/{id} | exposure:write, owner | 202 deletion job; status via job resource |
-| POST /v1/wearables/imports | wearable:write; consent, source/model, metric, unit, timestamps | 202 import job, provenance identifies real export versus synthetic fixture; no claimed Noise connection |
-| GET /v1/jobs/{id} | authenticated owner | queued/running/succeeded/failed plus redacted failure code |
+Dataset queries never call external providers. They query at most 20 indexed Parquet objects and
+return at most 200 records, with `truncated: true` if a limit is reached. For fuller exports use
+curated Parquet; narrower dates can reduce truncation. This is bounded demo retrieval, not a
+complete arbitrary-history export or a geospatial search engine. There is no pagination cursor yet.
+Unknown location or empty coverage returns HTTP200 with `status: unavailable`, empty `records`.
+Provider outages leave prior data intact; data age and retrieval timestamps expose staleness.
 
-Validate finite coordinates (longitude -180..180, latitude -90..90), supported Delhi coverage,
-ordered timestamps, bounded date ranges and travel modes verified against the provider. Coordinate
-request objects use named longitude/latitude to reduce swaps; convert to GeoJSON lon-first internally.
-Reject unknown fields and oversized bodies. Pagination uses opaque cursors and explicit limits.
-Error envelope will be `{ "error": { "code": "...", "message": "...", "request_id": "..." } }`.
-Use 401 unauthenticated, 403 insufficient scope, 422 invalid input, 409 idempotency conflict,
-429 rate limited with Retry-After, 502 upstream failure and 503 required data unavailable.
-An absent pollution estimate is null with a reason, never zero. Include data_mode=real/fixture,
-observed_at, source, model_version (nullable) and estimated coverage with every domain response.
-Do not calculate multi-pollutant exposure by adding incompatible units.
+Each record includes source, observed/forecast/modeled kind, pollutant, nullable concentration,
+unit ug/m3, original value/unit, UTC reported/collected timestamps, optional averaging-period
+start, station/sensor/grid ID, coordinates, quality flags, provider quality, resolution/model
+metadata, provenance JSON and raw-object key. Open-Meteo issue/run time is null when not supplied.
+AQI is not a concentration and is not returned by these adapters. No gap filling or accuracy claim.
+`current` excludes null/invalid/provider-flagged concentrations; history preserves them for audit.
+Forecast valid times that have passed are described as modeled in `current`.
 
-JWT checks, error envelope and all domain routes are planned; Phase 0 uses FastAPI's default 404.
-AWS HTTP API will use payload format 2.0; Mangum event tests belong to the deployment phase.
+Request body limit 256KiB. Finite bounded coordinates, unknown-field rejection, generic 422 errors.
+Other responses: 401 invalid/missing token, 403 missing scope, 404 inaccessible object,
+409 idempotency conflict, 413 oversized body, 503 dependency failure; cloud gateway may throttle 429.
+Application errors: `{"error":{"code":"...","request_id":"..."}}`; gateway errors can differ.
+Responses carry no-store and request IDs. Logs exclude bodies, bearer tokens and query strings.
+No wildcard production CORS; configure exact HTTPS origins only when a future client is selected.

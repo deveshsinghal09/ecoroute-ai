@@ -66,3 +66,25 @@ scaffold tests establish this environment's compatibility only. Starlette emits 
 warning for its httpx TestClient integration; it works in this lock, and a future upgrade should
 migrate that test transport. ML/geospatial packages are deliberately not installed before selecting
 the algorithms and validating data. Verify their Python/Linux wheels before that phase.
+
+## Phase 1/2 implementation verification addendum — 2026-10-08
+
+- [HTTP API JWT verification](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html):
+  implemented issuer/audience and route scopes, with independent Cognito access-token checks in FastAPI.
+- [Lambda SQS delivery](https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html):
+  at-least-once processing, partial batch failures, deterministic curation replay implemented.
+- [AWS cross-platform native wheels](https://docs.aws.amazon.com/powertools/python/latest/build_recipes/cross-platform/):
+  Python3.11 uses AL2/glibc2.26. PyPI wheel metadata confirmed PyArrow23.0.1 needs glibc2.28;
+  PyArrow20.0.0 offers manylinux2014/cp311. Pinned20.x and built182.9MiB Linux asset successfully.
+  This supersedes the earlier untested-packaging note; AWS execution is still unverified.
+- [Open-Meteo schema](https://open-meteo.com/en/docs/air-quality-api),
+  [terms](https://open-meteo.com/en/terms), [plans](https://open-meteo.com/en/pricing):
+  adapter selects global CAMS, native coarse resolution, retains units/attribution and null model issue time.
+- [OpenAQ schema](https://docs.openaq.org/api/operations/sensor_measurements_get_v3_sensors__sensors_id__measurements_get),
+  [rate limits](https://docs.openaq.org/using-the-api/rate-limits),
+  [terms](https://docs.openaq.org/about/terms): original measurements, date filters/pagination,
+  flagInfo.hasFlags and source licenses preserved. No live OpenAQ assertion without credentials.
+
+Live model collection evidence and distinctions from sensor data: INGESTION.md. Synthetic contract
+fixtures are explicitly labelled in tests/test_environment.py; they are not measurements. One
+cached repeat reproduced the same raw/Parquet keys without another external request.
