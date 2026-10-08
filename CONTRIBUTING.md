@@ -4,6 +4,18 @@ One repository: deveshsinghal09/ecoroute-ai. Collaborators requested: Mayank2142
 Inviting collaborators does not make them commit authors or immediately populate GitHub's
 Contributors graph. Each person must accept the invitation and make actual contributions.
 
+Contributor email mapping supplied by the user:
+
+| GitHub account | Git author email |
+|---|---|
+| Mayank2142 | mayankcoding73@gmail.com |
+| DEVESH859 | deveshraj003@gmail.com |
+
+Email ownership/verification in GitHub has not been independently checked. Confirm each person's
+preferred author name before their first session; do not infer a full name from an email address.
+The team aims for approximately balanced meaningful contributions. Attribute each session to
+its actual contributor and use co-author trailers for joint work; counts need not match exactly.
+
 Use separate OS accounts where possible. Before each work session, set repository-local identity:
 
 ```powershell
