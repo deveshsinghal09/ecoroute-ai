@@ -126,6 +126,10 @@ def aws_checks(args, budget_ok):
     if not shutil.which("aws") or not args.profile:
         record("AWS identity", "FAIL", "AWS CLI and an explicit named profile required")
         return
+    configured, profile_region = run(["aws", "configure", "get", "region", "--profile", args.profile])
+    record("CLI profile region", "PASS" if configured and profile_region == args.region else "WARN",
+           "matches selected region" if configured and profile_region == args.region
+           else "profile default missing/different; explicit --region used for checks")
     if any(present(name) for name in ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN")):
         record("Credential source", "WARN", "credential environment variables present; verify profile precedence")
     base = ["aws", "--profile", args.profile, "--region", args.region,

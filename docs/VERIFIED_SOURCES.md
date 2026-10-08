@@ -44,7 +44,8 @@ are deferred and no deployable template exists. Runtime action inventory is a de
 Maintainer metadata queried directly from `https://pypi.org/pypi/NAME/json`; installed resolver
 results differ slightly from cached web search snippets, so the local lock is authoritative.
 Python 3.11.0 / Windows tested. Recommended before cloud packaging: latest patched Python 3.11
-or supported 3.12, then repeat the lock/test checks. Python 3.12/3.13 and Lambda Linux not tested yet.
+or supported 3.12, then repeat the lock/test checks. Ubuntu/Python 3.11.17 passed GitHub CI;
+Python 3.12/3.13 and Lambda runtime packaging are not tested yet.
 
 | Package | Resolved version | Maintainer Requires-Python |
 |---|---|---|
