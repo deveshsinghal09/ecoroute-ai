@@ -1,0 +1,62 @@
+# AWS service decisions and IAM boundaries
+
+All cloud resources are **planned / not created**. Primary region ap-south-1; official documentation
+and SDK checks are evidence of service support, not proof of account entitlement or quota sufficiency.
+Runtime permissions below apply to separate roles and exact project ARNs. They are not one combined
+developer policy. Account/region/resource placeholders must be resolved before deployment.
+
+| Service and decision | Meaningful work and dependents | Minimum runtime permissions / resource scope | Cost and security implications |
+|---|---|---|---|
+| API Gateway HTTP API: core | HTTPS ingress for FastAPI; depends on Lambda/Cognito | JWT callers need scopes, not IAM keys. API service needs resource-policy lambda:InvokeFunction scoped by API execution ARN | Request billing; throttle, bounded bodies, access logs without tokens; no API keys as user auth |
+| Lambda: core | API, ingestion and event handlers; depends on storage/queues | Separate execution roles; logs:CreateLogStream, logs:PutLogEvents on precreated log groups plus only downstream actions listed here | Requests and GB-seconds; cap concurrency/retries; no VPC initially |
+| Location Routes V2: core real routing | Candidate paths consumed by API | geo-routes:CalculateRoutes on arn:aws:geo-routes:ap-south-1::provider/default | Per-request tier/features; no route calculator needed; never log precise trips; respect caching/attribution terms |
+| S3: core | Raw/curated observations, model and forecast artifacts | Ingest s3:PutObject raw prefix; trainer s3:GetObject input and PutObject output; API GetObject forecast prefix; ListBucket only with required prefix condition | Storage, requests, egress/version retention; block public access, TLS, encryption; deletion role separate |
+| DynamoDB: core | Latest cell/forecast index, jobs, user exposure metadata | dynamodb:GetItem, Query, PutItem, UpdateItem on selected tables/indexes; DeleteItem only deletion worker; no Scan | On-demand units + storage; conditional writes and owner isolation; TTL is not instant deletion |
+| EventBridge Scheduler: core ingestion | Creates periodic polling tasks consumed by SQS | Scheduler execution role sqs:SendMessage on ingest queue; trusted by scheduler.amazonaws.com with source restrictions | Invocation billing/free allowance depends on account; bounded schedule frequency; no custom event bus needed initially |
+| SQS + DLQ: core ingestion | Buffer, retry isolation, dead-letter recovery for Lambda | Producer sqs:SendMessage; consumer ReceiveMessage, DeleteMessage, GetQueueAttributes on exact queue | Request billing (including polling/retries); SSE, bounded retries, poison-message quarantine |
+| Cognito User Pools: core before public users | User identity for HTTP API JWT authorizer | JWT verification itself requires no Cognito IAM permission; runtime has no Admin* actions. User OAuth operations use user tokens | Tier/MAUs plus email/SMS costs; PKCE public client, scopes, no SMS MFA in initial demo |
+| CloudWatch: core AWS operations | Handler logs, alarms consumed by operators | logs actions above; optional cloudwatch:PutMetricData uses Resource * with namespace condition | Logs/metrics/alarms can exceed compute bill; 7-day logs, no location/health payload logs |
+| Secrets Manager: conditional core | Stores selected provider secret for ingestion | secretsmanager:GetSecretValue on exact secret; kms:Decrypt only if customer-managed KMS key chosen | Secret-month + API calls; cache secret briefly, never log value; local env before deployment |
+| SNS: later notifications | Opt-in exposure alerts from worker; operational alarms | sns:Publish on exact topic; subscriptions managed separately; scoped service-principal topic policies | Requests and delivery, especially SMS; email-first operational alerts, consent and unsubscribe for users |
+| Step Functions: later ML | Durable validate/train/evaluate/publish workflow | Caller states:StartExecution exact state machine; workflow lambda:InvokeFunction or sagemaker:CreateTrainingJob/DescribeTrainingJob/StopTrainingJob, restricted iam:PassRole; .sync integration may additionally need EventBridge rules | State transitions/Express compute; grant integration-specific permissions after ASL exists; avoid unnecessary orchestration |
+| SageMaker AI: optional batch ML | Reproducible managed training/batch inference when local insufficient | Training role S3 input/output + ECR image reads/logs; launcher CreateTrainingJob, DescribeTrainingJob, StopTrainingJob and iam:PassRole only selected role to sagemaker.amazonaws.com; transform actions only if used | Instance-hours/storage; quotas may be zero; maximum job runtime; no standing endpoints/Studio domain |
+| Bedrock: optional explanations | Explains existing scores, not forecasts | bedrock:InvokeModel on selected model/inference-profile resources; streaming permission only if used | Model token billing/access terms; exact model/region pending; omit health/location identifiers and avoid cross-region profiles without consent |
+| IoT Core: conditional hardware | Authenticated sensor/gateway telemetry to ingest; not verified for Noise | Device policy iot:Connect exact client, Publish exact device topic; Subscribe/Receive only if needed. Rules role sqs:SendMessage selected queue | Connection minutes/messages/rules; per-device X.509 keys, revocation and tenant topic ownership |
+| ECS Fargate: deferred | Continuous/native-heavy API if profiling justifies | Task role same downstream permissions as API; execution role logs + ECR pulls | vCPU/memory continuously allocated; networking/ALB/IPv4 extra; no public database |
+| ECR: deferred except CDK bootstrap asset repository | Container images for Fargate or future Lambda/ML containers | Pull: ecr:GetAuthorizationToken (*) and BatchGetImage/GetDownloadUrlForLayer/BatchCheckLayerAvailability on repo; push role separate | GB-month/storage scanning choices; immutable tags and lifecycle cleanup |
+| RDS PostgreSQL/PostGIS: deferred | Complex spatial joins if measured need exists | App uses database role/grants; rds-db:connect only with IAM DB auth and exact dbuser ARN; no RDS control actions for API | Instance/storage/backup/networking; private subnets, secrets or IAM DB auth, migrations and pooling |
+| IAM / Identity Center / STS: prerequisite | Individual temporary developer sessions and service roles | sts:GetCallerIdentity requires no explicit allow; assume only approved roles; role trust scoped to services/accounts | No IAM charge; no root development, no shared access keys, no AdministratorAccess request |
+| CloudFormation / CDK / SSM: deployment prerequisite | Versioned infrastructure and bootstrap metadata | Diagnostic cloudformation:DescribeStacks, ssm:GetParameter on bootstrap path. Deployment permissions depend on reviewed template | CloudFormation resource costs, bootstrap S3/ECR assets persist; CDK is local tooling |
+| AWS Budgets: prerequisite proposal | Spend visibility for account/project | budgets:ViewBudget to inspect; budgets:ModifyBudget for scoped budget creation/update; billing-console access separately | Notifications are not a hard cap; see COSTS_AND_BUDGET.md |
+
+## Deployment role is distinct from runtime
+
+No deployment policy is installed in Phase 0. Bootstrap can create privileged roles; do not run
+default bootstrap assuming it is harmless or use AdministratorAccess as its execution policy.
+An account operator should review `cdk bootstrap --show-template`, supply a project-scoped
+CloudFormation execution policy and a permissions boundary, and allow the developer to assume
+only project deploy/file-publish/image-publish roles. Restrict iam:PassRole by exact role ARN
+and iam:PassedToService. Scope create/update/delete/read actions to resource types actually
+present in the future synthesized template; use tag/region conditions where supported.
+No broad wildcard grant is implied by this action inventory. Some list/create actions require
+Resource *; document each exception and restrict through supported conditions.
+
+## Read-only diagnostic permissions
+
+`ec2:DescribeRegions` and `servicequotas:ListServiceQuotas` need Resource *.
+`cloudformation:DescribeStacks` can target `arn:aws:cloudformation:ap-south-1:ACCOUNT:stack/CDKToolkit/*`.
+`ssm:GetParameter` targets `arn:aws:ssm:ap-south-1:ACCOUNT:parameter/cdk-bootstrap/hnb659fds/version`.
+`budgets:ViewBudget` targets the selected budget ARN (global service; do not apply Mumbai-only
+endpoint restrictions blindly). STS failure is not repaired by granting these permissions.
+SCPs, permissions boundaries and session policies may still deny access.
+
+## Quota gates
+
+Location CalculateRoutes documented default 20 requests/s, adjustable. Start with at most 2 route
+requests/s and bounded alternatives. HTTP API maximum integration timeout 30s and payload 10 MB;
+Lambda synchronous payload is 6 MB, default regional concurrency often 1,000 but new accounts may
+be lower. Lambda max duration 900s, zip uncompressed 250 MB; this is why ML training is separate.
+DynamoDB item limit 400 KB; use S3 for series/geometry. Confirm account concurrency, Location rate,
+queue throughput and selected SageMaker instance quota in Service Quotas before real use.
+Model availability and quotas are model-specific for Bedrock and instance-specific for SageMaker.
+Do not request quota increases or enable optional regions automatically.
