@@ -6,13 +6,13 @@ Contributors graph. Each person must accept the invitation and make actual contr
 
 Contributor email mapping supplied by the user:
 
-| GitHub account | Git author email |
-|---|---|
-| Mayank2142 | mayankcoding73@gmail.com |
-| DEVESH859 | deveshraj003@gmail.com |
+| GitHub account | Git author name | Git author email |
+|---|---|---|
+| Mayank2142 | Mayank Gupta | mayankcoding73@gmail.com |
+| DEVESH859 | Devesh Raj | deveshraj003@gmail.com |
 
-Email ownership/verification in GitHub has not been independently checked. Confirm each person's
-preferred author name before their first session; do not infer a full name from an email address.
+Names and email mappings are confirmed by the user. Email ownership/verification in GitHub has
+not been independently checked.
 The team aims for approximately balanced meaningful contributions. Attribute each session to
 its actual contributor and use co-author trailers for joint work; counts need not match exactly.
 
