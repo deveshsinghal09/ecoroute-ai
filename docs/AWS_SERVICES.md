@@ -5,11 +5,21 @@ and SDK checks are evidence of service support, not proof of account entitlement
 Runtime permissions below apply to separate roles and exact project ARNs. They are not one combined
 developer policy. Account/region/resource placeholders must be resolved before deployment.
 
+Phase 3 adds optional scoped Routes/Places calls to the API Lambda, owned route pointers/cache
+in the existing route_metadata table, geometry in private routes/* objects and redacted aggregate
+reports in reports/routes/*. API role has GetObject/PutObject on routes/*, PutObject on
+reports/routes/* and UpdateItem on the environmental budget table. Location is disabled by
+default; `-c enable_location=true` opts its two runtime IAM actions into local synthesis.
+Existing CloudWatch Lambda/API error and latency alarms cover routing; no new paid resource
+has been deployed. Selected developer identity is dev-admin / IAM user devesh_eco. STS passed,
+Location and Lambda checks denied; this is not a verified deployment-ready account.
+
 | Service and decision | Meaningful work and dependents | Minimum runtime permissions / resource scope | Cost and security implications |
 |---|---|---|---|
 | API Gateway HTTP API: core | HTTPS ingress for FastAPI; depends on Lambda/Cognito | JWT callers need scopes, not IAM keys. API service needs resource-policy lambda:InvokeFunction scoped by API execution ARN | Request billing; throttle, bounded bodies, access logs without tokens; no API keys as user auth |
 | Lambda: core | API, ingestion and event handlers; depends on storage/queues | Separate execution roles; logs:CreateLogStream, logs:PutLogEvents on precreated log groups plus only downstream actions listed here | Requests and GB-seconds; cap concurrency/retries; no VPC initially |
 | Location Routes V2: core real routing | Candidate paths consumed by API | geo-routes:CalculateRoutes on arn:aws:geo-routes:ap-south-1::provider/default | Per-request tier/features; no route calculator needed; never log precise trips; respect caching/attribution terms |
+| Location Places V2: conditional geocoding | Resolves text origin/destination before routing | geo-places:Geocode on arn:aws:geo-places:ap-south-1::provider/default | IntendedUse=Storage for persisted coordinates; billed Storage-tier requests; coordinates avoid these calls; no legacy place index |
 | S3: core | Raw/curated observations, model and forecast artifacts | Ingest s3:PutObject raw prefix; trainer s3:GetObject input and PutObject output; API GetObject forecast prefix; ListBucket only with required prefix condition | Storage, requests, egress/version retention; block public access, TLS, encryption; deletion role separate |
 | DynamoDB: core | Latest cell/forecast index, jobs, user exposure metadata | dynamodb:GetItem, Query, PutItem, UpdateItem on selected tables/indexes; DeleteItem only deletion worker; no Scan | On-demand units + storage; conditional writes and owner isolation; TTL is not instant deletion |
 | EventBridge Scheduler: core ingestion | Invokes collector; raw S3 events feed SQS | Scheduler execution role lambda:InvokeFunction on collector Lambda; trusted by scheduler.amazonaws.com with source restrictions | Invocation billing/free allowance depends on account; bounded schedule frequency; no custom event bus needed initially |

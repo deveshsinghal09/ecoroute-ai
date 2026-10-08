@@ -46,3 +46,56 @@ Other responses: 401 invalid/missing token, 403 missing scope, 404 inaccessible 
 Application errors: `{"error":{"code":"...","request_id":"..."}}`; gateway errors can differ.
 Responses carry no-store and request IDs. Logs exclude bodies, bearer tokens and query strings.
 No wildcard production CORS; configure exact HTTPS origins only when a future client is selected.
+
+## Phase 3 routes (implemented)
+
+All endpoints below are authenticated; POST requires ecoroute/write and GET requires ecoroute/read.
+Owner comes exclusively from the verified JWT subject. A different owner gets 404.
+
+| Endpoint | Contract |
+|---|---|
+| POST /api/v1/routes/compare | All valid provider candidates, full segment scores, baseline, recommendations and exclusions |
+| POST /api/v1/routes/optimize | Selected full route and recommendation/baseline metadata |
+| POST /api/v1/routes/exposure | Owned route_id plus optional departure_at; recalculate pollution on stored geometry/duration, no invented input geometry |
+| POST /api/v1/routes/departure-time-analysis | Compare request plus 1–3 unique departures; summary per time with retrievable route IDs |
+| GET /api/v1/routes/{route_id} | Owned, unexpired scored route with geometry; segments fetched separately |
+| GET /api/v1/routes/{route_id}/segments | offset 0–600, limit 1–200 (default100); segments, total, next_offset |
+
+Compare/optimize body accepts origin/destination as {longitude,latitude} or nonempty place text
+3–200 characters; mode walking/driving/cycling, aware departure_at, objective fastest /
+lowest_exposure / balanced, max_detour_percent 0–100 (default25), exposure_weight 0–1 (default0.5),
+segment_length_m 100–1000 (default250), max_alternatives 0–5 (default2), consent_to_store=true.
+Departure must be no more than 48 hours ahead (five minutes clock tolerance); it is normalized
+to UTC. Delhi coverage bounds are longitude76.8–77.6, latitude28.3–29.0. Cycling currently returns
+422 because neither configured adapter implements a supported bicycle profile.
+Departure analysis retains the required departure_at field and uses the explicit departures list.
+
+```powershell
+$body = @{
+  origin = @{ longitude = 77.2295; latitude = 28.6129 }
+  destination = @{ longitude = 77.2167; latitude = 28.6315 }
+  mode = 'driving'
+  departure_at = (Get-Date).ToUniversalTime().AddMinutes(10).ToString('o')
+  objective = 'balanced'; max_detour_percent = 25; consent_to_store = $true
+} | ConvertTo-Json
+# Configure ACCESS_TOKEN privately after Cognito login; do not print it.
+Invoke-RestMethod -Uri http://127.0.0.1:8000/api/v1/routes/compare -Method Post -ContentType application/json -Body $body -Headers @{Authorization="Bearer $env:ACCESS_TOKEN"}
+```
+
+Each route returns route_id, GeoJSON geometry [lon,lat], duration_s, distance_m,
+estimated_pm25_exposure_ug_h_m3 (nullable), known_pm25_exposure_ug_h_m3,
+pm25_coverage_fraction, relative_exposure_change_percent (nullable), baseline_route_id,
+routing_source, source_metadata, confidence, pollutants, segments, warnings and recommendation_reason.
+Segments contain geometry, distance/duration, arrival/sample/end times, pollutant concentrations
+with kind/source/quality/resolution and pm25_exposure_ug_h_m3 contribution. No medical dose is claimed.
+See ROUTING.md and the actual generated work/phase3-demo.json for a fully populated local response.
+
+Comparison returns selected_route_id, recommended_route_ids (fastest/lowest_exposure/balanced),
+baseline_definition, score_definition, spatial_differentiation and cache_hit. Missing coverage
+produces null full exposure, never zero. Positive relative change means more exposure than the
+fastest returned baseline; negative means less. All candidates sharing a coarse cell explicitly
+warn that street-level differences are unresolved. Provider alternatives are not guaranteed.
+
+Additional failures: 422 unsupported mode/area/route/geocoding, 429 application request budget,
+502 malformed provider geometry/schema, 503 credentials/provider/dependency unavailable.
+Existing /navigation/routes remains a legacy placeholder; clients should use /routes/compare.

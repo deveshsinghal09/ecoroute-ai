@@ -1,7 +1,7 @@
 # EcoRoute AI
 
 AWS-native backend for pollution-aware navigation in Delhi. **Phase 1 backend foundation and
-Phase 2 environmental pipeline are implemented locally. No AWS resources have been deployed.**
+Phase 2 environmental pipeline and Phase 3 routing engine are implemented locally. No AWS resources have been deployed.**
 No frontend, trained ML model, verified Noise watch integration or street-level pollution claim.
 
 FastAPI + Pydantic v2, Cognito JWT validation, Lambda/Mangum, CDK Python, S3/DynamoDB adapters,
@@ -43,7 +43,21 @@ actual saved object keys, query examples, limits and reproducible verification.
 
 OpenAQ requires your own key configured locally. No live OpenAQ coverage or measurements have
 been verified. Missing provider data returns `unavailable`; there is no fabricated fallback.
-Navigation, trained predictions and school safety currently return explicit 503 responses.
+The Phase 3 `/api/v1/routes/*` endpoints implement route comparison, optimization, exposure,
+departure analysis and owned retrieval. Trained predictions, school safety and the legacy
+`/navigation/routes` placeholder still return explicit 503 responses.
+
+## Pollution-aware routing
+
+```powershell
+.\.venv\Scripts\python.exe scripts/demo_routes.py --provider recorded
+```
+
+The demo uses two recorded genuine Delhi road routes and eligible local curated pollution.
+Missing pollution stays unavailable. Real AWS Routes/Places adapters use the `dev-admin` profile
+for IAM user `devesh_eco`; their latest live checks returned AccessDeniedException.
+See [routing runbook](docs/ROUTING.md) for IAM setup, exact commands, API limits, sample results,
+provider attribution and scientific caveats. All routes require consent and protected API scopes.
 
 ## Validate without AWS credentials
 
@@ -67,11 +81,11 @@ CI also checks that the built Linux asset imports; Windows cannot execute those 
 
 ## Before deployment
 
-The current default AWS login identifies as root (user-authorized read-only exception), but
-Lambda reported `SubscriptionRequiredException` and EC2/CloudFormation `OptInRequired`.
-Resolve account activation/service access in the AWS Console or with AWS Support first.
-Use an individual temporary development role for ongoing work; workload roles are least privilege.
-No service-access error will be fixed by adding AdministratorAccess.
+The selected `dev-admin` profile identifies as IAM user `devesh_eco`; Mumbai is configured.
+Identity is verified, but Location and Lambda reads are denied; bootstrap and account quotas
+remain unverified. The old default/root profile belongs to a different account and is no longer
+used. An authorized IAM operator must grant the scoped permissions documented in the runbook.
+Do not add AdministratorAccess to work around failed diagnostic or data-plane calls.
 
 Confirm eligible credit balance/expiry, alert recipient, Cognito callback URL and bootstrap role
 policy. User permits using up to the reported $100 credits; this is a ceiling, not a spending target.
@@ -84,5 +98,6 @@ deployment approval before bootstrap/deploy. Budget alerts do not hard-cap costs
 - [Architecture](docs/ARCHITECTURE.md) and [AWS services/IAM](docs/AWS_SERVICES.md)
 - [Credential runbook](docs/CREDENTIALS_CHECKLIST.md) and [API contract](docs/API_CONTRACT.md)
 - [Ingestion and real-run evidence](docs/INGESTION.md)
+- [Routing algorithm, live-test blockers and demonstration](docs/ROUTING.md)
 - [Verified official sources](docs/VERIFIED_SOURCES.md)
 - [Joint contribution workflow](CONTRIBUTING.md)

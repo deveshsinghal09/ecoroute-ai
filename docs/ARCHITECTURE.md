@@ -1,7 +1,13 @@
-# EcoRoute AI architecture — Phases 1 and 2
+# EcoRoute AI architecture — Phases 1, 2 and 3
 
 Decision date: 2026-10-08. Delhi; AWS target ap-south-1 (Mumbai). Infrastructure is implemented
 and synthesized, not deployed. See INGESTION.md and API_CONTRACT.md for the working contracts.
+
+Phase 3 (2026-10-09): API -> Routes V2/Places V2 -> validated road geometry -> distance segments
+-> existing curated environmental index -> exposure scoring -> owned route metadata/S3 results.
+ROUTING.md documents the implemented algorithm, limits and fallback. AWS live calls are denied
+for selected IAM user devesh_eco (CLI profile dev-admin); recorded OSRM tests do not imply AWS success.
+Core optionally enables Location IAM; no additional always-on service or database is needed.
 
 ## Execution profiles and implemented workflow
 
@@ -40,7 +46,9 @@ ML stack owns only datasets/models storage: no training job, endpoint or model a
 Optional IoT stack defines a thing and restrictive policy only; no certificate, working device
 or end-to-end telemetry integration is claimed. SNS email subscription is a deployment prerequisite.
 
-S3 lifecycle: raw30d, curated90d, reports30d, datasets90d, models180d; buckets retained on teardown.
+S3 lifecycle: raw30d, curated90d, general reports30d, route reports/geometry7d, datasets90d,
+models180d; buckets retained on teardown. Route metadata7d, route cache reuse5min; physical
+TTL/lifecycle cleanup is asynchronous. Routes and cache metadata reuse route_metadata table.
 DynamoDB TTL is enforced on reads as well as scheduled deletion; personal journeys/telemetry7d,
 idempotency1d, preferences90d. Tables retain data on stack removal with deletion protection.
 Raw environmental data contains station/model locations, not personal wearable paths.
@@ -49,15 +57,16 @@ CDK creates an additional S3-notification custom-resource Lambda in Data; its de
 is separate from business runtime roles. Its generated managed logging policy is broader than
 the business policies. Review the synthesized helper role and CloudFormation execution boundary
 before deployment; do not claim every generated deployment permission is resource-exact.
-No NAT/VPC/ECS/RDS/Bedrock/SageMaker endpoint/Location requests are provisioned in this phase.
+No NAT/VPC/ECS/RDS/Bedrock/SageMaker endpoint is provisioned. Bounded Location authorization
+probes were sent and denied; no successful AWS road data was obtained.
 
-The remaining spatial, ML and hardware sections below describe future capabilities, not working
-Phase 1/2 integrations. Implemented storage and workflow above supersede older conceptual plans.
+The spatial pipeline is now implemented within the bounds in ROUTING.md. ML training and real
+hardware integration remain future work; no model or wearable integration is claimed.
 
 ## Lambda versus Fargate
 
 Lambda fits intermittent hackathon traffic, short route ranking and no persistent processes.
-Design target: under 10 seconds at p95 (unmeasured), 20-second application deadline, bounded
+Design target: under 10 seconds at p95 (unmeasured), 28-second API Lambda timeout, bounded
 provider retries and small payloads. HTTP API integration has a 30-second maximum; Lambda's
 900-second function ceiling does not extend that. Keep API bodies under 256 KiB; large results
 go to S3 because Lambda synchronous payload limits and envelope overhead also apply.
@@ -80,8 +89,8 @@ Fargate is not deployed merely because FastAPI can run in a container.
    averaging period, model version and uncertainty where available.
 4. Rank only candidate routes actually returned. The product does not compute a globally
    pollution-optimal path over the whole road network. Bound detours and expose travel-time tradeoffs.
-5. For PM2.5, concentration-time exposure is sum(C_i * delta_t_i), in microgram-minute/m3.
-   Time-weighted concentration divides by total minutes. This is **not inhaled dose** without
+5. For PM2.5, concentration-time exposure is sum(C_i * delta_t_i), in **ug*h/m3** with duration
+   converted from seconds to hours. This is **not inhaled dose** without
    validated ventilation data. Do not infer a medical risk score from heart rate or SpO2.
 6. Do not integrate AQI numbers as if they were concentrations. If an Indian AQI view is added,
    verify the chosen standard's pollutant breakpoints and averaging windows before implementation.
@@ -140,8 +149,7 @@ supported device/gateway with its own certificate; it is not a workaround for in
 
 ## Delivery boundaries
 
-Phase 1: local provider contracts, route validation, honest fixtures, Delhi coverage audit,
-pollution ranking tests and initial baseline pipeline. Phase 2: individually enabled real reads
-after credentials/cost approval. Phase 3: scoped CDK infrastructure, auth and integration tests,
-budget alerts, deployment approval, deployment and teardown verification. Phase 4: validated
-forecasting and optional wearables. Every phase updates the five required living documents.
+Phase 1 foundation and Phase 2 ingestion are locally implemented. Phase 3 adds bounded routing,
+scoring and authenticated persistence. Deployment, successful AWS route verification, measured
+station coverage, trained forecasting and wearable integration remain gated work. Every phase
+updates the five required living documents. No deployment is implied by local implementation.

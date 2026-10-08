@@ -88,3 +88,14 @@ the algorithms and validating data. Verify their Python/Linux wheels before that
 Live model collection evidence and distinctions from sensor data: INGESTION.md. Synthetic contract
 fixtures are explicitly labelled in tests/test_environment.py; they are not measurements. One
 cached repeat reproduced the same raw/Parquet keys without another external request.
+# Phase 3 verification addendum — 2026-10-09
+
+Verified current boto3 geo-routes CalculateRoutes and geo-places Geocode schemas, supported
+travel modes, alternative-route limits, accountless provider IAM ARNs, Mumbai endpoints,
+request-tier billing, Storage intended use and provider attribution. Exact regional prices
+remain a deployment gate. Links and operating limits are in [ROUTING.md](ROUTING.md).
+SDK1.43.109 contract tests include valid response parsing, signed-operation input schemas and
+sanitized failures. No bicycle mode exists in the verified Routes API; Scooter is not a substitute.
+One OSRM Delhi road response was recorded; AWS calls under dev-admin were denied. Current
+scientific limits continue to rely on the Phase 2 Open-Meteo/OpenAQ documentation below.
+

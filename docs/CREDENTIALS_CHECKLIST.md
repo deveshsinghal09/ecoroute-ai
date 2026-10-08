@@ -1,13 +1,19 @@
 # Credentials and configuration checklist
 
 Never paste keys, passwords, session tokens, private certificates or provider tokens into chat.
-Current status: default profile STS succeeds as root; the user authorized this existing root
-session for read-only checks. The named hackathon profile was not found in this environment.
-Default profile region is us-east-1, workload target is ap-south-1; always pass an explicit region.
-Lambda/EC2/CloudFormation account service access failed with subscription/opt-in errors. No
-bootstrap or deployment verified. User allows up to reported $100 credits; expiry/eligibility,
-alert email, OpenAQ key, Cognito identifiers/callback URL and workload deployment permissions
-remain missing. Project ecoroute-ai; Delhi. Open-Meteo free noncommercial API needs no key.
+Current status (2026-10-09): selected profile `dev-admin` authenticates as IAM user
+`devesh_eco`. User confirms this account holds the hackathon credits. Region ap-south-1 and
+expected account are configured in ignored .env. The old default/root profile belongs to a
+different account and is no longer used. STS succeeds; Routes V2, Places V2 and Lambda checks
+are denied. Bootstrap, quotas and account service access remain unverified. No deployment.
+Cognito IDs/login, budget/alert recipient and scoped workload/deployment permissions are missing.
+An OpenAQ key was disclosed in chat: revoke it and configure a replacement locally; the exposed
+value was not saved or used. Open-Meteo eligible noncommercial access requires no key.
+
+For the existing profile, run `aws sts get-caller-identity --profile dev-admin --region ap-south-1`.
+No new AWS key is required. ROUTING.md contains exact Location policy attachment and verification
+steps. The Identity Center guide below is an optional migration to individual temporary sessions,
+not a requirement to discard the already configured profile.
 
 ## 1. AWS human identity — required before any authenticated AWS integration
 
@@ -105,21 +111,18 @@ must wait for each relevant gate. Do not run cdk bootstrap/deploy, enable models
 
 ## Phase 1/2 exact setup gates
 
-1. **AWS account entitlement (mandatory for AWS, non-secret):** sign in to AWS Console ->
-   account/billing overview, complete any activation/payment/identity steps AWS actually lists.
-   Check Mumbai service consoles. If SubscriptionRequiredException/OptInRequired persists, open
-   AWS Support -> Account and billing case with error codes (never credentials). Do not create
-   extra keys or add administrator policies to work around subscription failures. An account
-   operator handles this; no application IAM permission can activate an account subscription.
-   Verification: `aws lambda get-account-settings --profile default --region ap-south-1` and
-   `aws cloudformation describe-stacks --stack-name CDKToolkit --profile default --region ap-south-1`.
-   These reads require lambda:GetAccountSettings and cloudformation:DescribeStacks; they do not
-   provision resources. A missing CDKToolkit stack means bootstrap is still required.
-2. **Temporary scoped human profile (recommended before deployment):** follow Identity Center
-   steps above; AWS_PROFILE is non-secret, cached credentials are sensitive and stay in CLI cache.
-   Configure region with `aws configure set region ap-south-1 --profile ecoroute-dev` only after
-   creating that profile. Do not paste login URLs, keys or tokens in chat. Root exception above
-   does not change the separate scoped workload roles or authorize paid provisioning.
+1. **Scoped account access:** use dev-admin in ap-south-1. STS is verified; Location and
+   Lambda calls are denied and bootstrap cannot be verified. Required diagnostic actions are
+   listed in AWS_SERVICES.md; an authorized operator must review the user policy, permission
+   boundary and applicable SCP. Identity verification does not imply service authorization.
+   `aws lambda get-account-settings --profile dev-admin --region ap-south-1` requires
+   lambda:GetAccountSettings; `aws cloudformation describe-stacks --stack-name CDKToolkit
+   --profile dev-admin --region ap-south-1` requires cloudformation:DescribeStacks. These only read.
+2. **Existing human profile:** AWS_PROFILE=dev-admin, AWS_REGION=ap-south-1 and the verified
+   EXPECTED_AWS_ACCOUNT_ID are configured locally. Credentials are sensitive and stay under
+   CLI management, not Git. Keep MFA and prefer temporary sessions. Renew using the existing
+   authorized login mechanism. No IAM permission changes or paid provisioning are authorized
+   merely by configuring a profile. The app rejects root identities for real local routing.
 3. **OpenAQ key (mandatory only for OpenAQ, sensitive):** visit https://explore.openaq.org/,
    sign up/login, open account settings/API keys and obtain the API key. Store as OPENAQ_API_KEY
    in ignored local .env or a process environment; no AWS permission is needed for local use.
@@ -170,7 +173,20 @@ No secret must be printed to verify presence: Python can load dotenv and print o
 print request headers or customer URLs. Do not run CLI `--debug` when handling credentials.
 
 Offline diagnostics: `python scripts/diagnose.py --region ap-south-1`.
-User-authorized root read-only exception, if still deliberately using that profile:
-`python scripts/diagnose.py --aws --profile default --region ap-south-1 --allow-root-read-only`.
+Current IAM profile read-only check:
+`python scripts/diagnose.py --aws --profile dev-admin --region ap-south-1`.
 Set EXPECTED_AWS_ACCOUNT_ID privately to the account you verified first. This script only reads;
 actual service entitlement, bootstrap execution boundary and costs still gate deployment.
+
+## Phase 3 configuration gate
+
+| Configuration | Use / required / sensitivity | Setup, permissions, storage, verification and cost |
+|---|---|---|
+| AWS_PROFILE=dev-admin; AWS_REGION=ap-south-1; EXPECTED_AWS_ACCOUNT_ID | Required real local routing; identifiers non-secret | Existing CLI profile verified via STS; identifiers in ignored .env, credentials in protected CLI files/cache; STS no direct charge |
+| ENABLE_AWS_LOCATION | Optional local flag, required AWS adapter; non-secret | Set true only after the two actions in iam/location-read.json are granted by an authorized IAM operator; see ROUTING.md Console steps and billed demo command |
+| ROUTING_PROVIDER; OSRM_BASE_URL | Optional fallback; non-secret | Default aws. Explicit osrm requires an operator-approved HTTPS origin with verified road profile/terms; no AWS IAM needed; provider hosting/request fees may apply; recorded fixture CLI needs no URL |
+| LOCATION_DAILY_LIMIT; LOCATION_HOURLY_LIMIT | Spending safeguard; non-secret | Defaults100/30, configure lower locally; API Lambda receives these limits; DDB conditional UpdateItem on environmental table reserves attempts; quotas are not dollar caps |
+| OpenAQ replacement key | Mandatory only for OpenAQ; secret | Revoke the chat-exposed key at provider account/API keys, create a replacement, save OPENAQ_API_KEY only in ignored .env; verify with one bounded station-discovery command above; never print the key or paste it into chat |
+
+Preserve an existing .env. No request to paste any secret is part of setup. No key disclosed in
+chat is committed or used for integration. The new replacement must be configured locally.
