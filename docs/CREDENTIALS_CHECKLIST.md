@@ -2,7 +2,8 @@
 
 Never paste keys, passwords, session tokens, private certificates or provider tokens into chat.
 Current missing items: valid temporary AWS login, expected account ID, numeric monthly budget,
-credit amount/expiry/eligibility, alert recipient, OpenAQ key, confirmed watch model/app/phone OS.
+credit expiry/eligibility, alert recipient, OpenAQ key, confirmed watch model/app/phone OS.
+User reports US$100 AWS credits for the hackathon; balance is not independently verified.
 Existing default AWS profile is invalid and points to us-east-1. It was not modified.
 Project name is ecoroute-ai; proposed region ap-south-1; target Delhi; all live flags remain false.
 

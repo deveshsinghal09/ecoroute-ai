@@ -8,7 +8,9 @@ and wearable integrations remain unimplemented. No paid AWS resource or AWS Budg
 
 - One repository under deveshsinghal09, meaningful regular commits from this shared laptop.
 - Target city Delhi; nearby region selected as Mumbai ap-south-1 based on service support.
-- Free Tier account with AWS credits; amount/expiry, budget and cash-spend tolerance unconfirmed.
+- Free Tier account for this hackathon with **US$100 credits**, user-reported; account balance
+  not independently verified. Credit expiry/eligibility, spending approval and cash-spend tolerance
+  remain unconfirmed. AWS-native architecture remains the target; no paid provisioning authorized.
 - Reported watch: “noie pro 3 alpha”, provisionally Noise ColorFit Pro 3 Alpha; exact hardware/app
   and export capability still need confirmation.
 - Collaborators Mayank2142 and DEVESH859; invitations sent with write access. DEVESH859 accepted

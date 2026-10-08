@@ -1,7 +1,8 @@
 # Cost estimate and AWS Budget proposal
 
 2026-10-08. **Proposal only: no budget or resource created; no spending approved.**
-User has a Free Tier account with AWS credits. Credit balance, expiry, eligible services and
+User reports a Free Tier hackathon account with **US$100 AWS credits**. This is available credit,
+not approval to spend US$100. Balance is not independently verified; expiry, eligible services and
 cash-spend tolerance are unknown. Do not assume AWS usage is free or credits cover all charges.
 AWS bills may show USD-equivalent usage and local taxes/conversion; confirm actual billing currency.
 
