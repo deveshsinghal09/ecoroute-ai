@@ -35,7 +35,7 @@ test('mobile layout and reduced motion',async({page})=>{
   await page.getByRole('button',{name:'Open journey planner'}).click();
   await expect(page.getByRole('heading',{name:'Your next journey'})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  expect(await page.locator('.cinematic-art').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>1000)).toBe(true);await page.screenshot({path:'../work/frontend-mobile.png',fullPage:true});
+  await expect(page.locator('.city-backdrop')).toHaveAttribute('href','/assets/ecoroute-city-clear.png');await page.screenshot({path:'../work/frontend-mobile.png',fullPage:true});
 });
 test('backend connection failure is actionable',async({page})=>{
   await page.route('http://127.0.0.1:8000/**',route=>route.abort());
@@ -65,22 +65,34 @@ test('WebGL unavailable still permits real route exploration',async({page})=>{
       return original.apply(this,[type,...args] as never);
     } as typeof original;
   });
-  await page.goto('/');await page.getByRole('button',{name:'3D orbit',exact:true}).click();await expect(page.getByText('WebGL is unavailable on this device.',{exact:false})).toBeVisible();
+  await page.goto('/');await expect(page.locator('.cinematic-art')).toBeVisible();
   await page.getByRole('button',{name:'Show detail panel'}).click();
   await page.getByRole('button',{name:'Explore recorded routes'}).click();
   await expect(page.locator('.route-map polyline')).toHaveCount(2);
 });
 
-test('cinematic artwork loads independently of optional real-time 3D',async({page})=>{
+test('one city animates trains independently and pause freezes motion',async({page})=>{
   await page.goto('/');
-  const art=page.locator('.cinematic-art');await expect(art).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Your next journey'})).toHaveCount(0);
-  expect(await art.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>1000)).toBe(true);
-  await expect(page.getByText('Illustrative render - not a live city map')).toBeVisible();
-  await page.getByRole('button',{name:'Zoom in',exact:true}).click();
-  await expect(page.locator('.cinematic-zoom')).toHaveAttribute('style',/scale\(1\.08/);
-  await page.screenshot({path:'../work/frontend-cinematic-desktop.png'});
-  await page.getByRole('button',{name:'3D orbit',exact:true}).click();
-  await expect(page.locator('.city-canvas canvas')).toBeVisible();
-  await expect(page.getByText('Real-time 3D illustration - drag to orbit')).toBeVisible();
+  await expect(page.getByRole('button',{name:'3D orbit',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Cinematic',exact:true})).toHaveCount(0);
+  await expect(page.locator('.animated-train')).toHaveCount(2);
+  for(const path of ['/assets/ecoroute-city-clear.png','/assets/ecoroute-tram.png'])expect((await page.request.get(path)).ok()).toBe(true);
+  const train=page.locator('.animated-train').first();
+  const frozen=await train.getAttribute('transform');await page.waitForTimeout(150);
+  expect(await train.getAttribute('transform')).toBe(frozen);
+  await page.getByRole('button',{name:'Play city motion'}).click();
+  await expect.poll(()=>train.getAttribute('transform')).not.toBe(frozen);
+  await page.getByRole('button',{name:'Pause city motion'}).click();
+  const paused=await train.getAttribute('transform');await page.waitForTimeout(150);
+  expect(await train.getAttribute('transform')).toBe(paused);
+  await page.screenshot({path:'../work/frontend-animated-city.png'});
+});
+
+test('desktop dashboard fits at 100 percent zoom on laptop screens',async({page})=>{
+ for(const size of [{width:1366,height:768},{width:1280,height:720},{width:1536,height:864}]){
+  await page.setViewportSize(size);await page.goto('/');
+  expect(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+1)).toBe(true);
+  await page.getByRole('button',{name:'Open journey planner'}).click();
+  expect(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+1)).toBe(true);
+ }
 });
