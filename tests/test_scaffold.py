@@ -9,7 +9,7 @@ from ecoroute.main import create_app
 def test_health_is_explicit_about_scaffold():
     client = TestClient(create_app(Settings(_env_file=None, local_db_path=":memory:")))
     assert client.get("/healthz").json() == {
-        "status": "ok", "profile": "local", "phase": "1-foundation",
+        "status": "ok", "profile": "local", "phase": "7-integrated-backend",
         "live_domain_providers": False,
     }
     assert client.post("/v1/routes").status_code == 404

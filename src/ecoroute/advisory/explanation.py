@@ -17,7 +17,7 @@ def explain(routes, settings, repo, client=None):
     for index, route in enumerate(routes):
         fact = {"alias": f"route_{index + 1}", "route_id": route["route_id"]}
         for key in ("duration_s", "distance_m", "estimated_pm25_exposure_ug_h_m3",
-                    "relative_exposure_change_percent", "coverage_fraction", "balanced_score"):
+                    "relative_exposure_change_percent", "pm25_coverage_fraction", "balanced_score"):
             value = route.get(key)
             fact[key] = value if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) else None
         fact["confidence"] = route.get("confidence") if route.get("confidence") in {"low", "medium", "high", "unavailable"} else "unavailable"

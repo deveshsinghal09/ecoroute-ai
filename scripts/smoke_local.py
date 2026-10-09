@@ -20,7 +20,7 @@ def main():
                 with urllib.request.urlopen("http://127.0.0.1:8765/healthz", timeout=1) as response:
                     payload = json.load(response)
                     assert response.status == 200
-                    assert payload["phase"] == "1-foundation"
+                    assert payload["phase"] == "7-integrated-backend"
                     assert payload["live_domain_providers"] is False
                     with urllib.request.urlopen("http://127.0.0.1:8765/api/v1/health", timeout=2) as health:
                         assert health.status == 200

@@ -23,6 +23,7 @@ from ecoroute.ml.api import router as ml_router
 from ecoroute.ml.inference import MLUnavailable
 from ecoroute.wearable.api import router as wearable_router
 from ecoroute.advisory.api import router as advisory_router
+from ecoroute.contracts import enrich
 
 logger = logging.getLogger("ecoroute")
 logger.setLevel(logging.INFO)
@@ -36,7 +37,7 @@ def error(request, status, code, headers=None):
 def create_app(settings: Settings | None = None, *, store=None, verifier=None) -> FastAPI:
     settings = settings or Settings()
     app = FastAPI(title="EcoRoute AI", version="0.1.0", docs_url="/docs", redoc_url=None,
-                  description="Backend, environmental datasets and provider-backed route comparison. Trained ML is not connected.")
+                  description="Integrated pollution-aware backend. Provider access and verified measured-data models are configuration-dependent; no deployed services or model accuracy are implied.")
     app.state.settings = settings
     app.state.verifier = verifier or CognitoVerifier(settings)
     if store is None and settings.ecoroute_profile == "aws":
@@ -109,7 +110,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     @app.get("/healthz", include_in_schema=False)
     @app.get("/api/v1/health", tags=["operations"])
     def health():
-        return {"status": "ok", "profile": settings.ecoroute_profile, "phase": "1-foundation",
+        return {"status": "ok", "profile": settings.ecoroute_profile, "phase": "7-integrated-backend",
                 "live_domain_providers": False}
 
     @app.get("/api/v1/ready", tags=["operations"])
@@ -128,6 +129,15 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     app.include_router(ml_router, prefix="/api/v1")
     app.include_router(wearable_router, prefix="/api/v1")
     app.include_router(advisory_router, prefix="/api/v1")
+    original_openapi = app.openapi
+
+    def documented_openapi():
+        if not getattr(app.state, "contracts_applied", False):
+            app.openapi_schema = enrich(original_openapi())
+            app.state.contracts_applied = True
+        return app.openapi_schema
+
+    app.openapi = documented_openapi
     return app
 
 

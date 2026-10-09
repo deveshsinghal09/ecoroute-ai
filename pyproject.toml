@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<10", "httpx>=0.28,<1", "ruff>=0.9,<1"]
+dev = ["pytest>=8,<10", "httpx>=0.28,<1", "ruff>=0.9,<1", "jsonschema>=4.25,<5"]
 infra = ["aws-cdk-lib>=2.170,<3", "constructs>=10,<11"]
 
 [tool.setuptools.packages.find]
