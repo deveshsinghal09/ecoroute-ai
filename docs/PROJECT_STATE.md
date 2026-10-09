@@ -1,5 +1,15 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Full-length rail alignment correction — 2026-10-10 IST
+
+User reported continued rail drift. Replaced rigid sprite rotation with 40 clipped image slices
+per train, each anchored by its visible wheel baseline to a smooth traced rail curve. Reflections
+use the same contact line. This corrects front/rear drift on bends rather than aligning only the
+train center. Equal period/spacing and 100% viewport layout are preserved.
+Actual validation: build passed, 6 unit tests and 9 browser tests passed; inspected rendered
+screenshot. Added all-slice/all-loop rail-contact arithmetic test. Artwork remains decorative
+2.5D, not real train tracking. No AWS resources changed.
+
 ## Train alignment and 100% viewport fit — 2026-10-10 IST
 
 Replaced independent train trajectories with a traced backdrop rail centerline, tangent alignment,
