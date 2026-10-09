@@ -83,7 +83,7 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None,
-                 provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, **kwargs):
+                 provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         if not 60 <= ingestion_interval_minutes <= 1440:
             raise ValueError("Collection interval must be 60..1440 minutes")
@@ -147,7 +147,8 @@ class CoreStack(Stack):
         # Runtime only uses get/put and transactional puts; DynamoDB authorizes transactions via PutItem.
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:PutItem"],
             resources=[data.tables[k].table_arn for k in ("journeys", "preferences", "idempotency", "route_metadata")]))
-        api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem"],
+        api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:Query"], resources=[data.tables["preferences"].table_arn]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:Query"],
                                                   resources=[data.tables["alerts"].table_arn]))
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:DescribeTable"],
                                                   resources=[t.table_arn for t in data.tables.values()]))
@@ -182,6 +183,27 @@ class CoreStack(Stack):
             architecture=lambda_.Architecture.X86_64, handler="ecoroute.handlers.api.handler",
             code=code, role=api_role, environment=environment, timeout=Duration.seconds(28),
             memory_size=512, reserved_concurrent_executions=3, log_group=api_logs)
+        if bedrock_model_arn:
+            if not bedrock_model_arn.startswith(f"arn:aws:bedrock:{self.region}::foundation-model/") or "*" in bedrock_model_arn:
+                raise ValueError("Use an exact regional foundation model ARN; cross-region profiles need separate review")
+            api_role.add_to_policy(iam.PolicyStatement(actions=["bedrock:InvokeModel"], resources=[bedrock_model_arn]))
+            self.api_function.add_environment("BEDROCK_MODEL_ID", bedrock_model_arn.split("/", 1)[1])
+        if sms_topic_arns:
+            if any(not arn.startswith(f"arn:aws:sns:{self.region}:{self.account}:") or "*" in arn for arn in sms_topic_arns):
+                raise ValueError("SMS uses exact dedicated topics in the selected account and region")
+            api_role.add_to_policy(iam.PolicyStatement(actions=["sns:Publish", "sns:ListSubscriptionsByTopic"], resources=sms_topic_arns))
+            # These read-only SMS account APIs do not support resource-level permissions.
+            api_role.add_to_policy(iam.PolicyStatement(actions=["sns:GetSMSSandboxAccountStatus", "sns:ListSMSSandboxPhoneNumbers", "sns:GetSMSAttributes"], resources=["*"], conditions={"StringEquals": {"aws:RequestedRegion": self.region}}))
+            self.api_function.add_environment("SNS_ALLOWED_TOPIC_ARNS", __import__("json").dumps(sms_topic_arns))
+        if enable_workflows:
+            if __package__ == "infra":
+                from .environment_workflow import EnvironmentalWorkflow
+            else:
+                from environment_workflow import EnvironmentalWorkflow
+            workflow = EnvironmentalWorkflow(self, "EnvironmentalWorkflow", data=data, code=code, environment=environment, sms_topic_arns=sms_topic_arns)
+            self.api_function.add_environment("WORKFLOW_STATE_MACHINE_ARN", workflow.machine.state_machine_arn)
+            CfnOutput(self, "EnvironmentalWorkflowArn", value=workflow.machine.state_machine_arn)
+            CfnOutput(self, "EnvironmentalJobsQueue", value=workflow.queue.queue_url)
         self.queue, self.dlq = data.queue, data.dlq
         worker_role.add_to_policy(iam.PolicyStatement(actions=["s3:GetObject"],
                                                        resources=[data.bucket.arn_for_objects("raw/*")]))

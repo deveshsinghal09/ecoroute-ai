@@ -41,6 +41,9 @@ def main():
                         except HTTPError as denied:
                             assert denied.code == 401
                     for path, method in (
+                        ("ai/explain-route", "POST"), ("alerts/evaluate", "POST"),
+                        ("alerts", "GET"), ("schools/compare-routes", "POST"),
+                        ("schools/forecast", "GET"), ("workflows/status", "GET"),
                         ("ml/status", "GET"), ("ml/models", "GET"), ("ml/metrics", "GET"),
                         ("ml/predict", "POST"), ("ml/batch-predict", "POST"),
                         ("routes/predict-departure-times", "POST"),

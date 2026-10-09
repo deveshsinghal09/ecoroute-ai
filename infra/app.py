@@ -14,6 +14,9 @@ CoreStack(app, "EcoRouteCore", data=data, asset_path="build/lambda", env=env,
           callback_urls=app.node.try_get_context("callback_urls"),
           enable_location=str(app.node.try_get_context("enable_location")).lower() == "true",
           ml_inference_arn=ml.inference_arn,
+          enable_workflows=str(app.node.try_get_context("enable_workflows")).lower() == "true",
+          bedrock_model_arn=app.node.try_get_context("bedrock_model_arn"),
+          sms_topic_arns=app.node.try_get_context("sms_topic_arns"),
           provider_secret_arn=app.node.try_get_context("provider_secret_arn"),
           ingestion_interval_minutes=int(app.node.try_get_context("ingestion_interval_minutes") or 60))
 if str(app.node.try_get_context("enable_iot")).lower() == "true":

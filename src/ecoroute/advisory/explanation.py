@@ -1,5 +1,6 @@
 import json
 import math
+import re
 
 from ecoroute.environment.repository import BudgetExceeded
 
@@ -23,6 +24,28 @@ def explain(routes, settings, repo, client=None):
         fact["sources"] = sorted({s["source"] for s in route.get("source_metadata", [])
                                   if s.get("source") in {"openaq", "open_meteo", "station_prediction"}})
         fact["baseline_route_id"] = route.get("baseline_route_id")
+        fact["provenance"] = []
+        for source in route.get("source_metadata", []):
+            if source.get("source") not in fact["sources"]:
+                continue
+            item = {"source": source["source"]}
+            if source.get("status") in {"observed", "forecast", "modeled", "station_prediction", "unavailable"}:
+                item["kind"] = source["status"]
+            resolution = source.get("resolution_km")
+            if isinstance(resolution, (int, float)) and math.isfinite(resolution) and 0 < resolution <= 1000:
+                item["resolution_km"] = resolution
+            version = source.get("model_version")
+            if isinstance(version, str) and re.fullmatch(r"[a-f0-9]{24}", version):
+                item["model_version"] = version
+            if item not in fact["provenance"]:
+                fact["provenance"].append(item)
+        allowed_reasons = {
+            "Fastest valid provider candidate; exposure objective unavailable due to incomplete coverage.",
+            "Excluded from recommendation by maximum time detour.",
+            "Exposure recomputed for stored provider geometry; no alternative-route baseline for this calculation.",
+            *["Selected among returned provider candidates within the time-detour limit using " + objective + "; not a globally optimal road-network solution." for objective in ("fastest", "lowest_exposure", "balanced")],
+        }
+        fact["recommendation_reason"] = route.get("recommendation_reason") if route.get("recommendation_reason") in allowed_reasons else None
         metrics.append(fact)
     statements = {
         "metrics": "Supporting metrics are the stored deterministic route calculations; this explanation does not change route ranking.",
@@ -35,6 +58,8 @@ def explain(routes, settings, repo, client=None):
         duration, exposure = fact["duration_s"], fact["estimated_pm25_exposure_ug_h_m3"]
         statement = f"{alias}: stored duration is {duration} seconds." if duration is not None else f"{alias}: duration is unavailable."
         statement += f" Stored PM2.5 concentration-time exposure is {exposure} ug*h/m3." if exposure is not None else " Full-route PM2.5 exposure is unavailable."
+        if fact["recommendation_reason"]:
+            statement += " " + fact["recommendation_reason"]
         statements[alias] = statement
     order, mode, reason, usage = list(statements), "deterministic", "bedrock_disabled", None
     if settings.enable_bedrock and settings.bedrock_model_id:
