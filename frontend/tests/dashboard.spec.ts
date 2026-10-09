@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 test('historical dashboard, route geometry and honest unavailable features',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('/');await expect(page.getByRole('heading',{name:'Your next journey'})).toBeVisible();
+  await page.goto('/');await page.getByRole('button',{name:'Open journey planner'}).click();await expect(page.getByRole('heading',{name:'Your next journey'})).toBeVisible();
   await expect(page.getByText('Historical preview · 09 Oct 2026')).toBeVisible();
   await expect(page.getByRole('button',{name:'Cycle',exact:true})).toBeDisabled();
   await page.getByRole('button',{name:'Explore recorded routes'}).click();
@@ -21,6 +21,7 @@ test('live mode clears preview and cannot silently authenticate',async({page})=>
   await page.getByRole('button',{name:'Sign in with Cognito'}).click();
   await expect(page.getByRole('status')).toContainText('Cognito is not configured');
   await page.getByRole('button',{name:'Close dialog'}).click();
+  await page.getByRole('button',{name:'Open journey planner'}).click();
   await expect(page.locator('.route-option')).toHaveCount(0);
   await page.getByLabel('Allow this route to be stored in my account.').check();
   await page.getByRole('button',{name:'Compare routes',exact:true}).click();
@@ -30,9 +31,11 @@ test('live mode clears preview and cannot silently authenticate',async({page})=>
 test('mobile layout and reduced motion',async({page})=>{
   await page.setViewportSize({width:390,height:844});await page.goto('/');
   await expect(page.getByRole('button',{name:'Play city motion'})).toBeVisible();
+  await expect(page.locator('.cinematic-art')).toBeVisible();
+  await page.getByRole('button',{name:'Open journey planner'}).click();
   await expect(page.getByRole('heading',{name:'Your next journey'})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  await expect(page.locator('.city-canvas canvas')).toBeVisible();await page.waitForTimeout(1500);await page.screenshot({path:'../work/frontend-mobile.png',fullPage:true});
+  expect(await page.locator('.cinematic-art').evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>1000)).toBe(true);await page.screenshot({path:'../work/frontend-mobile.png',fullPage:true});
 });
 test('backend connection failure is actionable',async({page})=>{
   await page.route('http://127.0.0.1:8000/**',route=>route.abort());
@@ -62,7 +65,22 @@ test('WebGL unavailable still permits real route exploration',async({page})=>{
       return original.apply(this,[type,...args] as never);
     } as typeof original;
   });
-  await page.goto('/');await expect(page.getByText('WebGL is unavailable on this device.',{exact:false})).toBeVisible();
+  await page.goto('/');await page.getByRole('button',{name:'3D orbit',exact:true}).click();await expect(page.getByText('WebGL is unavailable on this device.',{exact:false})).toBeVisible();
+  await page.getByRole('button',{name:'Show detail panel'}).click();
   await page.getByRole('button',{name:'Explore recorded routes'}).click();
   await expect(page.locator('.route-map polyline')).toHaveCount(2);
+});
+
+test('cinematic artwork loads independently of optional real-time 3D',async({page})=>{
+  await page.goto('/');
+  const art=page.locator('.cinematic-art');await expect(art).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Your next journey'})).toHaveCount(0);
+  expect(await art.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>1000)).toBe(true);
+  await expect(page.getByText('Illustrative render - not a live city map')).toBeVisible();
+  await page.getByRole('button',{name:'Zoom in',exact:true}).click();
+  await expect(page.locator('.cinematic-zoom')).toHaveAttribute('style',/scale\(1\.08/);
+  await page.screenshot({path:'../work/frontend-cinematic-desktop.png'});
+  await page.getByRole('button',{name:'3D orbit',exact:true}).click();
+  await expect(page.locator('.city-canvas canvas')).toBeVisible();
+  await expect(page.getByText('Real-time 3D illustration - drag to orbit')).toBeVisible();
 });
