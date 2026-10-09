@@ -61,13 +61,13 @@ class RemoteML:
         return self.call("batch", station_ids=station_ids, **data)
 
 
-def ml_service(request: Request):
+def ml_service(request: Request, environment=Depends(repository)):
     settings = request.app.state.settings
     if settings.ecoroute_profile == "aws":
         if not settings.ml_inference_function_arn:
             raise MLUnavailable("ml_inference_worker_not_configured")
         return RemoteML(settings.ml_inference_function_arn, settings.aws_region)
-    return MLService(LocalRegistry(settings.ml_local_root), repository())
+    return MLService(LocalRegistry(settings.ml_local_root), environment)
 
 
 @router.get("/ml/status")

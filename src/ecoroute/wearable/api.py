@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import AwareDatetime
 
 from ecoroute.auth import Principal, require
+from ecoroute.environment.pipeline import repository as environment_repository
 from ecoroute.models import Identifier
 from ecoroute.routers import IdempotencyKey
 from ecoroute.wearable.archive import Archive
@@ -106,8 +107,8 @@ def delete_data(device_id: Identifier, request: Request, user: Principal = Depen
 
 @router.get("/journeys/{journey_id}/wearable-correlation")
 def correlation(journey_id: Identifier, device_id: Identifier, request: Request,
-                user: Principal = Depends(require("read")), repo=Depends(repository)):
-    from ecoroute.environment.pipeline import repository as environment_repository
+                user: Principal = Depends(require("read")), repo=Depends(repository),
+                environment=Depends(environment_repository)):
     from ecoroute.routing.api import service
     from ecoroute.routing.pollution import PollutionIndex
     from ecoroute.environment.schema import utc
@@ -124,5 +125,5 @@ def correlation(journey_id: Identifier, device_id: Identifier, request: Request,
     start, end = utc(route["segments"][0]["arrival_at"]), utc(route["segments"][-1]["end_at"])
     rows, cursor = repo.history(user.subject, device_id, start, end)
     rows = [r for r in rows if r.get("journey_id") in (None, journey_id)]
-    result = correlate(rows, route, PollutionIndex.load(environment_repository(), start, end))
+    result = correlate(rows, route, PollutionIndex.load(environment, start, end))
     return {"journey_id": journey_id, "device_id": device_id, "truncated": cursor is not None, **result}

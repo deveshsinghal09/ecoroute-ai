@@ -23,7 +23,17 @@ jobs:
       - run: ECOROUTE_TEST_ML_CONTAINER=true python -m pytest tests/test_ml_container.py -q
       - run: python scripts/smoke_local.py
       - run: python scripts/check_repo.py
+      - run: python scripts/export_api.py && git diff --exit-code -- docs/openapi.json docs/FRONTEND_INTEGRATION.md examples
+      - run: docker build -t ecoroute-api:ci .
+      - name: Container health and authorization smoke
+        run: |
+          docker run -d --name ecoroute-api -p 8000:8000 ecoroute-api:ci
+          trap 'docker logs ecoroute-api; docker rm -f ecoroute-api' EXIT
+          for attempt in $(seq 1 30); do curl -fsS http://localhost:8000/api/v1/health && break; sleep 1; done
+          curl -fsS http://localhost:8000/docs > /dev/null
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/v1/wearables/latest)" = 401
       - run: npm ci --ignore-scripts
       - run: python scripts/build_lambda.py
       - run: PYTHONPATH=build/lambda python -S -c "import pyarrow; import ecoroute.handlers.api; import ecoroute.handlers.ingestion; print('Linux asset imports passed')"
       - run: npm run synth
+      - run: python scripts/security_review.py

@@ -22,6 +22,6 @@ def test_health_is_explicit_about_scaffold():
     {"ecoroute_profile": "aws"}, {"enable_aws_location": True},
     {"enable_openaq": True}, {"enable_weather": True}, {"enable_wearable": True},
 ])
-def test_unimplemented_live_modes_fail_closed(setting):
+def test_incomplete_or_unsupported_live_modes_fail_closed(setting):
     with pytest.raises(ValidationError):
-        Settings(_env_file=None, **setting)
+        Settings(_env_file=None, aws_profile="", expected_aws_account_id="", **setting)

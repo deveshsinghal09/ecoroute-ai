@@ -28,7 +28,10 @@ def run_demo(data, *, provider="recorded", live=False):
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     owner = "isolated-demo-subject"
     with TemporaryDirectory(prefix="ecoroute-demo-") as scratch:
-        settings = Settings(_env_file=None, local_db_path=":memory:", cognito_user_pool_id="ap-south-1_demo",
+        settings = Settings(_env_file=None, ecoroute_profile="local", aws_region="ap-south-1",
+            enable_bedrock=False, enable_sms=False, enable_aws_location=False,
+            enable_openaq=False, enable_weather=False, enable_wearable=False,
+            local_db_path=":memory:", cognito_user_pool_id="ap-south-1_demo",
             cognito_client_id="isolated-demo", wearable_demo_mode=True, wearable_archive_path=scratch)
         class Keys:
             def get_signing_key_from_jwt(self, token):
