@@ -530,5 +530,3 @@ changes to credentials or live cloud resources. Added scripts/commit-joint.ps1 a
 co-author API revealed that blank-separated trailers in the first two Phase 2 commits recognized
 only the final co-author. The helper preserves both teammates in a contiguous final trailer block.
 Published earlier history is preserved. Remote attribution is checked on the helper/report commit.
-
-Sidebar adjustment (2026-10-10): widened desktop metric rail from 130-184px to 190-244px (17vw), with roomier padding and larger labels. Production build and the three-size desktop viewport-fit browser test passed. Mobile card layout unchanged.
