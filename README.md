@@ -12,8 +12,10 @@ AWS target: Mumbai (`ap-south-1`). No idle Fargate service, NAT Gateway or datab
 
 Install optional numerical dependencies with `.\.venv\Scripts\python.exe -m pip install -r requirements-ml.txt`.
 Run `.\.venv\Scripts\python.exe scripts/train.py --prepare-only` to audit actual curated data.
-Current result:192 Open-Meteo modeled/forecast records, zero measured labels; training correctly
-stops. No real model metrics or predictions exist. RF/HGB, persistence/provider comparisons,
+Current result:197 records, including192 Open-Meteo modeled/forecast values and5 actual OpenAQ
+PM2.5 observations from GK1 (Oberoi Terrace), attributed to Oberoi under reported CC BY4.0.
+OpenAQ authentication and bounded ingestion passed after confirmed key rotation. Training
+correctly stops with zero eligible samples; no real model metrics or predictions exist. RF/HGB, persistence/provider comparisons,
 leakage-safe chronological preparation, trusted serialization, protected ML APIs and route
 prediction matching are implemented. [ML_WORKFLOW.md](docs/ML_WORKFLOW.md) gives runnable
 training/evaluation, S3 upload, dry-run SageMaker specifications, IAM/quotas, costs and cleanup.

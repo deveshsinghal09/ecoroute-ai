@@ -19,8 +19,14 @@ coordinates, provider, owner and licenses. [Rate limits](https://docs.openaq.org
 are 60/min and 2,000/hour for standard access. [Terms](https://docs.openaq.org/about/terms) require
 original-provider attribution and compliance with underlying source licenses; do not assume
 universal redistribution permission. Station availability, archive depth, licensing and current
-Delhi coverage remain unverified until a key is configured and discovery is run. No live request
-has been made to OpenAQ. Optional official Indian/weather sources are not enabled.
+Delhi archive depth and complete coverage require per-station checks. On2026-10-10 IST,
+after user-confirmed key rotation, one Delhi bbox page returned100 entries (more pages remain).
+GK1 (Oberoi Terrace), location2860223/sensor9320367, reports CC BY4.0 attribution to Oberoi.
+A real14:00Z..20:00Z window on2026-10-09 returned5 hourly observed PM2.5 records,
+15:00Z..19:00Z, normalized ug/m3, range51.2..82.0, no rejected/flagged values. Raw JSON,
+curated Parquet and metadata are local under ignored work/environment; nothing was uploaded
+to AWS. This validates one sensor/page, not all Delhi stations or archive completeness.
+Optional official Indian/weather sources are not enabled.
 
 ## Collection commands
 

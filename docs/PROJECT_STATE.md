@@ -8,8 +8,8 @@ remain unresolved; existing code and infrastructure were reused.
 
 Phase 4 training, evaluation, inference and optional SageMaker orchestration are implemented.
 **Real AWS resources deployed: none. Real training jobs/endpoints/uploads: none.**
-The actual local dataset has 192 Open-Meteo records (76 modeled, 116 forecast), zero measured
-PM2.5 records and zero eligible training samples. Training stops with insufficient_data;
+The actual local dataset now has 197 records:192 Open-Meteo (76 modeled,116 forecast) and
+5 measured OpenAQ PM2.5 observations; zero eligible training samples. Training stops with insufficient_data;
 there is no real trained model, measured accuracy or claimed improvement over persistence.
 
 ### Files created and updated
@@ -49,9 +49,9 @@ the project .venv/Scripts to PATH corrected the interpreter; both subsequent syn
 
 ### Blockers and remaining work
 
-Collect sufficient real hourly monitoring history with honest availability timestamps. The local
-OpenAQ key is present, but replacement of the chat-disclosed key has not been confirmed; no
-call uses it while that confirmation is pending. Backfilled observations fetched today cannot
+Collect sufficient real hourly monitoring history with honest availability timestamps. The user
+confirmed OpenAQ rotation on2026-10-10 IST; bounded live discovery and measurement ingestion
+then succeeded using local credentials. Backfilled observations fetched today cannot
 be silently treated as features available months ago. No weather adapter/history is configured.
 
 Selected identity remains dev-admin / IAM user devesh_eco in user-confirmed credit account,
@@ -63,6 +63,26 @@ Proposed ml.m5.large runtime cap15minutes gives USD0.03025 compute arithmetic, p
 storage, orchestration, logs and other charges. A USD1 experiment warning is proposed; alerts
 are not hard caps and credits do not remove billing risk. No paid training, endpoint or deployment
 will start without a concrete resource/cost review and explicit approval. No frontend exists.
+
+### OpenAQ verification follow-up — 2026-10-10 IST
+
+Commands: ingest_air.py --source openaq --stations --max-pages1 returned100 station entries,
+incomplete=true/resume_page2 (expected bounded-page exit2, not an authentication failure).
+Selected GK1 (Oberoi Terrace), location2860223/sensor9320367, with provider-reported
+CC BY4.0 attribution to Oberoi. One measurement page for2026-10-09T14:00Z..20:00Z
+returned5 hourly observed PM2.5 values, normalized ug/m3, range51.2..82.0; missing/rejected0,
+flagged0. Reports cover15:00Z..19:00Z; collected19:38:48Z. Values were not fabricated.
+
+Local-only files: raw/stations/date=2026-10-10/page=1.json, raw/source=openaq/date=2026-10-09/
+a0dd0f1e0e55650c6e377eac5378b2e35fa3b8520e19190cd374ceb83c5c703a.json and
+curated/source=openaq/date=2026-10-09/3e13c194baa6a5c99b26858f71a043b6a1f7fc67e3ee2181ff4e02a17768f350.parquet
+under ignored work/environment, plus SQLite metadata. No key/raw dataset was committed.
+
+Re-running train.py --prepare-only returned insufficient_data:197 inputs,5 measured records,
+1 station series,0 eligible samples. Minimum temporal span and availability constraints remain.
+No model, accuracy, AWS upload, paid training or deployment. Updated README, all five living
+documents, INGESTION.md and ML_WORKFLOW.md; source unchanged, no new unit tests needed.
+Previous final code CI run37981134919 passed. Follow-up document checks are recorded in commit.
 
 ## Previous Phase 3 report (preserved)
 

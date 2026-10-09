@@ -2,6 +2,11 @@
 
 Phase 4 adds these protected endpoints, with unchanged Cognito scopes and body/security limits:
 
+2026-10-10 data follow-up: local station metadata now contains100 discovered OpenAQ entries;
+history/current can retrieve five real GK1 PM2.5 observations after authorized ingestion.
+Existing freshness/coverage limits still apply. No provider is called from API queries and no
+verified ML model is available. These data updates do not change endpoint schemas or authentication.
+
 | Endpoint | Scope and behavior |
 |---|---|
 | GET /api/v1/ml/status | read; registry readiness, no fabricated accuracy |

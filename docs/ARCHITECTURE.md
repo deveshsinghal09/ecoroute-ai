@@ -12,7 +12,9 @@ disabled weekly Scheduler, roles, S3 layout, container contracts and inference a
 Default synthesis creates no training job or real-time endpoint. Core remains a lean ZIP Lambda;
 heavy numerical dependencies live in the optional ML container. No Fargate/NAT is introduced.
 Registry metadata in S3 avoids an additional Model Registry/table requirement for this hackathon.
-No actual measured dataset or model currently passes the eligibility gate; weather ingestion and
+Five actual OpenAQ measurements were ingested locally after confirmed rotation; this small
+late-retrieved collection still fails the training gate. No measured training dataset or model
+currently passes; weather ingestion and
 validated prediction intervals remain unavailable. Synthetic tests verify mechanics only.
 
 Decision date: 2026-10-08. Delhi; AWS target ap-south-1 (Mumbai). Infrastructure is implemented

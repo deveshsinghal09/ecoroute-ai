@@ -3,8 +3,9 @@
 Phase 4 update (2026-10-10): dev-admin / devesh_eco and ap-south-1 remain selected. Read-only
 diagnostics verified STS, but Lambda access is denied and CDK bootstrap/training quotas are
 unverified. There is no SageMaker execution role, approved ML bucket/image or deployed worker.
-No paid ML action has been attempted. The OpenAQ key exists locally; confirmation that it was
-rotated after disclosure is still required before using it. Never send its replacement in chat.
+No paid ML action has been attempted. User confirmed OpenAQ key rotation on2026-10-10 IST;
+live authentication, bounded station discovery and five-observation ingestion passed using
+local configuration. Never send the replacement in chat. AWS Secrets Manager is not deployed.
 
 See [ML prerequisites and exact Console/CLI steps](ML_WORKFLOW.md#credentials-and-minimum-iam)
 for every Phase 4 identifier, sensitivity, mandatory/optional status, IAM boundary, secure storage,

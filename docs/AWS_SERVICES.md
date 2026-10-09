@@ -8,6 +8,10 @@ its weekly EventBridge schedule is disabled and guarded by explicit approval con
 An optional container Lambda performs on-demand inference for the lean API Lambda.
 CloudWatch receives structured worker logs and failure alarms. No resources are deployed.
 
+OpenAQ rotation follow-up: real local station discovery and5-observation ingestion succeeded
+without authenticated AWS calls. The existing S3/DynamoDB adapters remain local-only; no
+Secrets Manager secret, S3 object, training job or additional AWS charge was created by this check.
+
 Separate execution roles scope S3 to datasets/*, models/training/* and models/registry/* as
 needed; ECR pull to the exact repository; SageMaker jobs to ecoroute-*; PassRole to the exact
 execution role with iam:PassedToService; invocation/start to exact function/workflow ARNs.

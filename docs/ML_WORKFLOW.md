@@ -9,12 +9,19 @@ been launched or deployed. No real model accuracy or baseline improvement is cla
 
 ## Real data result and scientific limits
 
-`python scripts/train.py --prepare-only` inspected the actual local curated files:
+The initial `python scripts/train.py --prepare-only` inspected the actual local curated files:
 192 input records, 76 modeled/116 forecast Open-Meteo values, **zero measured PM2.5 records,
 zero station series and zero eligible supervised samples**. It exited2 with insufficient_data
 and wrote work/ml/data_audit.json. No model or MAE/RMSE was generated from this data.
 Forecast values are not relabelled as measurements. No actual S3 history exists in this project
 because deployment/upload has not occurred. S3 input support is implemented, not claimed executed.
+
+Follow-up2026-10-10 IST: after user-confirmed OpenAQ rotation, real local ingestion added5
+hourly observed PM2.5 values at GK1 (Oberoi Terrace), location2860223/sensor9320367.
+Provider station metadata reports CC BY4.0, attribution Oberoi. No missing/rejected or flagged
+values in this page. The new audit has197 inputs,5 measured records,1 station series and
+zero eligible samples; training still stops. The short history and late collection cannot provide
+the required availability-aware chronological dataset. No real metrics/model or AWS upload exists.
 
 At least seven days of eligible hourly series and 72/24/24 aggregate train/validation/test
 samples are required. Each supported station needs at least24 train,12 validation and12 test
@@ -178,7 +185,7 @@ provider secret and network isolation prevents external API requests.
 | Prerequisite | Use / requirement / sensitivity | Exact setup, storage, verification and cost |
 |---|---|---|
 | dev-admin profile, expected account, ap-south-1 | Required AWS; identifiers non-secret, credentials sensitive | Existing CLI profile verified by STS; keep credentials in CLI storage and identifiers in ignored .env. Renew via existing approved login, never root keys. STS no direct charge |
-| OpenAQ replacement and actual station history | Required measured training; API key secret | Provider account/API keys → revoke exposed key → create replacement → ignored .env OPENAQ_API_KEY. Rotation confirmation pending; bounded station discovery can verify auth without displaying the key. OpenAQ plan/rate/license limits apply |
+| OpenAQ replacement and actual station history | Required measured training; API key secret | Provider account/API keys → revoke exposed key → create replacement → ignored .env OPENAQ_API_KEY. Rotation confirmed; bounded discovery/measurement authentication passed2026-10-10 IST without displaying the key. More actual history is required. OpenAQ plan/rate/license limits apply |
 | ML execution role ARN | Required training; ARN non-secret | Reviewed optional MlWorkflow CDK defines a SageMaker-trusted role. Operator: IAM → Roles → deployed TrainingRole → inspect trust and inline permissions. Store ARN as job-plan input; verify iam:GetRole + policy reads, then approved bounded job. IAM itself no charge |
 | ML bucket and prepared dataset version | Required AWS; names non-secret, data needs controlled redistribution | Approved ML stack output or S3 → existing bucket → Properties/Permissions. Set plan bucket/dataset version. Upload role: PutObject only datasets/*; history reader: ListBucket with curated prefix and GetObject curated/*. Private SSE/TLS; verify manifest hashes and HeadObject under exact prefix. S3 request/storage charges |
 | Digest-pinned ECR image | Required AWS training/inference; URI non-secret | Build Dockerfile.ml locally/CI, operator creates reviewed ECR repository, push after approval, obtain digest from ECR → repository → image details. ecr:GetAuthorizationToken(*) plus scoped image push actions; repository image-pull policy for Lambda/SageMaker. Store URI in reviewed CDK context; inspect DescribeImages exact repo. Image storage/scan fees |
