@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 export default function City({ moving, zoom, reset }: {moving:boolean; zoom:number; reset:number}) {
@@ -20,7 +21,7 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
     renderer.domElement.setAttribute('aria-label','Illustrative 3D transit city. Drag to orbit; use the zoom buttons.');
     const scene=new THREE.Scene(); scene.background=new THREE.Color('#788c9e'); scene.fog=new THREE.Fog('#8d9ba7',145,320);
     // Atmospheric sky stays separate from the lighting environment: no external assets.
-    const skyGeometry=new THREE.SphereGeometry(300,32,16);
+    const skyGeometry=new THREE.SphereGeometry(200,32,16);
     const skyMaterial=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
       vertexShader:`varying vec3 direction;void main(){direction=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
       fragmentShader:`varying vec3 direction;
@@ -58,10 +59,13 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
     for(const z of [10.7,11.9,16.3,17.5]) box(0,.18,z,260,.09,.12,silver);
     // Porcelain-and-glass skyline; deliberately illustrative, not Delhi building footprints.
     let seed=812; const random=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};
-    const canvas=document.createElement('canvas');canvas.width=128;canvas.height=256;
-    const ctx=canvas.getContext('2d')!;ctx.fillStyle='#354a59';ctx.fillRect(0,0,128,256);
-    for(let y=0;y<256;y+=16) for(let x=0;x<128;x+=16){ctx.fillStyle=random()>.86?'#ffc477':random()>.5?'#7c97a6':'#243e50';ctx.fillRect(x+2,y+2,11,12);}
-    const windowTexture=new THREE.CanvasTexture(canvas);windowTexture.colorSpace=THREE.SRGBColorSpace;
+    const canvas=document.createElement('canvas');canvas.width=256;canvas.height=512;
+    const ctx=canvas.getContext('2d')!;ctx.fillStyle='#203340';ctx.fillRect(0,0,256,512);
+    for(let y=0;y<512;y+=32) for(let x=0;x<256;x+=32){
+      const lit=random()>.9;const pane=ctx.createLinearGradient(x,y,x+24,y+28);pane.addColorStop(0,lit?'#e2b474':'#78929e');pane.addColorStop(1,lit?'#8b653e':'#344d5d');ctx.fillStyle=pane;ctx.fillRect(x+3,y+3,25,26);
+      ctx.fillStyle='#a3adb1';ctx.fillRect(x,y,1,32);ctx.fillStyle='#172934';ctx.fillRect(x,y+30,32,2);
+    }
+    const windowTexture=new THREE.CanvasTexture(canvas);windowTexture.colorSpace=THREE.SRGBColorSpace;windowTexture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
     const windows=new THREE.MeshStandardMaterial({map:windowTexture,color:'#b4c8d3',roughness:.25,metalness:.45});materials.push(windows);
     for(let row=0;row<5;row++)for(let col=0;col<13;col++){
       const x=(col-6)*12+(random()-.5)*3,z=-37-row*15; const height=6+random()*23+(row>2?5:0);
@@ -69,6 +73,9 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
       box(x,height/2,z,w,height,d,col%3===0?windows:ivory);
       box(x,height+.18,z,w+.35,.4,d+.35,white);
       if(col%3!==0){box(x,height/2,z+d/2+.025,w*.76,height*.87,.06,windows);for(let i=0;i<4;i++)box(x-w/2+(i+1)*w/5,height/2,z+d/2+.1,.2,height,.2,white);}
+      box(x+w/2+.03,height/2,z,.06,height*.88,d*.78,windows);
+      for(let level=3;level<height;level+=3){box(x,level,z+d/2+.14,w+.1,.12,.22,silver);box(x+w/2+.12,level,z,.22,.12,d+.1,silver);}
+      box(x-w/2+.12,height/2,z+d/2+.12,.24,height,.24,white);
       if(col%4===0) box(x+w/2+.05,height/2,z,.12,height*.9,.3,orange);
       if(height>24)box(x+.8,height+1.8,z,2,3,2,silver);
     }
@@ -111,7 +118,38 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
     for(let x=-64;x<70;x+=16){box(x,.6,25,2.6,.2,.65,bark);box(x-1,.3,25,.12,.6,.5,dark);box(x+1,.3,25,.12,.6,.5,dark);}
     for(const x of [-55,-22,34,61]){box(x,.6,-24,3.3,.85,1.5,silver);box(x,.99,-24,1.7,.55,1.35,dark);box(x+1.68,.63,-24,.05,.15,1.1,warm);}
     for(let x=-80;x<85;x+=12){box(x,2.8,8,.1,5.6,.1,dark);box(x+.6,5.5,8,1.4,.13,.4,warm);}
-    function tram(z:number){const g=new THREE.Group();scene.add(g);for(let i=0;i<3;i++){const x=i*4.8;box(x,1.25,0,4.5,2,1.7,white,g);box(x,1.6,.87,3.8,.85,.06,dark,g);box(x,1.6,-.87,3.8,.85,.06,dark,g);box(x-1.3,1.2,.92,.6,1.85,.07,orange,g);box(x,2.35,0,4,.15,1.6,silver,g);box(x,.32,0,3.4,.5,1.4,dark,g);}g.position.set(0,0,z);return g;}
+    const carriageGeometry=new RoundedBoxGeometry(4.5,1.9,1.8,3,.22);
+    const wheelGeometry=new THREE.CylinderGeometry(.28,.28,.18,12);extras.push(carriageGeometry,wheelGeometry);
+    function tram(z:number){
+      const g=new THREE.Group();scene.add(g);
+      for(let i=0;i<3;i++){
+        const x=i*4.8,body=new THREE.Mesh(carriageGeometry,white);body.position.set(x,1.35,0);body.castShadow=true;g.add(body);
+        box(x,.48,0,4.1,.3,1.55,dark,g);box(x,2.32,0,3.7,.12,1.4,silver,g);
+        // Separate flush windows and double doors, on both sides of each carriage.
+        for(const side of [-1,1]){
+          box(x,1.75,side*.895,4.05,.75,.025,dark,g);
+          box(x,.83,side*.91,4.05,.16,.025,orange,g);
+          for(const offset of [-1.38,1.38]){
+            box(x+offset,1.3,side*.923,.66,1.62,.028,orange,g);
+            box(x+offset,1.63,side*.946,.49,.72,.025,dark,g);
+            box(x+offset,1.3,side*.965,.025,1.57,.015,silver,g);
+          }
+          for(const offset of [-.66,0,.66])box(x+offset,1.76,side*.925,.045,.75,.03,silver,g);
+          for(const offset of [-1.35,1.35]){const wheel=new THREE.Mesh(wheelGeometry,dark);wheel.rotation.x=Math.PI/2;wheel.position.set(x+offset,.38,side*.72);g.add(wheel);}
+        }
+        if(i<2){box(x+2.39,1.3,0,.35,1.55,1.4,dark,g);for(let j=0;j<4;j++)box(x+2.27+j*.075,1.3,0,.025,1.6,1.46,silver,g);}
+      }
+      // Driving cab: wraparound windshield, paired lamps and roof pantograph.
+      for(const end of [-2.23,11.83]){
+        box(end,1.75,0,.035,.78,1.45,dark,g);
+        for(const side of [-.57,.57])box(end,1.04,side,.045,.13,.3,warm,g);
+        box(end,.65,0,.09,.18,1.1,silver,g);
+      }
+      const p1=box(4.3,2.8,0,1.2,.06,.06,dark,g);p1.rotation.z=.55;
+      const p2=box(5.2,2.8,0,1.2,.06,.06,dark,g);p2.rotation.z=-.55;
+      box(4.75,3.14,0,.8,.07,1.15,dark,g);
+      g.position.set(0,0,z);return g;
+    }
     const trams=[tram(11.3),tram(16.9)];
     // Batch the static city by geometry/material: hundreds of boxes become a handful of draws.
     for(const geometry of [boxGeometry,treeGeo]){
@@ -126,7 +164,7 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
     let frame=0,last=0,elapsed=0;const animate=(time:number)=>{frame=requestAnimationFrame(animate);if(time-last<32)return;const dt=Math.min((time-last)/1000,.1);last=time;
       if(document.hidden)return;if(motion.current){elapsed+=dt;dirty.current=true;}
       trams[0].position.x=((elapsed*3+25)%180)-90;trams[1].position.x=90-((elapsed*3+75)%180);
-      controls.update();if(dirty.current){renderer.render(scene,camera);dirty.current=false;}
+      controls.update();if(dirty.current){sky.position.copy(camera.position);renderer.render(scene,camera);dirty.current=false;}
     };frame=requestAnimationFrame(animate);
     const loss=(event:Event)=>{event.preventDefault();setFailed(true);};renderer.domElement.addEventListener('webglcontextlost',loss);
     return()=>{cancelAnimationFrame(frame);observer.disconnect();controls.removeEventListener('change',changed);controls.dispose();skyGeometry.dispose();skyMaterial.dispose();boxGeometry.dispose();extras.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());windowTexture.dispose();env.dispose();room.dispose();pmrem.dispose();renderer.dispose();renderer.domElement.removeEventListener('webglcontextlost',loss);renderer.domElement.remove();api.current=undefined;};
