@@ -194,11 +194,33 @@ def test_school_destination_and_grid_validation():
         "route": {"origin": {"latitude": 28.6, "longitude": 77.2}, "destination": {"latitude": 28.61, "longitude": 77.21}, "departure_at": tomorrow, "consent_to_store": True}}
     with pytest.raises(ValueError):
         SchoolRequest.model_validate(body)
+
     body["forecast_location_id"] = "cams_global:28.8000:77.2000"
     assert SchoolRequest.model_validate(body).school_name == "test school"
     body["route"]["destination"] = "different school"
     with pytest.raises(ValueError):
         SchoolRequest.model_validate(body)
+
+
+def test_school_day_window_and_ownership(secured, monkeypatch):
+    from ecoroute.advisory import api
+    from ecoroute.environment.pipeline import repository
+    secured.app.dependency_overrides[repository] = lambda: None
+    school = {"commute_start": "08:00:00", "forecast_location_id": "cams_global:28.8000:77.2000"}
+    secured.store.put_record("schools", "alice", "a" * 32, school, 86400)
+    captured = {}
+    def capture(repo, source, location, end):
+        captured["end"] = end
+        return {"status": "unavailable"}
+    monkeypatch.setattr(api, "daily_window", capture)
+    auth = {"Authorization": "Bearer " + secured.token()}
+    query = {"school_id": "a" * 32, "forecast_date": "2030-01-02"}
+    result = secured.client.get("/api/v1/schools/forecast", params=query, headers=auth)
+    assert result.status_code == 200
+    assert captured["end"] == datetime(2030, 1, 2, 18, tzinfo=UTC)
+    assert result.json()["commute_start"] == "2030-01-02T08:00:00+05:30"
+    auth = {"Authorization": "Bearer " + secured.token(sub="bob")}
+    assert secured.client.get("/api/v1/schools/forecast", params=query, headers=auth).status_code == 404
 
 
 def test_workflow_missing_model_and_gate(monkeypatch):
