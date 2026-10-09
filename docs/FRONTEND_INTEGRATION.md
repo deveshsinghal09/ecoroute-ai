@@ -28,7 +28,7 @@ where the provider permits; cycling fails explicitly until a supported provider 
 PM2.5/PM10/NO2/O3 concentrations use ug/m3, not AQI. Aware ISO8601 timestamps include UTC offset;
 backend normalizes to UTC. duration_s is seconds, distance_m is meters. PM2.5 exposure index
 = sum(segment concentration * duration_s/3600), unit ug*h/m3; never actual dose/diagnosis.
-Full exposure is null when coverage is incomplete; known_pm25_exposure is a partial contribution.
+Full exposure is null when coverage is incomplete; known_pm25_exposure_ug_h_m3 is a partial contribution.
 Coverage uses pm25_coverage_fraction. recommended_route_ids contains fastest, lowest_exposure,
 balanced; unavailable categories are null. Baseline is fastest RETURNED route at SAME departure.
 relative_exposure_change_percent=(route-baseline)/baseline*100; negative means estimated reduction.
@@ -84,6 +84,8 @@ against production (it includes consent/deletion writes). Example telemetry is e
 synthetic/demo and rejected unless local demo mode is enabled. Environmental examples use real
 queries or unavailable values; examples contain no fabricated measured pollution or trained metrics.
 See DEMO_READINESS.md for repeatable benchmark, curl, deployment and cleanup instructions.
+examples/delhi-recorded-response.json contains an actual historical public-landmark comparison;
+its response member follows RouteComparison. File metadata marks it historical, not current.
 
 ## Endpoint index
 

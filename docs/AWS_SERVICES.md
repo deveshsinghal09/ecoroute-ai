@@ -12,6 +12,16 @@ scripts/manage_cloud.py defaults to a no-network plan. Deployment is an explicit
 retaining teardown inventories resources but leaves protected data/Cognito/bootstrap billable.
 CloudWatch error/latency alarms remain synthesized and tested structurally, not exercised in AWS.
 
+Phase7 optional assembly inventory (`enable_iot=true`, `enable_workflows=true`, no ML image):
+7 DynamoDB tables,2 S3 buckets,6 SQS queues,8 Lambda functions (including the CDK S3 notification
+helper),8 explicit log groups,14 CloudWatch alarms,2 disabled Scheduler schedules,1 Step Functions
+state machine,1 disabled IoT TopicRule,1 HTTP API,1 Cognito pool/client/domain and1 operational
+SNS topic. This is a **template count, not deployed resources**. The optional SageMaker training/
+container worker requires a separately reviewed ML image; its workflow is covered by structural
+tests, not included in this assembly. Secrets Manager credentials are references, not created
+secret values. Bedrock/Location are permissioned API integrations rather than dedicated idle
+compute resources. The optional operational SNS topic has no verified subscriber/delivery.
+
 Phase5 meaningful additions: DynamoDB wearables table (on-demand, stream, TTL/throughput caps),
 Core archive Lambda/failure queue/2 alarms, private S3 wearables/* lifecycle7d, optional IoT
 Rule/validator/failure queue/2 alarms. Existing Cognito/API, bucket, journey and pollution services

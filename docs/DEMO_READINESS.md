@@ -83,6 +83,10 @@ Tracked-file secret heuristic is limited; no vulnerability database scan or live
 test was performed. CI additionally builds API/ML Docker images, tests container execution,
 checks exported-contract drift and Linux-native Lambda imports. Inspect the actual Actions run
 before claiming those checks passed on a particular commit.
+First Phase7 CI attempt37992768638 passed Python checks but Docker Hub returned504 while
+fetching the base image; later steps were skipped. The retry result must be checked independently.
+examples/delhi-recorded-response.json preserves one actual historical live comparison with full
+geometry and segments; its response passed RouteComparison JSON Schema validation.
 
 Saved live benchmark replay: 12 routes validated, 0 content hashes (created before hash support).
 New recorded benchmark: 2 supported cases, 4 explicitly unavailable; replay verified 4 routes and
@@ -118,7 +122,7 @@ Secrets Manager. Local /ready is public; deployed API Gateway requires read scop
 
 ## Cost proposal — review before deployment
 
-No money was spent on AWS in this phase. Proposed small-demo envelope: US$5–20/month,
+No billable AWS action was executed in this phase. Proposed small-demo envelope: US$5–20/month,
 not a price quote or guarantee. Assumes at most 10,000HTTP calls/month, 100 bounded route comparisons,
 hourly collection only after explicit enablement, <1 GB S3, low DynamoDB utilization,
 bounded logs, no NAT/Fargate/real-time SageMaker endpoint, SMS and Bedrock disabled initially.

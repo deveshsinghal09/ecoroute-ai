@@ -48,6 +48,11 @@ provider/model/channel settings, review resource costs, obtain deployment approv
 AWS services after deployment, gather enough measured history, and validate a supported watch
 bridge. Credentials and exact steps remain in CREDENTIALS_CHECKLIST.md and linked runbooks.
 Separate individually attributed commits are used with all three teammates' authorization.
+GitHub verified author mappings for the three Phase7 implementation/security/contract commits.
+The first Phase7 CI run37992768638 passed Python checks, then Docker Hub returned504 while
+fetching the Python base-image OAuth token; this is not a successful Docker verification.
+Final follow-up adds a schema-validated historical real Delhi response and template inventory;
+inspect the latest Actions run for the subsequent Docker/Linux result. No AWS action is involved.
 
 ## Phase 6 current state — 2026-10-10 IST
 
