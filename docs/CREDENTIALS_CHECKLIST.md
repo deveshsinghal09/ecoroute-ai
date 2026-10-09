@@ -256,3 +256,6 @@ least-privilege IAM, storage and possible charges are in the configuration table
 source files; CLI credentials stay in temporary IAM/SSO cache; provider secrets remain Secrets
 Manager references. No Bedrock/SNS API key is required. Verification and deployment are
 separate, and live messages/model invocations need reviewed costs and approval.
+
+Cinematic artwork is bundled in the frontend and needs no runtime credentials or image-generation
+API key. Live Cognito/backend/provider configuration remains required as documented above.

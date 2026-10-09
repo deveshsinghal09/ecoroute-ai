@@ -168,3 +168,6 @@ Strict bodies reject extra fields/spoofed owner IDs. All endpoints reuse existin
 body limit, secure no-store headers and exact CORS. Alert units ug/m3 are not AQI; WHO daily
 guidance is not an instant threshold. Next-hour station ML is not a next-day school forecast.
 Full schemas at /docs; examples/setup/limitations in PHASE6_ADVISORIES.md.
+
+Cinematic frontend revision (2026-10-10): presentation-only scene modes and planner visibility;
+no HTTP request/response contracts changed. The rendered city image is not route geometry.

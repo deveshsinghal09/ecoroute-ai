@@ -68,3 +68,11 @@ npm audit --omit=dev
 Local browser tests use installed Edge. CI uses Chromium installed by Playwright. API/Cognito live
 login remains configuration-dependent; browser tests explicitly exercise offline/auth-failure paths.
 Backend contract is ../docs/FRONTEND_INTEGRATION.md. No tests imply live AWS deployment.
+
+### Scene modes
+
+Cinematic is the default reference-matched AI-generated artwork, with restrained pan/zoom.
+It is not a geographic map or freely orbitable 3D scene. Use **3D orbit** for procedural real-time
+geometry and **Route view** for the actual provider's road geometry. Open the planner with
+Explore your routes, the orange navigation pin, Journeys, or the menu toggle. Artwork provenance
+and generation prompt are in public/assets/ASSET_PROVENANCE.md. No image API key is needed at runtime.

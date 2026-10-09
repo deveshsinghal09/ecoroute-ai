@@ -44,3 +44,10 @@ The user rejected the initial pale city. Use slate-blue cloud sky, darker blue g
 porcelain structural frames and restrained warm transit accents. Camera-centered sky geometry avoids
 far-plane clipping at any allowed orbit. Keep facade glazing, physical floor bands and articulated
 rounded trams readable. Original procedural scene remains stylized, not a photoreal video replica.
+
+## Cinematic reference match
+
+Default to the generated architectural artwork: centered arched station, reflective silver plaza,
+warm amber interiors, realistic trees and white/orange trams. Keep the station unobstructed by
+collapsing the planner initially. Expose Cinematic, 3D orbit and Route view as distinct modes.
+Never call image parallax true 3D orbit or depict the artwork as actual Delhi data.

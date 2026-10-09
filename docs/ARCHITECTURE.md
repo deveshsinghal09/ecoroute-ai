@@ -224,3 +224,8 @@ and approximation labels. Next-day school window is UTC-hour aligned before Indi
 not a midnight calendar-day average. No legal closure/diagnosis/precise roadside claim.
 Definitions are local-only, schedule DISABLED, dispatcher gate false, live Bedrock/SMS false.
 See [Phase6 runbook](PHASE6_ADVISORIES.md) for security boundaries, permissions and costs.
+
+### Cinematic visual asset (2026-10-10)
+The frontend serves a bundled AI-generated city image locally. Pan/zoom is a presentation effect;
+real-time Three.js geometry is a separately selected mode, lazily mounted. Route geometry and all
+backend API contracts remain unchanged. No image generation service is called by the running app.

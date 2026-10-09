@@ -180,3 +180,6 @@ Incremental planning allowance5 USD/month, including SMS1 USD and Bedrock1 USD, 
 not approved spending or a verified Mumbai quote. Model/carrier/registration rates and credits
 need review. Budgets and SNS accounting limits do not guarantee an instantaneous hard cap.
 Current AWS usage in Phase6: none. See PHASE6_ADVISORIES.md for formulas and official sources.
+
+Frontend cinematic revision: bundled artwork and browser rendering add no AWS services. No hosting
+resources have been provisioned; eventual static-hosting storage/transfer charges need separate review.

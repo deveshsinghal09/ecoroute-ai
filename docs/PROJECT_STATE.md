@@ -1,5 +1,22 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Reference-matched cinematic opening — 2026-10-10 IST
+
+After the user rejected the procedural city's resemblance, generated a detailed architectural
+city artwork with the built-in image generation tool using the supplied screenshot as reference.
+Saved frontend/public/assets/ecoroute-cinematic-city.png; prompt/provenance in
+frontend/public/assets/ASSET_PROVENANCE.md. Default Cinematic view has image pan/zoom and clickable
+planner/air-quality hotspots, with the planner collapsed to preserve the reference composition.
+3D orbit remains a separate interactive Three.js scene. Route view still uses actual saved GeoJSON.
+The generated render is explicitly illustrative, not a live map, genuine Delhi architecture or
+freely orbitable 3D. No fake rider counts or pollution savings were copied from the reference.
+
+Verification: production build passed; all 8 Edge browser tests passed (9.8 s); desktop and mobile
+screenshots inspected. Independent review caught mode wiring, labels and zoom boundaries; fixed
+before passing tests. No new dependencies, authenticated AWS actions, resources or provider calls.
+Existing live service setup requirements are unchanged. Local production preview runs at
+http://127.0.0.1:5173; start the full backend/dev pair with npm run dev after stopping that preview.
+
 ## City visual refinement — 2026-10-10 IST
 
 User requested stronger contrast, clouds and finer building/train details. Added a camera-centered
