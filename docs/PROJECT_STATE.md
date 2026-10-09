@@ -1,4 +1,48 @@
-# EcoRoute AI project state — Phases 1–5
+# EcoRoute AI project state — Phases 1–6
+
+## Phase 6 current state — 2026-10-10 IST
+
+Grounded Converse explanations/fallback, owner-scoped deterministic PM2.5 daily advisories,
+opt-in verified SMS adapter, private school commute comparison/next-day forecast and optional
+inactive environmental orchestration are implemented. Existing route scoring, data pipeline,
+ML inference, tables, bucket and Cognito templates are reused. **Real deployed AWS resources:
+none.** Bedrock/SMS/workflow executions remain untested live and disabled. User selected SMS
+and deferred all credentials until later; no authenticated AWS call was attempted this phase.
+
+Files: new advisory/{api,alerts,explanation,notifications,workflows}.py,
+infra/environment_workflow.py, scripts/check_advisory.py, tests/test_advisory.py,
+tests/test_environment_workflow_infra.py, docs/PHASE6_ADVISORIES.md. Updated Core/app CDK,
+settings/storage/models/router integration, smoke checks, .env.example, README and all five
+living documents. Prompt template is SYSTEM_PROMPT in advisory/explanation.py.
+
+Actual checks: full pytest **153 passed, 1 skipped, 3 upstream warnings**; focused advisory
+tests **23 passed**; Ruff passed; temporary loopback health/docs/auth smoke passed; SDK
+Converse/SNS/StartExecution compatibility passed offline; Linux Lambda asset rebuilt at
+**183.1 MiB**; default/optional offline CDK synth and pip compatibility checks passed. Initial school test failed for absent Windows IANA tzdata; corrected with
+contemporary Delhi UTC+05:30 support and rerun passed. Local Docker-dependent test remains
+skipped; no Docker/live cloud success is implied by local fixture tests.
+
+Offline real-data check: retained OpenAQ station 8917 had **0 usable hourly samples** in the
+current 24h assessment window; status unavailable, concentration/breach null, no alert sent.
+Earlier real five observations remain intact but cannot support current daily safety or ML
+accuracy. New tests use explicitly synthetic mechanics fixtures, not fabricated production
+data. Bedrock model ID/access/region compatibility, quotas, SNS topic/destination/DLT IDs,
+spending settings, deployed workflow ARN, Cognito IDs and bootstrap remain unverified/missing.
+Defaults: 20 Bedrock requests/day, 5/hour, max output256; SMS disabled with 1 USD monthly
+allowance and 0.05 USD maximum acceptable message price; proposed Phase6 budget5 USD/month
+requires approval before live enablement. Alerts are not a financial hard cap.
+
+Commands executed: Ruff, focused/full pytest with existing memory/thread caps,
+scripts/check_advisory.py, scripts/smoke_local.py, scripts/build_lambda.py; offline CDK synth
+passed for default and optional workflows (--no-lookups); Git changes are committed separately. No deploy/Bedrock invocation/SNS
+publish/OTP/provider refresh/paid training/workflow execution was run. Separate commits now
+use the user-authorized individual authors, rather than joint co-author trailers.
+
+Remaining: configure credentials privately after phases, confirm chosen model/provider terms,
+regional IAM/quotas and SMS sandbox/DLT, approve exact regional cost/deployment proposal, deploy
+and verify cloud behavior. Collect sufficient fresh hourly measurements before claiming daily
+observed advisories or trained-model performance. No physical-watch integration is claimed.
+Detailed contracts, limits, setup/verification and cleanup: PHASE6_ADVISORIES.md.
 
 ## Phase 5 current state — 2026-10-10 IST
 

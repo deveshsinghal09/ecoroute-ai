@@ -134,3 +134,20 @@ SubscriptionRequiredException; EC2 DescribeRegions and CloudFormation DescribeSt
 OptInRequired. Quota listing alone does not resolve entitlement. Verify account activation and
 actual Lambda concurrency before deployment (reserved API 3 + collector 1 + cleaner 2 needs enough
 regional concurrency above AWS's required unreserved pool). Do not interpret root as service access.
+# Phase 6 service additions — templates only, none deployed
+
+| Service | Meaningful work / dependency / scoped IAM | Cost/security controls |
+|---|---|---|
+| Bedrock Converse | Explain stored route metrics by arranging approved statement IDs; API role InvokeModel exact regional foundation ARN | Disabled; configurable reviewed model; 20/day,5/hour,256 output tokens; no health/GPS/provider prose; deterministic fallback |
+| SNS | Opt-in environmental SMS through operator-bound dedicated single-recipient topic; Publish/ListSubscriptionsByTopic exact ARN | Disabled; verified sandbox numbers, India DLT and account spend checks; no delivery claim from MessageId; account read-only APIs Resource:* restricted by region |
+| Lambda | Reused API plus optional stage/dispatch workers; exact S3 prefixes and existing tables, optional verified ML ARN | On-demand, reserved concurrency, short bounds; no NAT/idle service; temporary execution roles |
+| Step Functions | Optional ingestion/curation -> station prediction -> daily risk -> alert -> optional notification; InvokeFunction exact worker, SendMessage exact DLQ | Standard,12min timeout,no task retries; trusted operators only; no auto training or real-time endpoint |
+| Scheduler/EventBridge | Optional daily forecast job into SQS; scoped SendMessage | DISABLED; configure trusted owner/template and approve costs before enablement |
+| SQS | Encrypted bounded async jobs, partial failures and DLQ | Jobs1day,DLQ7days,2 receives; dispatcher gate false |
+| DynamoDB/S3 | Reuse pollution datasets, private preferences/schools, seven-day owned alert/workflow state | Existing encryption/TTL/caps; atomic claims, bounded reads; retained data not zero-cost |
+| CloudWatch | Failed runs, errors, DLQ and EMF AlertCount | One-week worker logs, no identities; four optional alarms, notification actions require configuration |
+
+Incremental planning allowance5 USD/month, including SMS1 USD and Bedrock1 USD, is a proposal,
+not approved spending or a verified Mumbai quote. Model/carrier/registration rates and credits
+need review. Budgets and SNS accounting limits do not guarantee an instantaneous hard cap.
+Current AWS usage in Phase6: none. See PHASE6_ADVISORIES.md for formulas and official sources.

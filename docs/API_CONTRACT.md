@@ -138,3 +138,19 @@ warn that street-level differences are unresolved. Provider alternatives are not
 Additional failures: 422 unsupported mode/area/route/geocoding, 429 application request budget,
 502 malformed provider geometry/schema, 503 credentials/provider/dependency unavailable.
 Existing /navigation/routes remains a legacy placeholder; clients should use /routes/compare.
+# Phase 6 protected advisory APIs
+
+| Endpoint | Contract |
+|---|---|
+| POST /api/v1/ai/explain-route | write;1–6 owned 32hex route_ids sharing a documented baseline; approved text/fallback, stored metrics and sanitized provenance; scores unchanged |
+| POST /api/v1/alerts/evaluate | write; source openaq/open_meteo,location_id,aware hour-aligned end_at,notify=false; complete24h PM2.5 guidance or unavailable; owned dedup alert; SMS accepted is not delivered |
+| GET /api/v1/alerts | read; owned alerts only, bounded50 records and truncation flag |
+| PUT /api/v1/alerts/preferences | write; alerts_enabled explicit,channel in_app/sms; no caller-supplied phone/topic |
+| POST /api/v1/schools/compare-routes | write; school_id/name/position/grid,commute_start/end,nested route CompareRequest with consent; true provider routes, matching destination/grid/commute; persists owned config90days |
+| GET /api/v1/schools/forecast | read;owned school_id,optional forecast_date default next India day; explicit UTC24h forecast window,confidence,coarse/missing warnings,no official closures |
+| GET /api/v1/workflows/status | read; configured ARN presence,owner manifests/truncation; no public workflow start or cloud deployment verification claim |
+
+Strict bodies reject extra fields/spoofed owner IDs. All endpoints reuse existing JWT scopes,
+body limit, secure no-store headers and exact CORS. Alert units ug/m3 are not AQI; WHO daily
+guidance is not an instant threshold. Next-hour station ML is not a next-day school forecast.
+Full schemas at /docs; examples/setup/limitations in PHASE6_ADVISORIES.md.

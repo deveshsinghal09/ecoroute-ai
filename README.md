@@ -135,3 +135,15 @@ deployment approval before bootstrap/deploy. Budget alerts do not hard-cap costs
 - [Routing algorithm, live-test blockers and demonstration](docs/ROUTING.md)
 - [Verified official sources](docs/VERIFIED_SOURCES.md)
 - [Joint contribution workflow](CONTRIBUTING.md)
+# Phase 6 backend additions
+
+Grounded Bedrock explanations with deterministic fallback, complete-window PM2.5 advisories,
+opt-in SMS adapter, school commute comparison/forecast and optional inactive AWS orchestration
+are implemented. **No AWS resources are deployed.** Bedrock, SMS and continuous workflows remain
+disabled pending private configuration and cost approval. No frontend or live notification claim.
+
+Run `python scripts/check_advisory.py` for offline SDK/configuration and retained-data checks.
+See [Phase6 runbook](docs/PHASE6_ADVISORIES.md) for API examples, exact credentials/IAM/Console
+steps, scientific limits, costs and activation/cleanup. Put local configuration in ignored .env;
+never put credentials in committed code. Separate meaningful commits use the three supplied
+individual Git authors as requested.

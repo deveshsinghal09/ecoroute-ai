@@ -181,3 +181,26 @@ Phase 1 foundation and Phase 2 ingestion are locally implemented. Phase 3 adds b
 scoring and authenticated persistence. Deployment, successful AWS route verification, measured
 station coverage, trained forecasting and wearable integration remain gated work. Every phase
 updates the five required living documents. No deployment is implied by local implementation.
+# Phase 6 architecture extension
+
+Existing FastAPI/Cognito JWT boundary now includes advisory APIs; no frontend. An owned route
+lookup supplies sanitized numeric facts and approved statements to optional Bedrock Converse.
+The model selects statement order only; deterministic rendering/ranking/threshold rules stay
+authoritative. Missing permissions/model returns fallback. No health/GPS/provider prose is sent.
+
+Private school records use the existing preference table; alert/window claims, notification
+cooldown and workflow manifests reuse the alert table. SQLite/Dynamo adapters support atomic
+claims and bounded owner queries with TTL/truncation. SNS uses dedicated operator-bound
+single-recipient topics, explicit opt-in and verified SMS destinations, never public health data.
+
+Optional inactive workflow: daily Scheduler -> encrypted SQS -> gated Lambda dispatcher ->
+Standard Step Functions -> ingestion + synchronous existing curation -> optional verified
+one-hour station inference -> daily provider-forecast risk -> alerts -> optional SMS. No model
+extrapolation into unsupported daily horizons. Exceptions reach a dedicated DLQ; no task retries.
+CloudWatch failure/error/DLQ/alert-volume alarms and structured EMF counts exclude identities.
+
+Daily advisories require complete 24-hour evidence; Open-Meteo sample means retain coarse-grid
+and approximation labels. Next-day school window is UTC-hour aligned before local commute,
+not a midnight calendar-day average. No legal closure/diagnosis/precise roadside claim.
+Definitions are local-only, schedule DISABLED, dispatcher gate false, live Bedrock/SMS false.
+See [Phase6 runbook](PHASE6_ADVISORIES.md) for security boundaries, permissions and costs.

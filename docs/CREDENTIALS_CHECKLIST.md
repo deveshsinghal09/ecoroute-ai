@@ -214,3 +214,18 @@ actual service entitlement, bootstrap execution boundary and costs still gate de
 
 Preserve an existing .env. No request to paste any secret is part of setup. No key disclosed in
 chat is committed or used for integration. The new replacement must be configured locally.
+# Phase 6 deferred configuration
+
+User explicitly deferred setup until after phases and selected SMS. No new credential values
+are requested in chat. Missing/unverified: reviewed Converse-compatible regional model ID/ARN,
+model entitlement/provider terms/quotas, dedicated SNS topic and verified subscriber, India
+sender/entity/template IDs, account SMS spending settings, owned binding, workflow outputs,
+deployment permissions/bootstrap and actual Cognito IDs. Existing IAM profile is not evidence
+of any particular service permission. Root remains prohibited in development.
+
+All names, mandatory/optional status, sensitivity, Console steps, verification commands,
+least-privilege IAM, storage and possible charges are in the configuration table in
+[PHASE6_ADVISORIES.md](PHASE6_ADVISORIES.md). Local settings go in ignored .env, not committed
+source files; CLI credentials stay in temporary IAM/SSO cache; provider secrets remain Secrets
+Manager references. No Bedrock/SNS API key is required. Verification and deployment are
+separate, and live messages/model invocations need reviewed costs and approval.
