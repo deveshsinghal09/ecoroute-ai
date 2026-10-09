@@ -89,7 +89,11 @@ test was performed. CI additionally builds API/ML Docker images, tests container
 checks exported-contract drift and Linux-native Lambda imports. Inspect the actual Actions run
 before claiming those checks passed on a particular commit.
 First Phase7 CI attempt37992768638 passed Python checks but Docker Hub returned504 while
-fetching the base image; later steps were skipped. The retry result must be checked independently.
+fetching the base image; later steps were skipped. A second attempt failed identically.
+After selecting ECR Public, [CI run37993419466](https://github.com/deveshsinghal09/ecoroute-ai/actions/runs/37993419466)
+passed on code commit f0a829d:164 Python tests,1 separate ML container test, API/ML Docker builds,
+container health/401 smoke, export drift, Linux Lambda imports, CDK synth and security review.
+This was container mechanics verification, not measured-history ML validation or deployment.
 examples/delhi-recorded-response.json preserves one actual historical live comparison with full
 geometry and segments; its response passed RouteComparison JSON Schema validation.
 

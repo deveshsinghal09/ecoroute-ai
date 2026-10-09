@@ -5,6 +5,8 @@ optional IoT/Step Functions resources remain definitions. Offline synthesis/secu
 private S3, disabled schedules, absence of idle compute and scoped policies; they do not prove
 account IAM grants, service availability, alarm delivery or resource creation. Live external
 services actually used: Open-Meteo, OpenAQ and OSRM fallback (not Amazon Location).
+ECR Public was subsequently used anonymously to pull Docker's official Python base images for
+successful CI builds; no ECR repository or other resource was created in the user's AWS account.
 
 DEMO_READINESS.md documents the US$5–20/month small-demo planning envelope, assumptions,
 US$10 budget proposal and required separate ML/Bedrock/SMS estimates. No budget was created.

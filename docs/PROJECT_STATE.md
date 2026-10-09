@@ -51,8 +51,16 @@ Separate individually attributed commits are used with all three teammates' auth
 GitHub verified author mappings for the three Phase7 implementation/security/contract commits.
 The first Phase7 CI run37992768638 passed Python checks, then Docker Hub returned504 while
 fetching the Python base-image OAuth token; this is not a successful Docker verification.
-Final follow-up adds a schema-validated historical real Delhi response and template inventory;
-inspect the latest Actions run for the subsequent Docker/Linux result. No AWS action is involved.
+Final follow-up adds a schema-validated historical real Delhi response and template inventory.
+After a second Docker Hub504, both Dockerfiles switched to Docker's official ECR Public image.
+Anonymous public image access required no account IAM credentials or resource deployment.
+**CI passed on code commit f0a829d**:
+https://github.com/deveshsinghal09/ecoroute-ai/actions/runs/37993419466 . All steps passed,
+including164 Python tests (1 container test skipped in the normal suite), then1 separate Docker
+ML mechanics test, API/ML image builds, real container health/auth smoke, export drift,
+Linux-native Lambda imports, default CDK synth and structural security review.
+This does not validate measured-data model accuracy or live AWS services. The subsequent
+documentation-only verification commit records this exact code revision's result.
 
 ## Phase 6 current state — 2026-10-10 IST
 
