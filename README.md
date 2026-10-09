@@ -1,12 +1,28 @@
 # EcoRoute AI
 
 AWS-native backend for pollution-aware navigation in Delhi. **Phase 1 backend foundation and
-Phase 2 environmental pipeline and Phase 3 routing engine are implemented locally. No AWS resources have been deployed.**
+Phase 2 environmental pipeline, Phase 3 routing engine and Phase 4 ML workflow are implemented locally. No AWS resources have been deployed.**
 No frontend, trained ML model, verified Noise watch integration or street-level pollution claim.
 
 FastAPI + Pydantic v2, Cognito JWT validation, Lambda/Mangum, CDK Python, S3/DynamoDB adapters,
 Scheduler -> collector Lambda -> raw S3 -> SQS -> cleaning Lambda -> Parquet + metadata.
 AWS target: Mumbai (`ap-south-1`). No idle Fargate service, NAT Gateway or database server.
+
+## Train and serve station forecasts
+
+Install optional numerical dependencies with `.\.venv\Scripts\python.exe -m pip install -r requirements-ml.txt`.
+Run `.\.venv\Scripts\python.exe scripts/train.py --prepare-only` to audit actual curated data.
+Current result:192 Open-Meteo modeled/forecast records, zero measured labels; training correctly
+stops. No real model metrics or predictions exist. RF/HGB, persistence/provider comparisons,
+leakage-safe chronological preparation, trusted serialization, protected ML APIs and route
+prediction matching are implemented. [ML_WORKFLOW.md](docs/ML_WORKFLOW.md) gives runnable
+training/evaluation, S3 upload, dry-run SageMaker specifications, IAM/quotas, costs and cleanup.
+
+All120 local tests pass; the container test is skipped on this laptop while Docker is stopped.
+[CI run37979545452](https://github.com/deveshsinghal09/ecoroute-ai/actions/runs/37979545452)
+passed the real ML Docker build and training/serving test using clearly labelled synthetic mechanics
+fixtures. Those tests do not establish real pollution forecast accuracy. No paid job or endpoint
+starts automatically; actual measured history and explicit deployment/training approval come first.
 
 ## Run locally
 

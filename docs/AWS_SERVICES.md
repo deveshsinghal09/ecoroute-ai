@@ -1,5 +1,25 @@
 # AWS service decisions and IAM boundaries
 
+Phase 4 uses SageMaker only for bounded, explicitly approved training and optional batch
+transform; no always-on endpoint. A custom pinned container trains RF/HGB and exports trusted
+model artifacts. S3 stores versioned datasets, training output and verified manifest registry.
+Step Functions meaningfully validates inputs, waits for training and publishes verified outputs;
+its weekly EventBridge schedule is disabled and guarded by explicit approval configuration.
+An optional container Lambda performs on-demand inference for the lean API Lambda.
+CloudWatch receives structured worker logs and failure alarms. No resources are deployed.
+
+Separate execution roles scope S3 to datasets/*, models/training/* and models/registry/* as
+needed; ECR pull to the exact repository; SageMaker jobs to ecoroute-*; PassRole to the exact
+execution role with iam:PassedToService; invocation/start to exact function/workflow ARNs.
+ECR GetAuthorizationToken requires Resource* and has a regional condition. Training trust is
+restricted by source account/job ARN. ML_WORKFLOW.md contains the full service IAM mapping.
+
+Verified public Mumbai offer: ml.m5.large Training and BatchTransform USD0.121/hour each
+(2026-10-10 check). Fifteen minutes is USD0.03025 compute arithmetic, excluding other costs.
+Actual account quota is unverified; documented default training quota is zero. Encryption,
+private buckets, network-isolated training, disabled schedules, bounded concurrency/runtime,
+hash/package/schema verification and lifecycle retention apply. Budgets alert, never hard-cap.
+
 Core/Data/ML templates are **implemented and synthesized / not deployed**. Primary region ap-south-1; official documentation
 and SDK checks are evidence of service support, not proof of account entitlement or quota sufficiency.
 Runtime permissions below apply to separate roles and exact project ARNs. They are not one combined

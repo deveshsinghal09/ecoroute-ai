@@ -1,5 +1,19 @@
 # Credentials and configuration checklist
 
+Phase 4 update (2026-10-10): dev-admin / devesh_eco and ap-south-1 remain selected. Read-only
+diagnostics verified STS, but Lambda access is denied and CDK bootstrap/training quotas are
+unverified. There is no SageMaker execution role, approved ML bucket/image or deployed worker.
+No paid ML action has been attempted. The OpenAQ key exists locally; confirmation that it was
+rotated after disclosure is still required before using it. Never send its replacement in chat.
+
+See [ML prerequisites and exact Console/CLI steps](ML_WORKFLOW.md#credentials-and-minimum-iam)
+for every Phase 4 identifier, sensitivity, mandatory/optional status, IAM boundary, secure storage,
+verification and charge implications: expected account/profile/region, ML bucket, execution role,
+regional ECR image digest, SageMaker quota, optional workflow/inference ARN and budget alerts.
+ML_LOCAL_ROOT is a local path; ML_INFERENCE_FUNCTION_ARN is a non-secret deployed worker ARN.
+Keep configuration in ignored .env; cached AWS credentials stay in the AWS credential provider.
+External provider secrets belong in Secrets Manager, never dataset/model artifacts or images.
+
 Never paste keys, passwords, session tokens, private certificates or provider tokens into chat.
 Current status (2026-10-09): selected profile `dev-admin` authenticates as IAM user
 `devesh_eco`. User confirms this account holds the hackathon credits. Region ap-south-1 and

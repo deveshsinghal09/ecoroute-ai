@@ -40,6 +40,20 @@ def main():
                             raise AssertionError("Routing endpoint accepted missing token")
                         except HTTPError as denied:
                             assert denied.code == 401
+                    for path, method in (
+                        ("ml/status", "GET"), ("ml/models", "GET"), ("ml/metrics", "GET"),
+                        ("ml/predict", "POST"), ("ml/batch-predict", "POST"),
+                        ("routes/predict-departure-times", "POST"),
+                    ):
+                        request = urllib.request.Request(
+                            "http://127.0.0.1:8765/api/v1/" + path,
+                            data=b"{}" if method == "POST" else None,
+                            headers={"Content-Type": "application/json"}, method=method)
+                        try:
+                            urllib.request.urlopen(request, timeout=2)
+                            raise AssertionError("ML endpoint accepted missing token")
+                        except HTTPError as denied:
+                            assert denied.code == 401
                     try:
                         with urllib.request.urlopen("http://127.0.0.1:8765/api/v1/ready", timeout=2) as ready:
                             assert ready.status == 200

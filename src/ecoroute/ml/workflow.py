@@ -57,6 +57,7 @@ def publish(s3, job_name):
     if response["ContentLength"] > 32 * 1024 * 1024:
         raise ValueError("model_archive_too_large")
     files = {}
+    archive_version = None
     with tarfile.open(fileobj=io.BytesIO(response["Body"].read()), mode="r:gz") as archive:
         for member in archive:
             if member.isdir():
@@ -70,11 +71,16 @@ def publish(s3, job_name):
                 or pieces[1] not in {"model.joblib", "manifest.json"}
             ):
                 raise ValueError("unexpected_model_archive_layout")
+            if pieces[1] in files or (archive_version and pieces[0] != archive_version):
+                raise ValueError("inconsistent_model_archive")
+            archive_version = pieces[0]
             files[pieces[1]] = archive.extractfile(member).read()
+    if set(files) != {"model.joblib", "manifest.json"}:
+        raise ValueError("incomplete_model_archive")
     manifest = json.loads(files["manifest.json"])
     if hashlib.sha256(files["model.joblib"]).hexdigest() != manifest[
         "model_sha256"
-    ] or not VERSION.fullmatch(manifest["model_version"]):
+    ] or not VERSION.fullmatch(manifest["model_version"]) or manifest["model_version"] != archive_version:
         raise ValueError("model_hash_mismatch")
     # Recheck the claimed global promotion rule from the stored actual metrics.
     score = manifest["metrics"]["test"][manifest["algorithm"]]["overall"]

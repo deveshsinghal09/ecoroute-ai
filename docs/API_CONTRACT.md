@@ -1,5 +1,23 @@
 # API contract — backend foundation and environmental datasets
 
+Phase 4 adds these protected endpoints, with unchanged Cognito scopes and body/security limits:
+
+| Endpoint | Scope and behavior |
+|---|---|
+| GET /api/v1/ml/status | read; registry readiness, no fabricated accuracy |
+| GET /api/v1/ml/models | read; bounded model metadata |
+| GET /api/v1/ml/metrics | read; verified selected version's actual held-out metrics; 503 if unavailable |
+| POST /api/v1/ml/predict | write; station_id, optional model_version/current issued_at; next-hour station PM2.5 |
+| POST /api/v1/ml/batch-predict | write; station_ids1–20, optional model_version/current issued_at; per-station availability |
+| POST /api/v1/routes/predict-departure-times | write; existing departure comparison body plus station_ids/model_version; genuine road routes with matched station prediction proxies |
+
+ML response carries station coordinates, model_version, horizon_hours1, valid_at, concentration
+ug/m3, station_prediction kind, qualitative confidence, null interval and warnings. No verified
+model/fresh supported history returns unavailable, not invented predictions. Route joins require
+within1km and30minutes of valid time; missing matches retain separately labelled provider/grid
+coverage. Routes never infer street precision from station proximity. See ML_WORKFLOW.md for
+sample bodies and horizon/availability limits. Legacy /predictions remains a placeholder.
+
 Base path `/api/v1`. Exact request/response schemas are generated at `/openapi.json` and `/docs`.
 All domain routes require RS256 Cognito access JWTs: issuer, client_id, expiry, token_use and scope
 are verified in FastAPI and JWT/scopes additionally in API Gateway. No user identity in request

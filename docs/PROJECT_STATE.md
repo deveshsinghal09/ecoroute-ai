@@ -1,4 +1,70 @@
-# EcoRoute AI project state — Phases 1, 2 and 3
+# EcoRoute AI project state — Phases 1–4
+
+## Current state — 2026-10-10 IST
+
+Phase 1–3 prerequisite verification passed before Phase 4 implementation: 107 tests,
+loopback health/authentication smoke checks and successful prior GitHub CI. Their cloud blockers
+remain unresolved; existing code and infrastructure were reused.
+
+Phase 4 training, evaluation, inference and optional SageMaker orchestration are implemented.
+**Real AWS resources deployed: none. Real training jobs/endpoints/uploads: none.**
+The actual local dataset has 192 Open-Meteo records (76 modeled, 116 forecast), zero measured
+PM2.5 records and zero eligible training samples. Training stops with insufficient_data;
+there is no real trained model, measured accuracy or claimed improvement over persistence.
+
+### Files created and updated
+
+- Added requirements-ml.txt, Dockerfile.ml, src/ecoroute/ml/{preprocessing,training,inference,
+  api,route_index,sagemaker,workflow,cloud,container}.py; scripts/train.py, evaluate.py,
+  sagemaker_plan.py and upload_ml_dataset.py; tests/test_ml.py, test_ml_container.py and test_ml_workflow.py.
+- Added infra/ml_workflow.py; integrated optional ML resources with Core/Data/ML stacks,
+  FastAPI configuration and routing cache namespaces. Updated Docker context whitelist, CI,
+  local smoke checks, .env.example, README and all five living documents. ML_WORKFLOW.md is
+  the detailed data, IAM, cost and operation runbook.
+- Meaningful joint commits: 71bd555 implementation and dc36fcf container/CI verification;
+  documentation/upload/smoke work follows in another joint commit. Both teammates have
+  contiguous Co-authored-by credit alongside the actual primary author.
+
+### Commands executed and results
+
+| Check | Actual result |
+|---|---|
+| python -m pytest -q | 120 passed, 1 container test skipped locally, 3 upstream warnings |
+| python -m ruff check .; python -m pip check | Passed |
+| python scripts/smoke_local.py | Real loopback health/docs200; domain, routing and all six ML endpoint requests without tokens401; server stopped |
+| python scripts/train.py --prepare-only | Expected insufficient_data nonzero exit; 192 inputs, zero measured labels/samples; work/ml/data_audit.json |
+| python scripts/diagnose.py --aws --profile dev-admin --region ap-south-1 --json-out work/phase4-iam-diagnostic.json | STS/region pass; Lambda denied; bootstrap/SageMaker quotas unverified; Cognito/budget missing; Docker stopped |
+| GitHub CI run37979545452 on dc36fcf | Success, including real Docker build and container training/serving protocol test on explicitly synthetic mechanics fixtures |
+| python scripts/build_lambda.py | Linux base asset183.0MiB built; numerical dependencies kept in optional container |
+| npm run synth; npx cdk synth --no-lookups -c ml_image_uri=PLACEHOLDER_REGIONAL_DIGEST | Default and optional ML configurations passed offline; placeholder image is not a real ECR integration |
+| Official public AWS price offer retrieval | Mumbai ml.m5.large training and batch transform each USD0.121/hour; pricing evidence saved under ignored work/ |
+
+Initial ML dependency installation failed because C: had no space. A combined cleanup command
+was rejected by automatic approval review without a reason; generated Phase 3 CDK output was
+instead preserved by moving it to D: scratch. Optional ML dependencies were installed there
+and linked into this local virtualenv. The initial MaxPendingTimeInSeconds600 SDK contract
+test failed; corrected to the supported minimum1800, with subsequent tests passing.
+The first direct npm synth used system Python and failed to import aws_cdk. Prepending
+the project .venv/Scripts to PATH corrected the interpreter; both subsequent synth runs passed.
+
+### Blockers and remaining work
+
+Collect sufficient real hourly monitoring history with honest availability timestamps. The local
+OpenAQ key is present, but replacement of the chat-disclosed key has not been confirmed; no
+call uses it while that confirmation is pending. Backfilled observations fetched today cannot
+be silently treated as features available months ago. No weather adapter/history is configured.
+
+Selected identity remains dev-admin / IAM user devesh_eco in user-confirmed credit account,
+ap-south-1. Missing: scoped permissions, verified bootstrap and training quota, existing approved
+ML bucket, reviewed regional ECR image digest, execution-role ARN, Cognito configuration and
+budget alert recipient. Follow ML_WORKFLOW.md before any authenticated ML operation.
+
+Proposed ml.m5.large runtime cap15minutes gives USD0.03025 compute arithmetic, plus startup,
+storage, orchestration, logs and other charges. A USD1 experiment warning is proposed; alerts
+are not hard caps and credits do not remove billing risk. No paid training, endpoint or deployment
+will start without a concrete resource/cost review and explicit approval. No frontend exists.
+
+## Previous Phase 3 report (preserved)
 
 ## Current state — 2026-10-09 IST
 

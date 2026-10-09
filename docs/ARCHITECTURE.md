@@ -1,4 +1,19 @@
-# EcoRoute AI architecture — Phases 1, 2 and 3
+# EcoRoute AI architecture — Phases 1–4
+
+Phase 4 (2026-10-10): existing measured curated Parquet -> availability-aware station features
+-> versioned chronological train/validation/test datasets -> local or SageMaker BYOC training
+-> validation-selected RF/HGB -> persistence comparisons on held-out test -> verified S3 model
+manifest registry -> optional load-on-demand container Lambda -> authenticated FastAPI ML APIs.
+The route engine joins next-hour station predictions by space/time and preserves grid fallback
+provenance. It does not stretch the model horizon or claim street-level accuracy.
+
+ML_WORKFLOW.md documents the optional Step Functions validate/train.sync/verify-publish flow,
+disabled weekly Scheduler, roles, S3 layout, container contracts and inference alternatives.
+Default synthesis creates no training job or real-time endpoint. Core remains a lean ZIP Lambda;
+heavy numerical dependencies live in the optional ML container. No Fargate/NAT is introduced.
+Registry metadata in S3 avoids an additional Model Registry/table requirement for this hackathon.
+No actual measured dataset or model currently passes the eligibility gate; weather ingestion and
+validated prediction intervals remain unavailable. Synthetic tests verify mechanics only.
 
 Decision date: 2026-10-08. Delhi; AWS target ap-south-1 (Mumbai). Infrastructure is implemented
 and synthesized, not deployed. See INGESTION.md and API_CONTRACT.md for the working contracts.
