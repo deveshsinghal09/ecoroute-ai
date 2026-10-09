@@ -31,9 +31,15 @@ class Settings(BaseSettings):
     enable_openaq: bool = False
     enable_weather: bool = False
     enable_wearable: bool = False
+    wearables_table: str = ""
+    s3_data_bucket: str = ""
+    wearable_archive_path: str = "work/wearable-history"
+    wearable_demo_mode: bool = False
 
     @model_validator(mode="after")
     def configuration_guard(self):
+        if self.wearable_demo_mode and self.ecoroute_profile != "local":
+            raise ValueError("Wearable simulation is local-only")
         if any((
             self.enable_openaq,
             self.enable_weather, self.enable_wearable,

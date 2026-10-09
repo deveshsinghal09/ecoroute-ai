@@ -21,6 +21,7 @@ from ecoroute.routing.api import router as routing_router
 from ecoroute.routing.models import RoutingError
 from ecoroute.ml.api import router as ml_router
 from ecoroute.ml.inference import MLUnavailable
+from ecoroute.wearable.api import router as wearable_router
 
 logger = logging.getLogger("ecoroute")
 logger.setLevel(logging.INFO)
@@ -49,7 +50,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     app.state.store = store if store is not None else LocalStore(settings.local_db_path)
     if settings.cors_origins:
         app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins,
-                           allow_methods=["GET", "POST", "PUT"],
+                           allow_methods=["GET", "POST", "PUT", "DELETE"],
                            allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
                            allow_credentials=False)
 
@@ -122,6 +123,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     app.include_router(environmental_router, prefix="/api/v1")
     app.include_router(routing_router, prefix="/api/v1")
     app.include_router(ml_router, prefix="/api/v1")
+    app.include_router(wearable_router, prefix="/api/v1")
     return app
 
 

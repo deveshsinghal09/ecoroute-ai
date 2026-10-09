@@ -76,8 +76,7 @@ def test_telemetry_requires_auth_consent_and_valid_time(secured):
     body = {"source": "synthetic_fixture", "consent": True, "samples": [sample]}
     assert secured.client.post("/api/v1/wearables/telemetry", json=body).status_code == 401
     result = secured.client.post("/api/v1/wearables/telemetry", json=body, headers=headers(secured))
-    assert result.status_code == 201
-    assert result.json()["source"] == "synthetic_fixture"
+    assert result.status_code == 410  # Legacy writes cannot bypass device-level revocation.
     assert "position" not in result.text
     body["samples"] *= 2
     assert secured.client.post("/api/v1/wearables/telemetry", json=body, headers=headers(secured)).status_code == 422

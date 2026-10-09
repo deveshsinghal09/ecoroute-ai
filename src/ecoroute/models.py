@@ -24,6 +24,7 @@ class TripCreate(StrictModel):
     origin: Point
     destination: Point
     consent: Literal[True]
+    route_id: Annotated[str, Field(pattern=r"^[a-f0-9]{32}$")] | None = None
 
 
 class TelemetrySample(StrictModel):

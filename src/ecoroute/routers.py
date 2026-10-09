@@ -46,6 +46,8 @@ def school(longitude: float = Query(ge=-180, le=180, allow_inf_nan=False),
 @trips.post("", status_code=201)
 def create_trip(body: TripCreate, request: Request, response: Response,
                 idempotency_key: IdempotencyKey, user: Principal = Depends(require("write"))):
+    if body.route_id and not request.app.state.store.get("routes", user.subject, body.route_id):
+        raise HTTPException(404, "route_not_found")
     record, created = request.app.state.store.create(
         "journeys", user.subject, {**body.model_dump(mode="json"), "status": "active"}, idempotency_key,
     )
@@ -64,12 +66,7 @@ def get_trip(trip_id: Identifier, request: Request, user: Principal = Depends(re
 @wearables.post("/telemetry", status_code=201)
 def telemetry(body: TelemetryBatch, request: Request, response: Response,
               idempotency_key: IdempotencyKey, user: Principal = Depends(require("write"))):
-    record, created = request.app.state.store.create(
-        "telemetry", user.subject, body.model_dump(mode="json"), idempotency_key,
-    )
-    response.status_code = 201 if created else 200
-    return {"id": record["id"], "sample_count": len(record["samples"]),
-            "source": record["source"], "expires_at": record["expires_at"]}
+    raise HTTPException(410, "use_registered_device_measurements_and_revocable_consent")
 
 
 @alerts.put("/preferences")
