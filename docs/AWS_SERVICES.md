@@ -1,5 +1,16 @@
 # AWS service decisions and IAM boundaries
 
+Phase5 meaningful additions: DynamoDB wearables table (on-demand, stream, TTL/throughput caps),
+Core archive Lambda/failure queue/2 alarms, private S3 wearables/* lifecycle7d, optional IoT
+Rule/validator/failure queue/2 alarms. Existing Cognito/API, bucket, journey and pollution services
+are reused. Rule disabled; no certificate, Thing, Identity Pool, paid compute or deployment.
+WEARABLES.md contains exact ownership/topic policy and separate API/validator/archive permissions.
+ListStreams requires Resource* with regional condition; data reads/writes/stream ARNs and
+Lambda invocation source are otherwise scoped. No health subscriptions or public exports.
+Official Mumbai pricing: messages USD1.05/million, connected minutes USD0.092/million,
+rules/actions each USD0.158/million. Three bridges/minutely <=5KB messages for30days estimates
+USD0.189 IoT-only; other service charges excluded. Budget warnings never hard-cap charges.
+
 Phase 4 uses SageMaker only for bounded, explicitly approved training and optional batch
 transform; no always-on endpoint. A custom pinned container trains RF/HGB and exports trusted
 model artifacts. S3 stores versioned datasets, training output and verified manifest registry.
@@ -55,7 +66,7 @@ Location and Lambda checks denied; this is not a verified deployment-ready accou
 | Step Functions: later ML | Durable validate/train/evaluate/publish workflow | Caller states:StartExecution exact state machine; workflow lambda:InvokeFunction or sagemaker:CreateTrainingJob/DescribeTrainingJob/StopTrainingJob, restricted iam:PassRole; .sync integration may additionally need EventBridge rules | State transitions/Express compute; grant integration-specific permissions after ASL exists; avoid unnecessary orchestration |
 | SageMaker AI: optional batch ML | Reproducible managed training/batch inference when local insufficient | Training role S3 input/output + ECR image reads/logs; launcher CreateTrainingJob, DescribeTrainingJob, StopTrainingJob and iam:PassRole only selected role to sagemaker.amazonaws.com; transform actions only if used | Instance-hours/storage; quotas may be zero; maximum job runtime; no standing endpoints/Studio domain |
 | Bedrock: optional explanations | Explains existing scores, not forecasts | bedrock:InvokeModel on selected model/inference-profile resources; streaming permission only if used | Model token billing/access terms; exact model/region pending; omit health/location identifiers and avoid cross-region profiles without consent |
-| IoT Core: conditional hardware | Authenticated sensor/gateway telemetry to ingest; not verified for Noise | Device policy iot:Connect exact client, Publish exact device topic; Subscribe/Receive only if needed. Rules role sqs:SendMessage selected queue | Connection minutes/messages/rules; per-device X.509 keys, revocation and tenant topic ownership |
+| IoT Core: optional compatible bridge | mTLS MQTT via disabled Rule to validator; physical Noise connector unverified | iot:Connect exact client/attached Thing; Publish exact owner/device topic only; Lambda permission exact rule ARN/account. No Subscribe/Receive | Connection/messages/rules billed; per-device keys stay on bridge, consent plus cert revocation; WEARABLES.md |
 | ECS Fargate: deferred | Continuous/native-heavy API if profiling justifies | Task role same downstream permissions as API; execution role logs + ECR pulls | vCPU/memory continuously allocated; networking/ALB/IPv4 extra; no public database |
 | ECR: deferred except CDK bootstrap asset repository | Container images for Fargate or future Lambda/ML containers | Pull: ecr:GetAuthorizationToken (*) and BatchGetImage/GetDownloadUrlForLayer/BatchCheckLayerAvailability on repo; push role separate | GB-month/storage scanning choices; immutable tags and lifecycle cleanup |
 | RDS PostgreSQL/PostGIS: deferred | Complex spatial joins if measured need exists | App uses database role/grants; rds-db:connect only with IAM DB auth and exact dbuser ARN; no RDS control actions for API | Instance/storage/backup/networking; private subnets, secrets or IAM DB auth, migrations and pooling |

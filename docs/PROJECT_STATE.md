@@ -1,4 +1,68 @@
-# EcoRoute AI project state — Phases 1–4
+# EcoRoute AI project state — Phases 1–5
+
+## Phase 5 current state — 2026-10-10 IST
+
+Secure wearable-independent registration, revocable scoped consent, measurement ingest,
+latest/history/deletion and descriptive journey correlation are implemented. Existing Cognito,
+Core/Data infrastructure, route geometry/pollution index and local SQLite are reused. IoT Rule
+and validation worker are optional, disabled by default; private stream-based history archive
+works for HTTPS/MQTT records in synthesized infrastructure. **Real AWS resources deployed:none.**
+No physical watch, cloud MQTT connection, live health measurement or real correlated journey
+has been tested. User confirms Noise ColorFit Pro3 Alpha / NoiseFit Assist. OS, public/export API
+and Health Connect support are unverified; no hardware connector is selected. WEARABLES.md
+records official sources, adapter contract, exact credentials/IAM/enrollment/revocation and costs.
+
+Files: added wearable/{models,repository,api,archive,handlers,correlation,policy}.py;
+scripts/simulate_wearable.py, iot_device_plan.py, bind_iot_certificate.py;
+infra/wearable_workflow.py, tests/test_wearable.py and docs/WEARABLES.md. Updated Core/Data/IoT
+stack integration, app/config/models, legacy telemetry migration, smoke checks, test cleanup,
+.env.example, README and all five living documents. Raw certificates/keys/data are never committed.
+
+| Command/check | Actual result |
+|---|---|
+| python -m pytest -q with NODE_OPTIONS=--max-old-space-size=512, OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1 | **129 passed,1 skipped,3 upstream warnings** |
+| python -m pytest tests/test_wearable.py -q |8 passed; ownership, revoked consent, latest ordering, duplicate/conflicting events, GPS permission, history pagination, deletion, spoofed certificate/topic/client, SDK transaction shape/race and descriptive correlation |
+| python -m pytest tests/test_infra.py -q |8 passed; disabled broker rule, source-account/ARN invoke boundary, private retention and scoped role exceptions |
+| python scripts/simulate_wearable.py |Synthetic offline envelope accepted, duplicate detected, private local archive created; no network broker/watch |
+| python scripts/iot_device_plan.py with placeholder account/hash/device |Offline CreateThing/CreatePolicy SDK shapes passed; writes work/iot JSON plans only |
+| python scripts/bind_iot_certificate.py --help |CLI runs; --apply never used, no authenticated AWS calls |
+| python scripts/build_lambda.py |Linux Python3.11 base asset183.0MiB built locally |
+| npm run synth; npx cdk synth --no-lookups -c enable_iot=true |Both passed; optional rule disabled; no deployment |
+| python scripts/smoke_local.py |Real loopback health/docs200; all7 Phase5 routes without token401, including DELETE; server stopped |
+| python -m ruff check .; python -m pip check; tracked credential heuristic; git diff --check |Passed; heuristic is not a complete audit |
+| GitHub CI37983707708/37983888606 |Both implementation commits passed, including Docker ML tests and Linux package imports |
+
+Meaningful joint commits addee08 (owned backend) and695cbbc (bounded infrastructure/test
+cleanup); final runbook/operator-plan follow-up is jointly credited too. Primary author preserved,
+Mayank Gupta and Devesh Raj have contiguous Co-authored-by trailers.
+
+Failures corrected: generated stream IAM initially had unconstrained ListStreams Resource*;
+replaced helper mapping with exact stream reads and a region-conditioned required exception.
+Local CDK/combined tests initially exhausted Node memory and hit a Windows test stack overflow;
+bounded heap/numerical threads and explicit TestClient context cleanup allowed the full suite
+to pass. Initial bind-script CLI import failed because scripts is not installed; moved reusable
+policy generator into ecoroute.wearable.policy and verified CLI help. No AWS denial is relabelled
+as deployment success.
+
+Security/retention: scopes and ownership precede processing; atomic revision/consent check with
+event writes, observation TTL7d, private pseudonymous archive lifecycle7d (not anonymized),
+per-device deletion/tombstone90d, AWS stream/failure retention up to24h. MQTT principal is checked
+against operator-bound actual certificate thumbprint, exact topic/client and payload owner.
+Legacy /wearables/telemetry returns410 to prevent a revocation bypass. No health-data SNS delivery
+or medical/causal heart-rate inference; environmental threshold alerts are deferred until correct
+averaging windows, sourced limits and notification consent exist.
+
+Blockers: watch OS/export API; actual authorized bridge; scoped AWS IAM/bootstrap; Cognito
+login/IDs; deployed wearable table/bucket/roles; IoT endpoint/Thing/certificate/policy binding;
+account quotas and budget recipient. No new authenticated AWS action was taken. Previous
+dev-admin/devesh_eco identity in credit account/ap-south-1 remains selected, Lambda denied.
+Before provisioning show final stack/resource costs and request deployment approval. Official
+Mumbai IoT-only example3 bridges at1 <=5KB message/minute for30days estimates USD0.189;
+storage/compute/alarms/API and taxes extra. Proposed USD5 incremental warning is not a hard cap.
+No frontend or mobile app was created. Phase4 real environmental data remains197 records,
+including5 measured PM2.5 observations, insufficient for ML training; no new model/job.
+
+## Previous Phase 4 report (preserved)
 
 ## Current state — 2026-10-10 IST
 

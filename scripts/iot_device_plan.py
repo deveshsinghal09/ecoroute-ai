@@ -19,10 +19,13 @@ def main():
     client = get_session().get_service_model("iot")
     create = {"policyName": "eco-" + args.device_id, "policyDocument": json.dumps(document)}
     validate_parameters(create, client.operation_model("CreatePolicy").input_shape)
+    thing = {"thingName": "eco-" + args.device_id, "attributePayload": {"attributes": {"owner_key": args.owner_key}}}
+    validate_parameters(thing, client.operation_model("CreateThing").input_shape)
     path = Path("work/iot")
     path.mkdir(parents=True, exist_ok=True)
     (path / "device-policy.json").write_text(json.dumps(document, indent=2))
     (path / "create-policy.json").write_text(json.dumps(create, indent=2))
+    (path / "create-thing.json").write_text(json.dumps(thing, indent=2))
     print(json.dumps({"thing_name": "eco-" + args.device_id, "policy_file": str(path / "device-policy.json"), "provisioned": False}))
 
 

@@ -1,12 +1,28 @@
 # EcoRoute AI
 
 AWS-native backend for pollution-aware navigation in Delhi. **Phase 1 backend foundation and
-Phase 2 environmental pipeline, Phase 3 routing engine and Phase 4 ML workflow are implemented locally. No AWS resources have been deployed.**
+Phase 2 environmental pipeline, Phase 3 routing engine, Phase 4 ML workflow and Phase 5 wearable-independent backend are implemented locally. No AWS resources have been deployed.**
 No frontend, trained ML model, verified Noise watch integration or street-level pollution claim.
 
 FastAPI + Pydantic v2, Cognito JWT validation, Lambda/Mangum, CDK Python, S3/DynamoDB adapters,
 Scheduler -> collector Lambda -> raw S3 -> SQS -> cleaning Lambda -> Parquet + metadata.
 AWS target: Mumbai (`ap-south-1`). No idle Fargate service, NAT Gateway or database server.
+
+## Wearable telemetry and consent
+
+Device registration, revocable scoped consent, validated measurements, latest/history/deletion
+and descriptive journey pairing now work through authenticated REST APIs. Optional IoT Core
+mTLS rule/validator and private stream-based S3 history are synthesized; rule disabled and no
+device enrolled. The confirmed watch is Noise ColorFit Pro3 Alpha with NoiseFit Assist; OS and
+authorized export/API support are unverified, so no hardware connector is claimed.
+Run `.\.venv\Scripts\python.exe scripts/simulate_wearable.py` for explicitly synthetic offline
+MQTT-envelope acceptance/deduplication/archive checks. It does not connect to AWS or the watch.
+[WEARABLES.md](docs/WEARABLES.md) covers all seven APIs, adapter contract, IAM/Console enrollment,
+certificate revocation, privacy/retention/deletion and cost proposal. No frontend/mobile app.
+
+Phase5 verification:129 local tests passed,1 Docker skip; default and optional IoT CDK synth
+passed. Both implementation CI runs passed. Do not use legacy /wearables/telemetry writes:
+they now return410; register a device and grant revocable consent first.
 
 ## Train and serve station forecasts
 
@@ -20,7 +36,7 @@ leakage-safe chronological preparation, trusted serialization, protected ML APIs
 prediction matching are implemented. [ML_WORKFLOW.md](docs/ML_WORKFLOW.md) gives runnable
 training/evaluation, S3 upload, dry-run SageMaker specifications, IAM/quotas, costs and cleanup.
 
-All120 local tests pass; the container test is skipped on this laptop while Docker is stopped.
+Phase4 verification passed120 local tests; the container test is skipped on this laptop while Docker is stopped.
 [CI run37979545452](https://github.com/deveshsinghal09/ecoroute-ai/actions/runs/37979545452)
 passed the real ML Docker build and training/serving test using clearly labelled synthetic mechanics
 fixtures. Those tests do not establish real pollution forecast accuracy. No paid job or endpoint

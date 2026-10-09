@@ -1,4 +1,13 @@
-# EcoRoute AI architecture — Phases 1–4
+# EcoRoute AI architecture — Phases 1–5
+
+Phase5: authenticated companion HTTPS or optional enrolled mTLS IoT publish -> validation ->
+owned consent/device/event records in new on-demand wearable table -> filtered DynamoDB stream
+-> consent-rechecking archive Lambda -> private wearables/* history in existing S3 bucket.
+Owned journey correlation reuses route geometry and actual environmental index. No heart-rate
+causation, dose or stress inference. Default rule disabled; no Thing/certificate/hardware enrolled.
+Separate archive/validator IAM, encryption/TTL/deletion, adapter and optional transport decisions
+are detailed in WEARABLES.md. Mobile HTTPS uses existing Cognito JWT; SigV4 WebSockets with
+Identity Pool temporary credentials is evaluated but deferred. No frontend/mobile app.
 
 Phase 4 (2026-10-10): existing measured curated Parquet -> availability-aware station features
 -> versioned chronological train/validation/test datasets -> local or SageMaker BYOC training
@@ -57,11 +66,13 @@ flowchart TD
   Logs[CloudWatch logs + alarms] --> SNS[SNS operational alerts]
 ```
 
-Data stack owns six on-demand tables, private data bucket, processing queue/DLQ and notification
-wiring. Core owns API/Cognito, three business Lambdas, disabled schedule, alarms and SNS.
+Data stack owns seven on-demand tables, private data bucket, processing queue/DLQ and notification
+wiring. Core owns API/Cognito, three business Lambdas plus wearable archive, disabled schedule, alarms and SNS.
 ML stack owns only datasets/models storage: no training job, endpoint or model accuracy claim.
-Optional IoT stack defines a thing and restrictive policy only; no certificate, working device
-or end-to-end telemetry integration is claimed. SNS email subscription is a deployment prerequisite.
+Phase5 optional IoT stack supersedes the old demo Thing/policy placeholder with a disabled
+broker-envelope rule and validator. Exact device policy/enrollment plans are generated offline,
+not automatic certificates. No working physical device or cloud integration is claimed.
+SNS email subscription is a deployment prerequisite.
 
 S3 lifecycle: raw30d, curated90d, general reports30d, route reports/geometry7d, datasets90d,
 models180d; buckets retained on teardown. Route metadata7d, route cache reuse5min; physical
@@ -155,8 +166,8 @@ Lambda function URL, permissive CORS, raw request-body logs or broad runtime IAM
 sessions and separate developer, deployment and workload roles. Three people sharing one laptop
 should use separate OS accounts/SSO profiles; do not share browser sessions, GitHub tokens or keys.
 
-User reports a Noise Pro 3 Alpha, interpreted provisionally as ColorFit Pro 3 Alpha. Official
-support pages refer to phone-app syncing and are inconsistent about app naming. No public
+User confirmed Noise ColorFit Pro3 Alpha with NoiseFit Assist in Phase5. Official
+support pages confirm companion-app syncing. Watch OS remains unknown; no public
 developer API, direct MQTT support, export format or reliable background GPS integration was
 verified. Do not extract private app tokens or promise a working integration. Verify exact model,
 phone OS and companion-app version on-device. Phase 1 can define a consented timestamped import

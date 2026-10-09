@@ -1,5 +1,21 @@
 # API contract — backend foundation and environmental datasets
 
+Phase5 wearable contracts (full schemas at /docs; examples/limits in WEARABLES.md):
+
+| Endpoint | Contract |
+|---|---|
+| POST /api/v1/devices/register |write; Idempotency-Key; manufacturer/model/bridge; owned random device, initial consent false |
+| POST /api/v1/wearables/consent |write; device_id and explicit telemetry/location/history/correlation scopes, wearable-v1 policy; atomic revision/revocation |
+| POST /api/v1/wearables/measurements |write; owned device/user,event ID,timestamp, optional HR/activity/steps/GPS and provenance;201 accepted/200 identical duplicate/409 changed event |
+| GET /api/v1/wearables/latest |read; owned device_id, latest observed time, unavailable if no readings |
+| GET /api/v1/wearables/history |read+history consent; device_id,aware start/end within7d, limit1–200,cursor; private bounded records |
+| DELETE /api/v1/wearables/data |write; device_id; revoke/disable then bounded primary deletion, repeat while pending; streams/retry retention up to24h |
+| GET /api/v1/journeys/{journey_id}/wearable-correlation |read+correlation consent; owned device_id/journey/linked route; time/GPS paired environmental provenance, no dose/causal score |
+
+POST /trips now optionally links an owned stored route_id. Legacy /wearables/telemetry returns
+410 after authentication/validation to prevent consent-revocation bypass. Future bridges must
+preserve permissions/source IDs/units and never claim watch MQTT/air pollution capability.
+
 Phase 4 adds these protected endpoints, with unchanged Cognito scopes and body/security limits:
 
 2026-10-10 data follow-up: local station metadata now contains100 discovered OpenAQ entries;
@@ -26,7 +42,7 @@ sample bodies and horizon/availability limits. Legacy /predictions remains a pla
 Base path `/api/v1`. Exact request/response schemas are generated at `/openapi.json` and `/docs`.
 All domain routes require RS256 Cognito access JWTs: issuer, client_id, expiry, token_use and scope
 are verified in FastAPI and JWT/scopes additionally in API Gateway. No user identity in request
-payloads can override token ownership. `ecoroute/read` for GET; `ecoroute/write` for POST/PUT.
+payloads can override token ownership. `ecoroute/read` for GET; `ecoroute/write` for POST/PUT/DELETE.
 
 | Endpoint | Behavior |
 |---|---|
@@ -35,7 +51,7 @@ payloads can override token ownership. `ecoroute/read` for GET; `ecoroute/write`
 | GET /docs, /openapi.json | Public technical API documentation |
 | POST /api/v1/trips | Consent and validated trip details; Idempotency-Key; 201 first create, 200 identical replay, 409 changed body |
 | GET /api/v1/trips/{trip_id} | Owner only; 404 for expired, missing or another user's trip |
-| POST /api/v1/wearables/telemetry | Consent, ordered timestamped batch <=100, past 7 days; idempotency required; returns ID/count without private samples; no claimed device connection |
+| POST /api/v1/wearables/telemetry | Legacy contract; authenticated valid requests410; migrate to device registration/scoped consent/measurements |
 | GET, PUT /api/v1/alerts/preferences | Owner-scoped notification preferences; no messages sent |
 | GET /api/v1/alerts/{alert_id} | Owner-scoped stored alert; no generation engine yet |
 | POST /api/v1/navigation/routes | Validates coordinates/travel inputs then 503 routing_provider_not_connected |

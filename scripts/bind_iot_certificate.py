@@ -6,6 +6,8 @@ import re
 from urllib.parse import unquote
 
 import boto3
+from cryptography import x509
+from cryptography.hazmat.primitives import hashes
 from dotenv import load_dotenv
 
 from ecoroute.wearable.repository import WearableRepository, owner_key
@@ -56,7 +58,8 @@ def main():
     if record["deleting"]:
         parser.error("Deleted device cannot be bound")
     prior_epoch = record["epoch"]
-    record.update(certificate_thumbprint=args.certificate_id, epoch=prior_epoch + 1)
+    thumbprint = x509.load_pem_x509_certificate(cert["certificatePem"].encode()).fingerprint(hashes.SHA256()).hex()
+    record.update(certificate_thumbprint=thumbprint, epoch=prior_epoch + 1)
     repo.store.client.put_item(TableName=args.table, Item=repo.device_item(record),
         ConditionExpression="epoch = :old AND deleting = :no",
         ExpressionAttributeValues={":old": {"N": str(prior_epoch)}, ":no": {"BOOL": False}})

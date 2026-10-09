@@ -1,5 +1,14 @@
 # Credentials and configuration checklist
 
+Phase5: confirmed Noise ColorFit Pro3 Alpha / NoiseFit Assist; OS/export API/Health Connect
+capabilities unverified. No hardware credentials are requested. [Wearable setup](WEARABLES.md#credentials-iam-and-exact-enrollment-steps)
+lists every required/optional identifier, purpose, sensitivity, Console steps, minimum IAM,
+secure storage, verification and billing: Cognito login/IDs; WEARABLES_TABLE/S3_DATA_BUCKET;
+IoT ATS endpoint, exact Thing/policy, public certificate and private bridge key; role/binding,
+quotas and budget. No Phase5 authenticated AWS action was executed and no IoT credential exists.
+IOT_*_PATH variables are private local file paths, not key contents. Prefer protected device
+keystore/CSR generation. Never paste a certificate private key, JWT or AWS secret into chat.
+
 Phase 4 update (2026-10-10): dev-admin / devesh_eco and ap-south-1 remain selected. Read-only
 diagnostics verified STS, but Lambda access is denied and CDK bootstrap/training quotas are
 unverified. There is no SageMaker execution role, approved ML bucket/image or deployed worker.
