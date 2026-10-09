@@ -68,6 +68,11 @@ curl http://localhost:8000/api/v1/wearables/latest
 
 Import examples/*.postman_*.json; populate only your local environment. Never commit tokens.
 Windows laptop has no Docker engine; container validation is performed separately in CI.
+Both Dockerfiles use Docker's official Python image from the
+[ECR Public Docker publisher](https://gallery.ecr.aws/docker/). Two CI attempts failed at Docker
+Hub's token endpoint with504; the ECR Public image manifest returned200 anonymously. Public
+pulls require no account IAM credentials or resource deployment. Build/runtime success still
+requires the container CI checks; an accessible manifest alone is not a verified image build.
 
 ## Validation results
 

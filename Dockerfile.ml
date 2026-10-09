@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM public.ecr.aws/docker/library/python:3.11-slim
 WORKDIR /app
 COPY requirements-runtime.txt requirements-ml.txt requirements.lock ./
 RUN pip install --no-cache-dir -r requirements-runtime.txt -r requirements-ml.txt -c requirements.lock awslambdaric==3.1.1
