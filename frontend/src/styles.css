@@ -39,3 +39,18 @@
 @media(max-width:740px){.mode-city.panel-open .hero-copy .text-action{display:none}}
 
 .mode-city .hero-copy{isolation:isolate}.mode-city .hero-copy::before{content:'';position:absolute;z-index:-1;inset:-22px -40px -16px -24px;background:radial-gradient(ellipse at 35% 50%,#e2e6e2b3,transparent 74%);filter:blur(12px);pointer-events:none}
+
+/* Desktop fits the actual viewport at 100% browser zoom. Panels scroll internally. */
+@media(min-width:741px){
+ .app-shell{height:100dvh;min-height:0;overflow:hidden;grid-template-columns:clamp(130px,13vw,184px) minmax(0,1fr)}
+ .workspace,.instrument-rail{min-height:0}
+ .city-stage,.mode-city:not(.panel-open){min-height:0!important;flex:1}
+ .topbar{height:64px;flex-shrink:0}.workspace-footer{flex-shrink:0;padding-top:8px}
+ .brand-panel{min-height:0;padding:18px 14px;flex:1.05}.location{margin-top:16px}.rail-title{font-size:19px;margin:12px 0}.brand{font-size:19px}.brand-mark{font-size:36px}
+ .air-instrument{min-height:0;flex:1;padding:13px 8px}.air-ring{height:clamp(94px,17vh,160px);margin:3px 0}.air-ring strong{font-size:32px}.air-instrument p{margin-bottom:6px}
+ .coverage-instrument{min-height:0;flex:1;padding:15px}.coverage-instrument .instrument-label{font-size:17px}.coverage-instrument .round-orange{margin:10px 0 4px;width:30px;height:30px}.coverage-instrument>strong{font-size:36px}.coverage-instrument p{margin-bottom:8px}.coverage-track{margin-bottom:7px}
+ .rail-footer{padding:12px;flex-shrink:0}.detail-panel{top:84px;max-height:calc(100% - 134px)}
+ .mode-city .hero-copy{bottom:58px}.mode-city .hero-copy h1{font-size:clamp(30px,3.5vw,52px)}
+ .mode-city .scene-tools{top:82px}.scene-heading{top:20px}.view-controls{top:20px}
+}
+@media(min-width:741px) and (max-height:700px){.brand-panel .rail-small{display:none}.rail-title{font-size:16px}.location{margin-top:9px}.coverage-instrument .round-orange{display:none}.coverage-instrument>strong{font-size:32px}.coverage-instrument .rail-small{font-size:9px}.air-ring{height:100px}.air-instrument{padding:10px 7px}.brand-panel{padding:13px}.mode-city .hero-copy h1{font-size:34px}.scene-tools button{height:29px;width:29px}}
