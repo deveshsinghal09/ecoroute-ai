@@ -37,3 +37,10 @@ uses actual GeoJSON. Historical data badge persists; live mode explicitly requir
 ## Do's and Don'ts
 Do preserve reduced motion and a WebGL fallback. Do label the city illustrative. Never call
 historical pollution live, decorate with fake metrics or imply the watch is connected.
+
+## Reference correction: sky and material detail
+
+The user rejected the initial pale city. Use slate-blue cloud sky, darker blue glass and asphalt,
+porcelain structural frames and restrained warm transit accents. Camera-centered sky geometry avoids
+far-plane clipping at any allowed orbit. Keep facade glazing, physical floor bands and articulated
+rounded trams readable. Original procedural scene remains stylized, not a photoreal video replica.

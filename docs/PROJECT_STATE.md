@@ -1,5 +1,21 @@
 # EcoRoute AI project state — Phases 1–7
 
+## City visual refinement � 2026-10-10 IST
+
+User requested stronger contrast, clouds and finer building/train details. Added a camera-centered
+procedural cloud sky (fixes far-plane clipping), revised light/material balance, floor bands,
+side glazing, rooftop equipment, street furniture, rounded tram bodies, doors, wheels, cab lamps
+and pantographs. The city remains illustrative, not a measured digital twin or a video render.
+Verified production build and desktop screenshot after the sky fix. Earlier concurrent build/browser
+checks exhausted Windows virtual memory; stopping our development servers and checking sequentially
+resolved the build. Local preview uses the production bundle to reduce memory use.
+Final verification: production build passed; all 7 Edge browser tests passed (17.4 s), including
+mobile canvas, reduced motion, route geometry, authentication failures and keyboard focus. Three
+data unit tests passed. An intermediate mobile run hit WebGL context loss; explicit context release
+on unmount was added and the complete suite then passed. Desktop/mobile screenshots inspected.
+GitHub Actions run 37998491860 passed both backend and frontend jobs on 7a0fcf5.
+No new cloud resources, provider calls, credentials or API contract changes in this visual revision.
+
 ## User-authorized frontend integration — 2026-10-10 IST
 
 The user explicitly replaced the backend-only constraint with a request for a cinematic 3D
