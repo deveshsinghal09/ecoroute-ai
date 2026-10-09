@@ -39,7 +39,7 @@ class DataStack(Stack):
     def __init__(self, scope: Construct, name: str, **kwargs):
         super().__init__(scope, name, **kwargs)
         self.tables = {}
-        for table_name in ("journeys", "preferences", "route_metadata", "idempotency", "alerts", "environment"):
+        for table_name in ("journeys", "preferences", "route_metadata", "idempotency", "alerts", "environment", "wearables"):
             table = dynamodb.Table(
                 self, table_name, partition_key=dynamodb.Attribute(name="pk", type=dynamodb.AttributeType.STRING),
                 sort_key=dynamodb.Attribute(name="sk", type=dynamodb.AttributeType.STRING),
@@ -48,10 +48,11 @@ class DataStack(Stack):
                 time_to_live_attribute="expires_at", deletion_protection=True,
                 removal_policy=RemovalPolicy.RETAIN,
                 max_read_request_units=10, max_write_request_units=10,
+                stream=dynamodb.StreamViewType.NEW_IMAGE if table_name == "wearables" else None,
             )
             self.tables[table_name] = table
             CfnOutput(self, table_name + "Table", value=table.table_name)
-        self.bucket = bucket(self, "AirData", [("raw/", 30), ("curated/", 90), ("reports/", 30), ("reports/routes/", 7), ("routes/", 7)])
+        self.bucket = bucket(self, "AirData", [("raw/", 30), ("curated/", 90), ("reports/", 30), ("reports/routes/", 7), ("routes/", 7), ("wearables/", 7)])
         self.dlq = sqs.Queue(self, "DeadLetters", encryption=sqs.QueueEncryption.SQS_MANAGED,
                              enforce_ssl=True, retention_period=Duration.days(14))
         self.queue = sqs.Queue(self, "Tasks", encryption=sqs.QueueEncryption.SQS_MANAGED,
@@ -133,7 +134,7 @@ class CoreStack(Stack):
             domain_prefix=f"ecoroute-{self.account}-{self.region}"))
         table_vars = {"JOURNEYS_TABLE": "journeys", "PREFERENCES_TABLE": "preferences",
                       "ROUTE_METADATA_TABLE": "route_metadata", "IDEMPOTENCY_TABLE": "idempotency",
-                      "ALERTS_TABLE": "alerts"}
+                      "ALERTS_TABLE": "alerts", "WEARABLES_TABLE": "wearables"}
         environment = {"ECOROUTE_PROFILE": "aws", "COGNITO_USER_POOL_ID": self.pool.user_pool_id,
                        "COGNITO_CLIENT_ID": self.client.user_pool_client_id,
                        "S3_DATA_BUCKET": data.bucket.bucket_name,
@@ -165,6 +166,18 @@ class CoreStack(Stack):
                 api_role.add_to_policy(iam.PolicyStatement(actions=[service + ":" + action],
                     resources=[self.format_arn(service=service, account="", resource="provider", resource_name="default")]))
         code = lambda_.Code.from_asset(str(Path(asset_path).resolve()))
+        if __package__ == "infra":
+            from .wearable_workflow import worker as wearable_worker
+        else:
+            from wearable_workflow import worker as wearable_worker
+        wearable_worker(self, "WearableArchive", data=data, code=code,
+            handler="ecoroute.wearable.handlers.archive_handler", archive=True)
+        api_role.add_to_policy(iam.PolicyStatement(
+            actions=["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:Query", "dynamodb:DeleteItem", "dynamodb:ConditionCheckItem"],
+            resources=[data.tables["wearables"].table_arn]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["s3:DeleteObject"], resources=[data.bucket.arn_for_objects("wearables/*")]))
+        api_role.add_to_policy(iam.PolicyStatement(actions=["s3:ListBucket"], resources=[data.bucket.bucket_arn],
+            conditions={"StringLike": {"s3:prefix": ["wearables/*"]}}))
         self.api_function = lambda_.Function(self, "Api", runtime=lambda_.Runtime.PYTHON_3_11,
             architecture=lambda_.Architecture.X86_64, handler="ecoroute.handlers.api.handler",
             code=code, role=api_role, environment=environment, timeout=Duration.seconds(28),
@@ -226,7 +239,7 @@ class CoreStack(Stack):
         # Ready is protected in AWS to avoid public paid dependency probes.
         api.add_routes(path="/api/v1/{proxy+}", methods=[apigw.HttpMethod.GET], integration=integration,
                        authorization_scopes=["ecoroute/read"])
-        api.add_routes(path="/api/v1/{proxy+}", methods=[apigw.HttpMethod.POST, apigw.HttpMethod.PUT],
+        api.add_routes(path="/api/v1/{proxy+}", methods=[apigw.HttpMethod.POST, apigw.HttpMethod.PUT, apigw.HttpMethod.DELETE],
                        integration=integration, authorization_scopes=["ecoroute/write"])
         apigw.CfnStage(self, "Stage", api_id=api.api_id, stage_name="$default", auto_deploy=True,
             default_route_settings=apigw.CfnStage.RouteSettingsProperty(
@@ -259,15 +272,21 @@ class CoreStack(Stack):
 
 
 class IotStack(Stack):
-    """Optional device identity boundary. No private key/certificate is created or embedded."""
-    def __init__(self, scope, name, **kwargs):
+    """Optional mTLS rule; certificate enrollment is a separate reviewed operator action."""
+    def __init__(self, scope, name, *, data, asset_path, **kwargs):
         super().__init__(scope, name, **kwargs)
-        thing = iot.CfnThing(self, "DemoGateway", thing_name="ecoroute-demo-gateway")
-        iot.CfnPolicy(self, "DevicePolicy", policy_document={
-            "Version": "2012-10-17", "Statement": [
-                {"Effect": "Allow", "Action": "iot:Connect", "Resource": self.format_arn(
-                    service="iot", resource="client", resource_name=thing.ref)},
-                {"Effect": "Allow", "Action": "iot:Publish", "Resource": self.format_arn(
-                    service="iot", resource="topic", resource_name=f"ecoroute/{thing.ref}/telemetry")},
-            ]})
-        CfnOutput(self, "Status", value="Certificate enrollment and telemetry rule deliberately not configured")
+        if __package__ == "infra":
+            from .wearable_workflow import worker
+        else:
+            from wearable_workflow import worker
+        validator = worker(self, "WearableValidator", data=data,
+            code=lambda_.Code.from_asset(str(Path(asset_path).resolve())),
+            handler="ecoroute.wearable.handlers.mqtt_handler")
+        rule = iot.CfnTopicRule(self, "Measurements", topic_rule_payload=iot.CfnTopicRule.TopicRulePayloadProperty(
+            aws_iot_sql_version="2016-03-23", rule_disabled=True,
+            sql="SELECT encode(*, 'base64') AS payload_b64, topic(3) AS owner_key, topic(5) AS device_id, topic() AS mqtt_topic, clientid() AS mqtt_client_id, principal() AS principal FROM 'ecoroute/users/+/devices/+/measurements'",
+            actions=[iot.CfnTopicRule.ActionProperty(lambda_=iot.CfnTopicRule.LambdaActionProperty(function_arn=validator.function_arn))]))
+        validator.add_permission("OnlyProjectRule", principal=iam.ServicePrincipal("iot.amazonaws.com"),
+            source_arn=rule.attr_arn, source_account=self.account)
+        CfnOutput(self, "RuleName", value=rule.ref)
+        CfnOutput(self, "Status", value="Rule disabled; no certificates or physical device enrolled")

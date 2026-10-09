@@ -44,6 +44,10 @@ def main():
                         ("ml/status", "GET"), ("ml/models", "GET"), ("ml/metrics", "GET"),
                         ("ml/predict", "POST"), ("ml/batch-predict", "POST"),
                         ("routes/predict-departure-times", "POST"),
+                        ("devices/register", "POST"), ("wearables/measurements", "POST"),
+                        ("wearables/consent", "POST"), ("wearables/latest", "GET"),
+                        ("wearables/history", "GET"), ("wearables/data", "DELETE"),
+                        ("journeys/" + "a" * 32 + "/wearable-correlation", "GET"),
                     ):
                         request = urllib.request.Request(
                             "http://127.0.0.1:8765/api/v1/" + path,

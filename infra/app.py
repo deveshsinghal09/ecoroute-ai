@@ -17,7 +17,7 @@ CoreStack(app, "EcoRouteCore", data=data, asset_path="build/lambda", env=env,
           provider_secret_arn=app.node.try_get_context("provider_secret_arn"),
           ingestion_interval_minutes=int(app.node.try_get_context("ingestion_interval_minutes") or 60))
 if str(app.node.try_get_context("enable_iot")).lower() == "true":
-    IotStack(app, "EcoRouteIoT", env=env)
+    IotStack(app, "EcoRouteIoT", env=env, data=data, asset_path="build/lambda")
 cdk.Tags.of(app).add("Project", "ecoroute-ai")
 cdk.Tags.of(app).add("Environment", "hackathon")
 app.synth()

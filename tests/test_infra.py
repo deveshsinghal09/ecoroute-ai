@@ -20,7 +20,7 @@ def templates(tmp_path_factory):
     core = CoreStack(app, "Core", data=data, asset_path=asset, env=env,
                      callback_urls=["https://example.org/callback"],
                      provider_secret_arn="arn:aws:secretsmanager:ap-south-1:123456789012:secret:ecoroute/demo-AbCdEf")
-    optional = IotStack(app, "IoT", env=env)
+    optional = IotStack(app, "IoT", env=env, data=data, asset_path=asset)
     return {name: Template.from_stack(stack).to_json() for name, stack in (
         ("data", data), ("ml", ml), ("core", core), ("iot", optional))}
 
@@ -36,9 +36,22 @@ def test_no_idle_compute_or_nat(templates):
                 "AWS::SageMaker::Endpoint", "AWS::RDS::DBInstance", "AWS::IoT::Certificate"}
 
 
+def test_iot_rule_envelope_permission_and_retention(templates):
+    iot = templates["iot"]
+    rule = resources(iot, "AWS::IoT::TopicRule")[0]["Properties"]["TopicRulePayload"]
+    assert rule["RuleDisabled"] is True
+    assert "encode(*, 'base64')" in rule["Sql"] and "principal()" in rule["Sql"]
+    permission = resources(iot, "AWS::Lambda::Permission")[0]["Properties"]
+    assert permission["Principal"] == "iot.amazonaws.com" and permission["SourceAccount"] == "123456789012"
+    assert permission["SourceArn"]
+    assert not resources(iot, "AWS::IoT::Certificate")
+    queue = resources(iot, "AWS::SQS::Queue")[0]["Properties"]
+    assert queue["MessageRetentionPeriod"] == 86400 and queue["SqsManagedSseEnabled"]
+
+
 def test_tables_retention_encryption_and_caps(templates):
     tables = resources(templates["data"], "AWS::DynamoDB::Table")
-    assert len(tables) == 6
+    assert len(tables) == 7
     for table in tables:
         props = table["Properties"]
         assert props["BillingMode"] == "PAY_PER_REQUEST"
@@ -87,14 +100,14 @@ def test_queue_worker_schedule_and_alarms(templates):
     queues = resources(templates["data"], "AWS::SQS::Queue")
     assert len(queues) == 2
     assert all(q["Properties"]["SqsManagedSseEnabled"] for q in queues)
-    source = resources(template, "AWS::Lambda::EventSourceMapping")[0]["Properties"]
+    source = next(r["Properties"] for r in resources(template, "AWS::Lambda::EventSourceMapping") if "ScalingConfig" in r["Properties"])
     assert source["FunctionResponseTypes"] == ["ReportBatchItemFailures"]
     assert source["ScalingConfig"]["MaximumConcurrency"] == 2
     assert resources(template, "AWS::Scheduler::Schedule")[0]["Properties"]["State"] == "DISABLED"
-    assert len(resources(template, "AWS::CloudWatch::Alarm")) == 6
+    assert len(resources(template, "AWS::CloudWatch::Alarm")) == 8
     for group in resources(template, "AWS::Logs::LogGroup"):
         assert group["Properties"]["RetentionInDays"] == 7
-    assert len(resources(template, "AWS::Lambda::Function")) == 3
+    assert len(resources(template, "AWS::Lambda::Function")) == 4
 
 
 def test_no_broad_runtime_permissions_or_embedded_secrets(templates):
@@ -103,7 +116,8 @@ def test_no_broad_runtime_permissions_or_embedded_secrets(templates):
             actions = statement["Action"]
             actions = [actions] if isinstance(actions, str) else actions
             assert not any("*" in action for action in actions)
-            assert statement["Resource"] != "*"
+            if statement["Resource"] == "*":
+                assert actions == ["dynamodb:ListStreams"] and statement.get("Condition")
     assert not resources(templates["core"], "AWS::SecretsManager::Secret")
     functions = resources(templates["core"], "AWS::Lambda::Function")
     assert any("OPENAQ_SECRET_ARN" in fn["Properties"]["Environment"]["Variables"] for fn in functions)

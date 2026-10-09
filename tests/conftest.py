@@ -33,4 +33,6 @@ def secured():
 
     store = LocalStore(":memory:")
     app = create_app(settings, store=store, verifier=CognitoVerifier(settings, Keys()))
-    return SimpleNamespace(client=TestClient(app), app=app, token=token, store=store, key=key)
+    with TestClient(app) as client:
+        yield SimpleNamespace(client=client, app=app, token=token, store=store, key=key)
+    store.db.close()
