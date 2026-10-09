@@ -530,3 +530,5 @@ changes to credentials or live cloud resources. Added scripts/commit-joint.ps1 a
 co-author API revealed that blank-separated trailers in the first two Phase 2 commits recognized
 only the final co-author. The helper preserves both teammates in a contiguous final trailer block.
 Published earlier history is preserved. Remote attribution is checked on the helper/report commit.
+
+UI cleanup and travel controls (2026-10-10): removed observatory/history overlay, scene-bottom badges, footer text and Explore your routes CTA as requested. Source/date disclosure remains in route details and connection settings. Walk/Cycle are selectable and clear mismatched driving results. Walking still requires authenticated live AWS routing; cycling remains blocked by missing bicycle provider (no fabricated routes). Production build and 10 browser tests passed, including travel-mode selection and removed-element assertions. No backend/provider provisioning performed.
