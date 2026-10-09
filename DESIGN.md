@@ -51,3 +51,8 @@ Default to the generated architectural artwork: centered arched station, reflect
 warm amber interiors, realistic trees and white/orange trams. Keep the station unobstructed by
 collapsing the planner initially. Expose Cinematic, 3D orbit and Route view as distinct modes.
 Never call image parallax true 3D orbit or depict the artwork as actual Delhi data.
+
+### Unified animated city (supersedes separate modes)
+The old procedural 3D UI and Three.js were removed at the user's request. City view now
+composites architectural artwork, moving transparent train sprites and reflections into a single
+2.5D scene. There is no orbit mode. Route view and all existing backend contracts are preserved.

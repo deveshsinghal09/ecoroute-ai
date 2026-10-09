@@ -229,3 +229,8 @@ See [Phase6 runbook](PHASE6_ADVISORIES.md) for security boundaries, permissions 
 The frontend serves a bundled AI-generated city image locally. Pan/zoom is a presentation effect;
 real-time Three.js geometry is a separately selected mode, lazily mounted. Route geometry and all
 backend API contracts remain unchanged. No image generation service is called by the running app.
+
+### Unified animated city (supersedes separate modes)
+The old procedural 3D UI and Three.js were removed at the user's request. City view now
+composites architectural artwork, moving transparent train sprites and reflections into a single
+2.5D scene. There is no orbit mode. Route view and all existing backend contracts are preserved.

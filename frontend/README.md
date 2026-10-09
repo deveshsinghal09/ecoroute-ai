@@ -76,3 +76,8 @@ It is not a geographic map or freely orbitable 3D scene. Use **3D orbit** for pr
 geometry and **Route view** for the actual provider's road geometry. Open the planner with
 Explore your routes, the orange navigation pin, Journeys, or the menu toggle. Artwork provenance
 and generation prompt are in public/assets/ASSET_PROVENANCE.md. No image API key is needed at runtime.
+
+### Unified animated city (supersedes separate modes)
+The old procedural 3D UI and Three.js were removed at the user's request. City view now
+composites architectural artwork, moving transparent train sprites and reflections into a single
+2.5D scene. There is no orbit mode. Route view and all existing backend contracts are preserved.

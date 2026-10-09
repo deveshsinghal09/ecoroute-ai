@@ -1,5 +1,25 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Train alignment and 100% viewport fit — 2026-10-10 IST
+
+Replaced independent train trajectories with a traced backdrop rail centerline, tangent alignment,
+and a shared 68-second period with half-loop spacing. Sprite contact offset is accounted for.
+Desktop shell uses 100dvh with flexible scene/rail heights and internally scrolling planner;
+removed effective fixed scene minimum heights. Mobile retains natural document scrolling.
+Verified production build, 5 unit tests and 9 browser tests. Viewport-fit assertions pass at
+1366x768, 1280x720 and 1536x864 with planner open and closed at default 100% zoom. No AWS changes.
+
+## Unified animated city — 2026-10-10 IST
+
+User requested one detailed scene with moving trains and removal of the old 3D UI. Removed
+City.tsx, the orbit switch and Three.js dependencies. The city is now an SVG-composited 2.5D
+illustration: generated train-free architectural backdrop, transparent articulated tram sprites,
+perspective-scaled movement along decorative track curves, reflected sprites and restrained parallax.
+Pause freezes actual train positions; reduced-motion starts paused; background tabs stop advancing.
+Real route geometry and backend APIs remain separate under Route view. No cloud deployment.
+Production build and 8 browser tests passed, including actual transform movement/pause assertions.
+Previous separate-mode descriptions below are historical and superseded by this entry.
+
 ## Reference-matched cinematic opening — 2026-10-10 IST
 
 After the user rejected the procedural city's resemblance, generated a detailed architectural
