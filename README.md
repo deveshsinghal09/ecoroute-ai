@@ -1,5 +1,21 @@
 # EcoRoute AI
 
+## Interactive city dashboard
+
+The requested React/TypeScript + Three.js frontend is now in [frontend/](frontend/README.md).
+It follows the supplied cinematic city reference, with orbit/zoom controls, a route planner,
+real recorded route geometry, source warnings and secure live API mode. Preview data is explicitly
+historical; the city is illustrative. Existing backend behavior and JWT protection are preserved.
+
+```powershell
+npm --prefix frontend ci
+npm run dev
+```
+
+Open http://127.0.0.1:5173 . This starts the local API and UI; no AWS deployment or paid provider
+request is made on page load. Live Cognito/API configuration remains manual; see the frontend README.
+The earlier backend-only phase notes below are historical and superseded by this user request.
+
 Phase7 local integration and demo readiness: [runbook and actual evidence](docs/DEMO_READINESS.md),
 [complete frontend integration contract](docs/FRONTEND_INTEGRATION.md),
 [OpenAPI](docs/openapi.json), [Postman examples](examples/ecoroute.postman_collection.json).

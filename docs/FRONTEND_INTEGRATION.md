@@ -1,6 +1,7 @@
 # Frontend integration — EcoRoute AI backend
 
-No frontend has been built. Local base URL: http://127.0.0.1:8000.
+The React/Three.js frontend lives in frontend/; local UI: http://127.0.0.1:5173.
+Backend local base URL: http://127.0.0.1:8000. See frontend/README.md for PKCE and live-mode setup.
 AWS base URL: <VERIFIED_API_GATEWAY_URL> (not deployed).
 Authoritative request/response schemas: [openapi.json](openapi.json), exported from the SAME
 runtime /openapi.json. Provider metadata and variable model metrics intentionally allow extra

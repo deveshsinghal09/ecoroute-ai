@@ -1,5 +1,30 @@
 # EcoRoute AI project state — Phases 1–7
 
+## User-authorized frontend integration — 2026-10-10 IST
+
+The user explicitly replaced the backend-only constraint with a request for a cinematic 3D
+dashboard matching the supplied image/video, and confirmed city-first layout with a side planner.
+Added frontend/ (React, TypeScript, Vite, Three.js), PRODUCT.md, DESIGN.md and scripts/dev.mjs.
+Preserved backend APIs. The city is original illustrative geometry; route view uses actual saved
+OSRM GeoJSON. PM2.5 metrics derive from the saved real response, clearly historical, not live.
+Live mode clears historical data and uses Cognito PKCE + protected REST calls; tokens remain in
+memory. No keys are bundled, notifications sent, physical watch connected or model accuracy invented.
+
+Features: 3D orbit/zoom/reset/pause; route comparison panel; source/quality warnings; air data quality,
+wearable latest reading, alert list, grounded explanation and ML status clients; reduced-motion,
+mobile layout, WebGL fallback, focus-trapped settings and no silent demo fallback. No hosting deployed.
+Added exact HTTPS frontend_origins CDK context for API Gateway/Lambda CORS, rejecting wildcard origins.
+
+Actual verification: production build passed;3 data-unit tests and4 Edge browser tests passed;
+real browser→local FastAPI health/CORS request passed;169 backend tests passed,1 Docker test skipped,
+3 upstream warnings; Ruff and production npm audit passed (0 known production vulnerabilities).
+Desktop/mobile screenshots inspected. Design detector returned[]; independent review findings
+addressed for live attribution, warning visibility, pending mode changes and mobile loading layout.
+Default CDK synthesis and structural security review passed. Full npm audit initially found
+development-runner advisories; upgrading Vitest to5.0.3 resolved them, with3 tests passing and
+0 vulnerabilities in the full audit. CI follow-up results are recorded after verification. Live Cognito/provider service
+success remains unverified; historical preview works without credentials. Separate team commits.
+
 ## Phase 7 current state — 2026-10-10 IST
 
 Local integration, complete 42-operation OpenAPI/response contracts, token-free Postman examples,

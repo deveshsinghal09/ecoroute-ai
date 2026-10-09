@@ -1,5 +1,11 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Frontend addition authorized after Phase7: React/TypeScript static SPA + lazy Three.js scene.
+Historical mode imports an actual public-landmark response. Live mode uses memory-only Cognito
+access token after PKCE and calls the existing REST API; it never falls back to recorded data.
+The 3D city is illustrative; separate route view projects true returned GeoJSON. Exact frontend
+origins configure Gateway and Lambda CORS. No new hosting, paid services or unauthenticated APIs.
+
 Phase7 integration: one FastAPI app exposes42 versioned operations with Cognito JWT/owner scope;
 ingestion supplies the same curated environmental repository to routing, station ML and wearable
 correlation. ML/wearable dependencies are injectable so offline demos use one selected dataset.

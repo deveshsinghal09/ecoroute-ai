@@ -1,5 +1,10 @@
 # AWS service decisions and IAM boundaries
 
+Frontend integration adds no AWS service/resource or hosting deployment. Existing HTTP API and
+Lambda receive optional exact-origin CORS configuration through frontend_origins; existing Cognito
+PKCE public-client flow is reused. No IAM credentials belong in the frontend. Account costs are
+unchanged until an approved deployment/provider invocation; no cloud actions occurred here.
+
 Phase7: no AWS service provisioned or called with authenticated credentials. Core/Data/ML and
 optional IoT/Step Functions resources remain definitions. Offline synthesis/security checks verify
 private S3, disabled schedules, absence of idle compute and scoped policies; they do not prove

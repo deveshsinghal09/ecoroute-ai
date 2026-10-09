@@ -1,5 +1,13 @@
 # Credentials and configuration checklist
 
+Frontend configuration (public identifiers only): VITE_API_BASE_URL, VITE_COGNITO_DOMAIN,
+VITE_COGNITO_CLIENT_ID, VITE_COGNITO_REDIRECT_URI in frontend/.env.local. These are exposed in
+the browser; NEVER store provider keys, AWS keys, private certificates or tokens in VITE_ values.
+Existing Cognito public client must enable authorization-code PKCE, custom read/write scopes and
+the exact callback URL. Set CDK callback_urls and frontend_origins (exact HTTPS origins); local
+FastAPI uses CORS_ORIGINS=["http://127.0.0.1:5173"]. See frontend/README.md. No setup/deployment
+was performed. Historical preview and the illustrative 3D city need no credentials.
+
 Phase7 current status: user deferred further credential setup; no authenticated AWS checks or
 deployment performed. Existing rotated OPENAQ_API_KEY authenticated successfully for two bounded
 sensor queries (zero observations returned); key stays in ignored local configuration. Public

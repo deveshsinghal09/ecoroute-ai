@@ -1,5 +1,11 @@
 # API contract — backend foundation and environmental datasets
 
+The newly authorized frontend consumes this existing contract; no endpoint was weakened or
+renamed. Source: frontend/src/api.ts (PKCE/authenticated REST), frontend/src/data.ts (real historical
+response), frontend/src/App.tsx (route/quality/wearable/alerts/ML/explanation clients). Historical
+and live states are explicit and mutually exclusive. API Gateway CORS now accepts an optional
+reviewed frontend_origins list. No unauthenticated domain data endpoint was added.
+
 Phase7 authoritative complete contract: [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
 and runtime-exported [openapi.json](openapi.json). All42operations have explicit request/response
 schemas, authorization scope, errors and Postman examples. Run scripts/export_api.py after API
