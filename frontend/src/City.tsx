@@ -167,7 +167,7 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
       controls.update();if(dirty.current){sky.position.copy(camera.position);renderer.render(scene,camera);dirty.current=false;}
     };frame=requestAnimationFrame(animate);
     const loss=(event:Event)=>{event.preventDefault();setFailed(true);};renderer.domElement.addEventListener('webglcontextlost',loss);
-    return()=>{cancelAnimationFrame(frame);observer.disconnect();controls.removeEventListener('change',changed);controls.dispose();skyGeometry.dispose();skyMaterial.dispose();boxGeometry.dispose();extras.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());windowTexture.dispose();env.dispose();room.dispose();pmrem.dispose();renderer.dispose();renderer.domElement.removeEventListener('webglcontextlost',loss);renderer.domElement.remove();api.current=undefined;};
+    return()=>{cancelAnimationFrame(frame);observer.disconnect();controls.removeEventListener('change',changed);controls.dispose();skyGeometry.dispose();skyMaterial.dispose();boxGeometry.dispose();extras.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());windowTexture.dispose();env.dispose();room.dispose();pmrem.dispose();renderer.dispose();renderer.domElement.removeEventListener('webglcontextlost',loss);renderer.forceContextLoss();renderer.domElement.remove();api.current=undefined;};
   },[]);
   useEffect(()=>{const value=api.current;if(!value)return;const delta=value.camera.position.clone().sub(value.controls.target).normalize();value.camera.position.copy(value.controls.target).addScaledVector(delta,Math.max(48,Math.min(130,94-zoom*10)));},[zoom]);
   useEffect(()=>{const value=api.current;if(value){value.camera.position.set(46,19,78);value.controls.target.set(0,9,-12);}},[reset]);
