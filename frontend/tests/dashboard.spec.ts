@@ -78,13 +78,13 @@ test('one city animates trains independently and pause freezes motion',async({pa
   await expect(page.locator('.animated-train')).toHaveCount(2);
   for(const path of ['/assets/ecoroute-city-clear.png','/assets/ecoroute-tram.png'])expect((await page.request.get(path)).ok()).toBe(true);
   const train=page.locator('.animated-train').first();
-  const frozen=await train.getAttribute('transform');await page.waitForTimeout(150);
-  expect(await train.getAttribute('transform')).toBe(frozen);
+  const frozen=await train.getAttribute('data-position');await page.waitForTimeout(150);
+  expect(await train.getAttribute('data-position')).toBe(frozen);
   await page.getByRole('button',{name:'Play city motion'}).click();
-  await expect.poll(()=>train.getAttribute('transform')).not.toBe(frozen);
+  await expect.poll(()=>train.getAttribute('data-position')).not.toBe(frozen);
   await page.getByRole('button',{name:'Pause city motion'}).click();
-  const paused=await train.getAttribute('transform');await page.waitForTimeout(150);
-  expect(await train.getAttribute('transform')).toBe(paused);
+  const paused=await train.getAttribute('data-position');await page.waitForTimeout(150);
+  expect(await train.getAttribute('data-position')).toBe(paused);
   await page.screenshot({path:'../work/frontend-animated-city.png'});
 });
 
