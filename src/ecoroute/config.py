@@ -35,9 +35,27 @@ class Settings(BaseSettings):
     s3_data_bucket: str = ""
     wearable_archive_path: str = "work/wearable-history"
     wearable_demo_mode: bool = False
+    enable_bedrock: bool = False
+    bedrock_model_id: str = ""
+    bedrock_daily_limit: int = Field(default=20, ge=1, le=100)
+    bedrock_hourly_limit: int = Field(default=5, ge=1, le=20)
+    enable_sms: bool = False
+    sns_allowed_topic_arns: list[str] = []
+    sms_monthly_spend_limit_usd: float = Field(default=1, gt=0, le=5)
+    sms_max_price_usd: float = Field(default=0.05, gt=0, le=0.1)
+    sms_sender_id: str = Field(default="", max_length=11)
+    sms_entity_id: str = Field(default="", max_length=50)
+    sms_template_id: str = Field(default="", max_length=50)
+    workflow_state_machine_arn: str = ""
 
     @model_validator(mode="after")
     def configuration_guard(self):
+        if self.enable_bedrock and not self.bedrock_model_id:
+            raise ValueError("Bedrock requires a reviewed model ID")
+        if (self.enable_bedrock or self.enable_sms) and self.ecoroute_profile == "local" and not (self.aws_profile and self.expected_aws_account_id):
+            raise ValueError("Live local integrations require an explicit IAM profile and expected account")
+        if self.enable_sms and not self.sns_allowed_topic_arns:
+            raise ValueError("SMS requires reviewed dedicated topic ARNs")
         if self.wearable_demo_mode and self.ecoroute_profile != "local":
             raise ValueError("Wearable simulation is local-only")
         if any((

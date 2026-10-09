@@ -22,6 +22,7 @@ from ecoroute.routing.models import RoutingError
 from ecoroute.ml.api import router as ml_router
 from ecoroute.ml.inference import MLUnavailable
 from ecoroute.wearable.api import router as wearable_router
+from ecoroute.advisory.api import router as advisory_router
 
 logger = logging.getLogger("ecoroute")
 logger.setLevel(logging.INFO)
@@ -46,6 +47,8 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
             "journeys": settings.journeys_table, "telemetry": settings.journeys_table,
             "preferences": settings.preferences_table, "routes": settings.route_metadata_table, "route_cache": settings.route_metadata_table,
             "alerts": settings.alerts_table,
+            "notification_state": settings.alerts_table, "workflows": settings.alerts_table,
+            "schools": settings.preferences_table, "notification_config": settings.preferences_table,
         }, settings.idempotency_table)
     app.state.store = store if store is not None else LocalStore(settings.local_db_path)
     if settings.cors_origins:
@@ -124,6 +127,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     app.include_router(routing_router, prefix="/api/v1")
     app.include_router(ml_router, prefix="/api/v1")
     app.include_router(wearable_router, prefix="/api/v1")
+    app.include_router(advisory_router, prefix="/api/v1")
     return app
 
 

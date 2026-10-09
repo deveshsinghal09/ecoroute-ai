@@ -46,6 +46,19 @@ class LocalStore:
             self.db.execute("SELECT 1")
         return True
 
+    def claim(self, kind, owner, identifier, data, ttl):
+        with self.lock, self.db:
+            if self.get(kind, owner, identifier):
+                return False
+            self.put_record(kind, owner, identifier, data, ttl)
+            return True
+
+    def list_records(self, kind, owner, limit=50):
+        with self.lock:
+            rows = self.db.execute("SELECT payload FROM records WHERE owner=? AND kind=? AND expires>? ORDER BY id LIMIT ?",
+                (owner, kind, int(time.time()), limit + 1)).fetchall()
+        return [json.loads(row[0]) for row in rows[:limit]], len(rows) > limit
+
     def create(self, kind, owner, data, key, ttl=604800):
         now = int(time.time())
         operation = operation_id(owner, kind, key)
@@ -101,6 +114,29 @@ class DynamoStore:
             if self.client.describe_table(TableName=table)["Table"]["TableStatus"] != "ACTIVE":
                 return False
         return True
+
+    def claim(self, kind, owner, identifier, data, ttl):
+        now = int(time.time())
+        record = {**data, "id": identifier, "expires_at": now + ttl}
+        try:
+            self.client.put_item(TableName=self.tables[kind], Item={
+                "pk": {"S": owner}, "sk": {"S": kind + "#" + identifier},
+                "payload": {"S": json.dumps(record)}, "expires_at": {"N": str(now + ttl)}},
+                ConditionExpression="attribute_not_exists(pk) OR expires_at <= :now",
+                ExpressionAttributeValues={":now": {"N": str(now)}})
+            return True
+        except ClientError as exc:
+            if exc.response["Error"]["Code"] == "ConditionalCheckFailedException":
+                return False
+            raise
+
+    def list_records(self, kind, owner, limit=50):
+        response = self.client.query(TableName=self.tables[kind], ConsistentRead=True,
+            KeyConditionExpression="pk = :owner AND begins_with(sk, :prefix)",
+            ExpressionAttributeValues={":owner": {"S": owner}, ":prefix": {"S": kind + "#"}}, Limit=limit)
+        rows = [json.loads(item["payload"]["S"]) for item in response.get("Items", [])
+                if int(item["expires_at"]["N"]) > time.time()]
+        return rows, bool(response.get("LastEvaluatedKey"))
 
     def get(self, kind, owner, identifier):
         response = self.client.get_item(

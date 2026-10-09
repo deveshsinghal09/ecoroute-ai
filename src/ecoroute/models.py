@@ -56,7 +56,7 @@ class TelemetryBatch(StrictModel):
 
 class Preferences(StrictModel):
     alerts_enabled: bool = False
-    channel: Literal["in_app"] = "in_app"
+    channel: Literal["in_app", "sms"] = "in_app"
 
 
 Identifier = Annotated[str, Field(pattern=r"^[a-f0-9]{32}$")]
