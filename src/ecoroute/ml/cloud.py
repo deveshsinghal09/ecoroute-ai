@@ -46,7 +46,7 @@ class S3Registry(LocalRegistry):
         return super().load(manifest)
 
 
-def handler(event, context):
+def _handle(event, context):
     # Invokable only by the API execution role; never a public Lambda function URL.
     try:
         engine = MLService(S3Registry(os.environ["ML_BUCKET"]), repository())
@@ -92,3 +92,20 @@ def handler(event, context):
         return {"error": str(exc)}
     except Exception:
         return {"error": "ml_worker_unavailable"}
+
+
+def handler(event, context):
+    import time
+
+    started = time.monotonic()
+    result = _handle(event, context)
+    print(
+        json.dumps(
+            {
+                "event": "ml_inference",
+                "status": "unavailable" if result.get("error") else "completed",
+                "latency_ms": round((time.monotonic() - started) * 1000),
+            }
+        )
+    )
+    return result

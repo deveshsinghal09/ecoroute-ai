@@ -1,5 +1,9 @@
 *
 !Dockerfile
+!Dockerfile.ml
+!requirements-ml.txt
+!scripts/
+!scripts/train.py
 !requirements-runtime.txt
 !requirements.lock
 !src/

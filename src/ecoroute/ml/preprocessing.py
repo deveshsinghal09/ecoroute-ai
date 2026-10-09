@@ -245,7 +245,17 @@ def prepare(rows, *, weather=(), min_train=72, min_validation=24, min_test=24, m
         else:
             parts["test"].append(row)
     # A model supports only monitoring series actually represented in every split.
-    supported = set.intersection(*({r["station_id"] for r in values} for values in parts.values()))
+    supported = set.intersection(
+        *(
+            {
+                station
+                for station in {r["station_id"] for r in values}
+                if sum(r["station_id"] == station for r in values)
+                >= (24 if name == "train" else 12)
+            }
+            for name, values in parts.items()
+        )
+    )
     parts = {k: [r for r in v if r["station_id"] in supported] for k, v in parts.items()}
     report.update(
         split_counts={k: len(v) for k, v in parts.items()},

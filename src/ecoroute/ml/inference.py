@@ -61,6 +61,7 @@ class MLService:
     def __init__(self, registry, repo, *, clock=lambda: datetime.now(UTC)):
         self.registry, self.repo, self.clock = registry, repo, clock
         self._models, self._history = {}, {}
+        self._selected = {}
 
     def status(self):
         models = self.registry.models()
@@ -84,7 +85,9 @@ class MLService:
             <= self.clock() + timedelta(seconds=5)
         ):
             raise MLUnavailable("prediction_issuance_must_be_current")
-        manifest = self.registry.select(model_version)
+        if model_version not in self._selected:
+            self._selected[model_version] = self.registry.select(model_version)
+        manifest = self._selected[model_version]
         if station_id not in manifest["supported_stations"]:
             raise MLUnavailable("monitoring_station_not_verified")
         key = issued.isoformat()

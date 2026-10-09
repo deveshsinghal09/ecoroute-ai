@@ -71,6 +71,15 @@ def test_modeled_data_and_tiny_history_never_train(observed):
         prepare(observed[:48])
 
 
+def test_late_backfills_do_not_claim_historical_feature_availability(observed):
+    late = copy.deepcopy(observed)
+    for row in late:
+        row["collected_at"] = "2026-10-10T00:00:00Z"
+    with pytest.raises(InsufficientData) as denied:
+        prepare(late)
+    assert denied.value.report["eligible_samples"] == 0
+
+
 def test_feature_availability_and_future_poison_do_not_leak(observed):
     issued = datetime(2026, 8, 5, tzinfo=UTC)
     features = feature_row(observed, issued)
