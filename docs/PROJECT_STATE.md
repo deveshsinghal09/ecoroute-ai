@@ -15,8 +15,8 @@ tests/test_environment_workflow_infra.py, docs/PHASE6_ADVISORIES.md. Updated Cor
 settings/storage/models/router integration, smoke checks, .env.example, README and all five
 living documents. Prompt template is SYSTEM_PROMPT in advisory/explanation.py.
 
-Actual checks: full pytest **153 passed, 1 skipped, 3 upstream warnings**; focused advisory
-tests **23 passed**; Ruff passed; temporary loopback health/docs/auth smoke passed; SDK
+Actual checks: full pytest **154 passed, 1 skipped, 3 upstream warnings**; focused advisory
+tests **24 passed**; Ruff passed; temporary loopback health/docs/auth smoke passed; SDK
 Converse/SNS/StartExecution compatibility passed offline; Linux Lambda asset rebuilt at
 **183.1 MiB**; default/optional offline CDK synth and pip compatibility checks passed. Initial school test failed for absent Windows IANA tzdata; corrected with
 contemporary Delhi UTC+05:30 support and rerun passed. Local Docker-dependent test remains
@@ -37,6 +37,12 @@ scripts/check_advisory.py, scripts/smoke_local.py, scripts/build_lambda.py; offl
 passed for default and optional workflows (--no-lookups); Git changes are committed separately. No deploy/Bedrock invocation/SNS
 publish/OTP/provider refresh/paid training/workflow execution was run. Separate commits now
 use the user-authorized individual authors, rather than joint co-author trailers.
+
+Follow-up: aligned school-day window to the UTC hour preceding India midnight so the
+provider two-day forecast can cover the next day. Added timezone/ownership regression test.
+The first new test run caught a misplaced test block (NameError); corrected it and all24
+focused tests passed. GitHub CI at b6cdbf1 passed every step, including Docker ML mechanics
+training/serving tests and Linux asset imports; this is not measured-data ML validation.
 
 Remaining: configure credentials privately after phases, confirm chosen model/provider terms,
 regional IAM/quotas and SMS sandbox/DLT, approve exact regional cost/deployment proposal, deploy

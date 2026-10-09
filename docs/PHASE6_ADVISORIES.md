@@ -35,7 +35,7 @@ School configuration is saved by a successful genuine route comparison. Destinat
 match school coordinates; forecast lattice must match those coordinates; departure must fall
 inside configured increasing Asia/Kolkata commute times. Contemporary Delhi dates use fixed
 UTC+05:30 without a Windows timezone-data dependency. Next-day forecast uses an explicit
-UTC-hour-aligned 24h window beginning before commute, not a local calendar-day mean. No
+UTC-hour-aligned 24h window beginning at the UTC hour preceding India midnight, not a local calendar-day mean. No
 school closure is invented; official_closure_status is always not_provided.
 
 ## Optional workflow

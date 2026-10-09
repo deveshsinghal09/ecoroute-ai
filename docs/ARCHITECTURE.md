@@ -200,7 +200,7 @@ extrapolation into unsupported daily horizons. Exceptions reach a dedicated DLQ;
 CloudWatch failure/error/DLQ/alert-volume alarms and structured EMF counts exclude identities.
 
 Daily advisories require complete 24-hour evidence; Open-Meteo sample means retain coarse-grid
-and approximation labels. Next-day school window is UTC-hour aligned before local commute,
+and approximation labels. Next-day school window is UTC-hour aligned before India midnight,
 not a midnight calendar-day average. No legal closure/diagnosis/precise roadside claim.
 Definitions are local-only, schedule DISABLED, dispatcher gate false, live Bedrock/SMS false.
 See [Phase6 runbook](PHASE6_ADVISORIES.md) for security boundaries, permissions and costs.

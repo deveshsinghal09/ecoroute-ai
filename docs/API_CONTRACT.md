@@ -147,7 +147,7 @@ Existing /navigation/routes remains a legacy placeholder; clients should use /ro
 | GET /api/v1/alerts | read; owned alerts only, bounded50 records and truncation flag |
 | PUT /api/v1/alerts/preferences | write; alerts_enabled explicit,channel in_app/sms; no caller-supplied phone/topic |
 | POST /api/v1/schools/compare-routes | write; school_id/name/position/grid,commute_start/end,nested route CompareRequest with consent; true provider routes, matching destination/grid/commute; persists owned config90days |
-| GET /api/v1/schools/forecast | read;owned school_id,optional forecast_date default next India day; explicit UTC24h forecast window,confidence,coarse/missing warnings,no official closures |
+| GET /api/v1/schools/forecast | read;owned school_id,optional forecast_date default next India day; explicit approximate India school-day UTC24h forecast window,confidence,coarse/missing warnings,no official closures |
 | GET /api/v1/workflows/status | read; configured ARN presence,owner manifests/truncation; no public workflow start or cloud deployment verification claim |
 
 Strict bodies reject extra fields/spoofed owner IDs. All endpoints reuse existing JWT scopes,
