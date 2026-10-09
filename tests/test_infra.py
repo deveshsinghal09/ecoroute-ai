@@ -19,6 +19,7 @@ def templates(tmp_path_factory):
     ml = MlStack(app, "ML", env=env)
     core = CoreStack(app, "Core", data=data, asset_path=asset, env=env,
                      callback_urls=["https://example.org/callback"],
+                     frontend_origins=["https://example.org"],
                      provider_secret_arn="arn:aws:secretsmanager:ap-south-1:123456789012:secret:ecoroute/demo-AbCdEf")
     optional = IotStack(app, "IoT", env=env, data=data, asset_path=asset)
     return {name: Template.from_stack(stack).to_json() for name, stack in (
@@ -27,6 +28,21 @@ def templates(tmp_path_factory):
 
 def resources(template, kind):
     return [r for r in template["Resources"].values() if r["Type"] == kind]
+
+
+def test_frontend_cors_is_exact_and_not_credentialed(templates):
+    api = resources(templates["core"], "AWS::ApiGatewayV2::Api")[0]["Properties"]
+    assert api["CorsConfiguration"]["AllowOrigins"] == ["https://example.org"]
+    assert api["CorsConfiguration"]["AllowCredentials"] is False
+    assert "Authorization" in api["CorsConfiguration"]["AllowHeaders"]
+    assert "OPTIONS" in api["CorsConfiguration"]["AllowMethods"]
+
+
+@pytest.mark.parametrize("origin", ["*", "https://*.example.org", "http://example.org", "https://example.org/path"])
+def test_frontend_cors_rejects_unsafe_origins(origin):
+    app = cdk.App()
+    with pytest.raises(ValueError, match="exact HTTPS"):
+        CoreStack(app, "Unsafe", data=None, asset_path="unused", frontend_origins=[origin])
 
 
 def test_no_idle_compute_or_nat(templates):

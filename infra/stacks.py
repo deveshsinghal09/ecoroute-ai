@@ -1,4 +1,6 @@
 from pathlib import Path
+import json
+from urllib.parse import urlsplit
 
 from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
 from aws_cdk import aws_apigatewayv2 as apigw
@@ -82,9 +84,16 @@ class MlStack(Stack):
 
 
 class CoreStack(Stack):
-    def __init__(self, scope, name, *, data, asset_path, callback_urls=None,
+    def __init__(self, scope, name, *, data, asset_path, callback_urls=None, frontend_origins=None,
                  provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, **kwargs):
         super().__init__(scope, name, **kwargs)
+        frontend_origins = frontend_origins or []
+        if not isinstance(frontend_origins, list):
+            raise ValueError("frontend_origins must be a list of exact HTTPS origins")
+        for origin in frontend_origins:
+            parsed = urlsplit(origin)
+            if parsed.scheme != "https" or not parsed.hostname or parsed.path or parsed.query or parsed.fragment or parsed.username or "*" in origin:
+                raise ValueError("frontend_origins must contain exact HTTPS origins without paths")
         if not 60 <= ingestion_interval_minutes <= 1440:
             raise ValueError("Collection interval must be 60..1440 minutes")
         api_logs = logs.LogGroup(self, "ApiLogs", retention=logs.RetentionDays.ONE_WEEK,
@@ -141,6 +150,7 @@ class CoreStack(Stack):
                        "ENVIRONMENT_TABLE": data.tables["environment"].table_name,
                        "ENABLE_AWS_LOCATION": str(enable_location).lower(),
                        "EXPECTED_AWS_ACCOUNT_ID": self.account,
+                       "CORS_ORIGINS": json.dumps(frontend_origins),
                         "LOCATION_DAILY_LIMIT": "100", "LOCATION_HOURLY_LIMIT": "30",
                         "ML_INFERENCE_FUNCTION_ARN": ml_inference_arn or "",
                        **{env: data.tables[key].table_name for env, key in table_vars.items()}}
@@ -253,6 +263,14 @@ class CoreStack(Stack):
         authorizer = authorizers.HttpJwtAuthorizer("Cognito", issuer,
                                                    jwt_audience=[self.client.user_pool_client_id])
         api = apigw.HttpApi(self, "HttpApi", create_default_stage=False,
+                            cors_preflight=apigw.CorsPreflightOptions(
+                                allow_origins=frontend_origins, allow_credentials=False,
+                                allow_methods=[apigw.CorsHttpMethod.GET, apigw.CorsHttpMethod.POST,
+                                               apigw.CorsHttpMethod.PUT, apigw.CorsHttpMethod.DELETE,
+                                               apigw.CorsHttpMethod.OPTIONS],
+                                allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
+                                expose_headers=["X-Request-ID"], max_age=Duration.minutes(5),
+                            ) if frontend_origins else None,
                             default_authorizer=authorizer, default_authorization_scopes=["ecoroute/read"])
         integration = integrations.HttpLambdaIntegration("FastApi", self.api_function)
         for path in ("/api/v1/health", "/healthz", "/docs", "/openapi.json"):

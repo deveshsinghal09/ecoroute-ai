@@ -12,6 +12,7 @@ ml = MlStack(app, "EcoRouteML", env=env, data=data, asset_path="build/lambda",
              image_uri=app.node.try_get_context("ml_image_uri"))
 CoreStack(app, "EcoRouteCore", data=data, asset_path="build/lambda", env=env,
           callback_urls=app.node.try_get_context("callback_urls"),
+          frontend_origins=app.node.try_get_context("frontend_origins"),
           enable_location=str(app.node.try_get_context("enable_location")).lower() == "true",
           ml_inference_arn=ml.inference_arn,
           enable_workflows=str(app.node.try_get_context("enable_workflows")).lower() == "true",

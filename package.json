@@ -1,7 +1,15 @@
 {
   "name": "ecoroute-ai-infra-tools",
   "private": true,
-  "description": "Local CDK CLI only; no frontend",
-  "scripts": {"synth": "cdk synth --no-lookups", "build:lambda": "python scripts/build_lambda.py", "cdk:version": "cdk --version"},
-  "devDependencies": {"aws-cdk": "^2.1000.0"}
+  "description": "EcoRoute local development and CDK tools",
+  "scripts": {
+    "synth": "cdk synth --no-lookups",
+    "build:lambda": "python scripts/build_lambda.py",
+    "cdk:version": "cdk --version",
+    "dev": "node scripts/dev.mjs",
+    "build:frontend": "npm --prefix frontend run build"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.1000.0"
+  }
 }
