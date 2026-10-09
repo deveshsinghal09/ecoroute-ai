@@ -2,8 +2,7 @@ import { test, expect } from '@playwright/test';
 test('historical dashboard, route geometry and honest unavailable features',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/');await page.getByRole('button',{name:'Open journey planner'}).click();await expect(page.getByRole('heading',{name:'Your next journey'})).toBeVisible();
-  await expect(page.getByText('Historical preview · 09 Oct 2026')).toBeVisible();
-  await expect(page.getByRole('button',{name:'Cycle',exact:true})).toBeDisabled();
+  await expect(page.getByRole('button',{name:'Cycle',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Explore recorded routes'}).click();
   await expect(page.locator('.route-map polyline')).toHaveCount(2);
   await page.getByRole('button',{name:'Alternative route'}).click();
@@ -95,4 +94,18 @@ test('desktop dashboard fits at 100 percent zoom on laptop screens',async({page}
   await page.getByRole('button',{name:'Open journey planner'}).click();
   expect(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+1)).toBe(true);
  }
+});
+
+test('travel mode controls explain prerequisites without reusing driving results',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Open journey planner'}).click();
+ await page.getByRole('button',{name:'Walk',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Walk',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('.route-option')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Connect routing'})).toBeVisible();
+ await page.getByRole('button',{name:'Cycle',exact:true}).click();
+ await expect(page.getByText('Cycling requires a bicycle routing provider. It is not configured yet.')).toBeVisible();
+ await expect(page.locator('.route-option')).toHaveCount(0);
+ await page.getByRole('button',{name:'Drive',exact:true}).click();
+ await expect(page.locator('.route-option')).toHaveCount(2);
+ await expect(page.locator('.scene-heading,.stage-bottom,.workspace-footer,.text-action')).toHaveCount(0);
 });
