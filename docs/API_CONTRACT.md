@@ -1,5 +1,13 @@
 # API contract — backend foundation and environmental datasets
 
+Phase7 authoritative complete contract: [FRONTEND_INTEGRATION.md](FRONTEND_INTEGRATION.md)
+and runtime-exported [openapi.json](openapi.json). All42operations have explicit request/response
+schemas, authorization scope, errors and Postman examples. Run scripts/export_api.py after API
+changes; CI checks for drift. Legacy placeholder operations are marked deprecated/unavailable;
+their presence is not proof of implemented live functionality. GeoJSON is longitude/latitude;
+PM2.5 exposure is ug·h/m³; timestamps include timezone. Partial exposure remains null.
+Local /ready is public; the AWS Gateway route requires read scope. No WebSocket is implemented.
+
 Phase5 wearable contracts (full schemas at /docs; examples/limits in WEARABLES.md):
 
 | Endpoint | Contract |

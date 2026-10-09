@@ -1,7 +1,14 @@
 # EcoRoute AI
 
+Phase7 local integration and demo readiness: [runbook and actual evidence](docs/DEMO_READINESS.md),
+[complete frontend integration contract](docs/FRONTEND_INTEGRATION.md),
+[OpenAPI](docs/openapi.json), [Postman examples](examples/ecoroute.postman_collection.json).
+No AWS deployment/public URL, trained model or supported physical watch connector is claimed.
+Run `python -m scripts.demo_backend` for an isolated authenticated backend scenario; synthetic
+wearable/alert inputs are explicitly labeled and real notifications remain disabled.
+
 AWS-native backend for pollution-aware navigation in Delhi. **Phase 1 backend foundation and
-Phase 2 environmental pipeline, Phase 3 routing engine, Phase 4 ML workflow and Phase 5 wearable-independent backend are implemented locally. No AWS resources have been deployed.**
+Phase 2 environmental pipeline, Phase 3 routing engine, Phase 4 ML workflow and Phase 5 wearable-independent backend, Phase 6 advisories and Phase 7 integration are implemented locally. No AWS resources have been deployed.**
 No frontend, trained ML model, verified Noise watch integration or street-level pollution claim.
 
 FastAPI + Pydantic v2, Cognito JWT validation, Lambda/Mangum, CDK Python, S3/DynamoDB adapters,

@@ -1,5 +1,17 @@
 # AWS service decisions and IAM boundaries
 
+Phase7: no AWS service provisioned or called with authenticated credentials. Core/Data/ML and
+optional IoT/Step Functions resources remain definitions. Offline synthesis/security checks verify
+private S3, disabled schedules, absence of idle compute and scoped policies; they do not prove
+account IAM grants, service availability, alarm delivery or resource creation. Live external
+services actually used: Open-Meteo, OpenAQ and OSRM fallback (not Amazon Location).
+
+DEMO_READINESS.md documents the US$5–20/month small-demo planning envelope, assumptions,
+US$10 budget proposal and required separate ML/Bedrock/SMS estimates. No budget was created.
+scripts/manage_cloud.py defaults to a no-network plan. Deployment is an explicit approved action;
+retaining teardown inventories resources but leaves protected data/Cognito/bootstrap billable.
+CloudWatch error/latency alarms remain synthesized and tested structurally, not exercised in AWS.
+
 Phase5 meaningful additions: DynamoDB wearables table (on-demand, stream, TTL/throughput caps),
 Core archive Lambda/failure queue/2 alarms, private S3 wearables/* lifecycle7d, optional IoT
 Rule/validator/failure queue/2 alarms. Existing Cognito/API, bucket, journey and pollution services

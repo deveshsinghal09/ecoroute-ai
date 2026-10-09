@@ -22,6 +22,7 @@ issuer, client_id, token_use=access, expiry, subject and required scope. Server 
 from verified sub; another owner's IDs return404 or denied consent. Default local mode has NO
 JWT bypass: unconfigured Cognito gives503 with a supplied bearer; missing bearer gives401.
 An offline demo uses ephemeral signed test tokens ONLY inside an isolated TestClient process.
+Local /api/v1/ready is public; deployed API Gateway requires the ecoroute/read scope for it.
 
 ## Geometry, units and confidence
 

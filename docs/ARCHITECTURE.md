@@ -1,4 +1,18 @@
-# EcoRoute AI architecture — Phases 1–5
+# EcoRoute AI architecture — Phases 1–7
+
+Phase7 integration: one FastAPI app exposes42 versioned operations with Cognito JWT/owner scope;
+ingestion supplies the same curated environmental repository to routing, station ML and wearable
+correlation. ML/wearable dependencies are injectable so offline demos use one selected dataset.
+Grounded explanations read stored route metrics; deterministic daily alerts use validated data;
+schools reuse routing/forecast evaluation. Optional workflows call these services, not disconnected
+demo components. No frontend/event subscription protocol is implemented.
+
+Runtime remains Lambda/Mangum + API Gateway, avoiding idle ECS/NAT costs. Numerical inference
+uses the existing optional load-on-demand worker; no always-on model endpoint. Defaults disable
+schedules, IoT rules, Bedrock/SMS. Real routes verified with OSRM fallback only; Location templates
+and SDK tests do not prove live AWS access. Full status and data limitations: DEMO_READINESS.md.
+OpenAPI is generated from the app and checked for drift; contracts retain estimated/observed/
+unavailable provenance and null exposure for incomplete coverage. No artificial gap filling.
 
 Phase5: authenticated companion HTTPS or optional enrolled mTLS IoT publish -> validation ->
 owned consent/device/event records in new on-demand wearable table -> filtered DynamoDB stream

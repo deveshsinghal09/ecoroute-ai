@@ -1,0 +1,1241 @@
+{
+  "info": {
+    "name": "EcoRoute AI backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const now = new Date();",
+          "pm.variables.set('departure_at', new Date(now.getTime()+600000).toISOString());",
+          "pm.variables.set('observed_at', now.toISOString());",
+          "pm.variables.set('history_start', new Date(now.getTime()-3600000).toISOString());",
+          "pm.variables.set('event_id', pm.variables.replaceIn('{{$guid}}').replace(/-/g,''));",
+          "pm.variables.set('alert_end_at', new Date(now.getTime()+86400000).toISOString().slice(0,13)+':00:00Z');"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "GET /api/v1/health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "health"
+          ],
+          "query": []
+        },
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/ready",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/ready",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ready"
+          ],
+          "query": []
+        },
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/navigation/routes",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/navigation/routes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "navigation",
+            "routes"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"departure_at\": \"{{departure_at}}\"\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/air-quality",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/air-quality?longitude=77.2295&latitude=28.6129",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "air-quality"
+          ],
+          "query": [
+            {
+              "key": "longitude",
+              "value": "77.2295",
+              "disabled": false
+            },
+            {
+              "key": "latitude",
+              "value": "28.6129",
+              "disabled": false
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/predictions",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/predictions?longitude=77.2295&latitude=28.6129",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "predictions"
+          ],
+          "query": [
+            {
+              "key": "longitude",
+              "value": "77.2295",
+              "disabled": false
+            },
+            {
+              "key": "latitude",
+              "value": "28.6129",
+              "disabled": false
+            },
+            {
+              "key": "horizon_hours",
+              "value": "1",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/wearables/telemetry",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/telemetry",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "telemetry"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "idempotency-key",
+            "value": "development-request-001"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"consent\": true,\n  \"source\": \"manual_import\",\n  \"samples\": [\n    {\n      \"observed_at\": \"{{observed_at}}\",\n      \"position\": {\n        \"longitude\": 77.2295,\n        \"latitude\": 28.6129\n      },\n      \"accuracy_m\": 0.0\n    }\n  ]\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/alerts/preferences",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/alerts/preferences",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "alerts",
+            "preferences"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "PUT /api/v1/alerts/preferences",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "{{base_url}}/api/v1/alerts/preferences",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "alerts",
+            "preferences"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/alerts/{alert_id}",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/alerts/{{alert_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "alerts",
+            "{{alert_id}}"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/school-safety",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/school-safety?longitude=77.2295&latitude=28.6129",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "school-safety"
+          ],
+          "query": [
+            {
+              "key": "longitude",
+              "value": "77.2295",
+              "disabled": false
+            },
+            {
+              "key": "latitude",
+              "value": "28.6129",
+              "disabled": false
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/trips",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/trips",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "trips"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "idempotency-key",
+            "value": "development-request-001"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"consent\": true\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/trips/{trip_id}",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/trips/{{trip_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "trips",
+            "{{trip_id}}"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/air-quality/current",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/air-quality/current?location_id=cams_global:28.8000:77.2000",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "air-quality",
+            "current"
+          ],
+          "query": [
+            {
+              "key": "source",
+              "value": "open_meteo",
+              "disabled": true
+            },
+            {
+              "key": "location_id",
+              "value": "cams_global:28.8000:77.2000",
+              "disabled": false
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/air-quality/forecast",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/air-quality/forecast?location_id=cams_global:28.8000:77.2000",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "air-quality",
+            "forecast"
+          ],
+          "query": [
+            {
+              "key": "location_id",
+              "value": "cams_global:28.8000:77.2000",
+              "disabled": false
+            },
+            {
+              "key": "hours",
+              "value": "1",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/air-quality/history",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/air-quality/history?source=open_meteo&start={{history_start}}&end={{observed_at}}&location_id=cams_global:28.8000:77.2000",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "air-quality",
+            "history"
+          ],
+          "query": [
+            {
+              "key": "source",
+              "value": "open_meteo",
+              "disabled": false
+            },
+            {
+              "key": "start",
+              "value": "{{history_start}}",
+              "disabled": false
+            },
+            {
+              "key": "end",
+              "value": "{{observed_at}}",
+              "disabled": false
+            },
+            {
+              "key": "location_id",
+              "value": "cams_global:28.8000:77.2000",
+              "disabled": false
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/air-quality/stations",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/air-quality/stations",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "air-quality",
+            "stations"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/data/quality",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/data/quality",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "data",
+            "quality"
+          ],
+          "query": [
+            {
+              "key": "source",
+              "value": "open_meteo",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/routes/compare",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/compare",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "compare"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"departure_at\": \"{{departure_at}}\",\n  \"consent_to_store\": true\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/routes/optimize",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/optimize",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "optimize"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"departure_at\": \"{{departure_at}}\",\n  \"consent_to_store\": true\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/routes/exposure",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/exposure",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "exposure"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"route_id\": \"{{route_id}}\"\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/routes/departure-time-analysis",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/departure-time-analysis",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "departure-time-analysis"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"departure_at\": \"{{departure_at}}\",\n  \"consent_to_store\": true,\n  \"departures\": [\n    \"{{observed_at}}\"\n  ]\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/routes/{route_id}",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/{{route_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "{{route_id}}"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/routes/{route_id}/segments",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/{{route_id}}/segments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "{{route_id}}",
+            "segments"
+          ],
+          "query": [
+            {
+              "key": "offset",
+              "value": "0",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "1",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/ml/status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/ml/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ml",
+            "status"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/ml/models",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/ml/models",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ml",
+            "models"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/ml/metrics",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/ml/metrics",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ml",
+            "metrics"
+          ],
+          "query": [
+            {
+              "key": "model_version",
+              "value": "DEVELOPMENT_PLACEHOLDER",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/ml/predict",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/ml/predict",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ml",
+            "predict"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"station_id\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/ml/batch-predict",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/ml/batch-predict",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ml",
+            "batch-predict"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"station_ids\": [\n    \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n  ]\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/routes/predict-departure-times",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/predict-departure-times",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "predict-departure-times"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"departure_at\": \"{{departure_at}}\",\n  \"consent_to_store\": true,\n  \"departures\": [\n    \"{{observed_at}}\"\n  ],\n  \"station_ids\": [\n    \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n  ]\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/devices/register",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/devices/register",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "devices",
+            "register"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "idempotency-key",
+            "value": "development-request-001"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"manufacturer\": \"Local demo\",\n  \"model\": \"Synthetic fixture\",\n  \"bridge\": \"demo\"\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/wearables/consent",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/consent",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "consent"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"telemetry\": true\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/wearables/measurements",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/measurements",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "measurements"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"user_id\": \"{{user_sub}}\",\n  \"event_id\": \"{{event_id}}\",\n  \"timestamp\": \"{{observed_at}}\",\n  \"provenance\": {\n    \"bridge\": \"demo\",\n    \"sensor\": \"SYNTHETIC_TEST_ONLY\",\n    \"source_record_id\": \"fixture\",\n    \"synthetic\": true\n  },\n  \"heart_rate_bpm\": 80\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/wearables/history",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/history?device_id={{device_id}}&start={{history_start}}&end={{observed_at}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "history"
+          ],
+          "query": [
+            {
+              "key": "device_id",
+              "value": "{{device_id}}",
+              "disabled": false
+            },
+            {
+              "key": "start",
+              "value": "{{history_start}}",
+              "disabled": false
+            },
+            {
+              "key": "end",
+              "value": "{{observed_at}}",
+              "disabled": false
+            },
+            {
+              "key": "limit",
+              "value": "1",
+              "disabled": true
+            },
+            {
+              "key": "cursor",
+              "value": "DEVELOPMENT_PLACEHOLDER",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/wearables/latest",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/latest?device_id={{device_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "latest"
+          ],
+          "query": [
+            {
+              "key": "device_id",
+              "value": "{{device_id}}",
+              "disabled": false
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "DELETE /api/v1/wearables/data",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/data?device_id={{device_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "data"
+          ],
+          "query": [
+            {
+              "key": "device_id",
+              "value": "{{device_id}}",
+              "disabled": false
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/journeys/{journey_id}/wearable-correlation",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/journeys/{{journey_id}}/wearable-correlation?device_id={{device_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "journeys",
+            "{{journey_id}}",
+            "wearable-correlation"
+          ],
+          "query": [
+            {
+              "key": "device_id",
+              "value": "{{device_id}}",
+              "disabled": false
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/ai/explain-route",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/ai/explain-route",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ai",
+            "explain-route"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"route_ids\": [\n    \"{{route_id}}\"\n  ]\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/alerts/evaluate",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/alerts/evaluate",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "alerts",
+            "evaluate"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"source\": \"open_meteo\",\n  \"location_id\": \"cams_global:28.8000:77.2000\",\n  \"end_at\": \"{{alert_end_at}}\",\n  \"notify\": false\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/alerts",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/alerts",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "alerts"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "POST /api/v1/schools/compare-routes",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/schools/compare-routes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "schools",
+            "compare-routes"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"school_id\": \"{{school_id}}\",\n  \"school_name\": \"DEVELOPMENT_PLACEHOLDER\",\n  \"position\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"forecast_location_id\": \"cams_global:28.8000:77.2000\",\n  \"commute_start\": \"00:00:00\",\n  \"commute_end\": \"23:59:00\",\n  \"route\": {\n    \"origin\": {\n      \"longitude\": 77.2295,\n      \"latitude\": 28.6129\n    },\n    \"destination\": {\n      \"longitude\": 77.2167,\n      \"latitude\": 28.6315\n    },\n    \"departure_at\": \"{{departure_at}}\",\n    \"consent_to_store\": true\n  }\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/schools/forecast",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/schools/forecast?school_id={{school_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "schools",
+            "forecast"
+          ],
+          "query": [
+            {
+              "key": "school_id",
+              "value": "{{school_id}}",
+              "disabled": false
+            },
+            {
+              "key": "forecast_date",
+              "value": "DEVELOPMENT_PLACEHOLDER",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/workflows/status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/workflows/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "workflows",
+            "status"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    }
+  ]
+}

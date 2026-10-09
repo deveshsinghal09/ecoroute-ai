@@ -1,5 +1,24 @@
 # Credentials and configuration checklist
 
+Phase7 current status: user deferred further credential setup; no authenticated AWS checks or
+deployment performed. Existing rotated OPENAQ_API_KEY authenticated successfully for two bounded
+sensor queries (zero observations returned); key stays in ignored local configuration. Public
+Open-Meteo service returned192records without a key. No credentials appear in exported examples.
+
+Remaining names/unverified prerequisites: AWS_PROFILE, AWS_REGION, EXPECTED_AWS_ACCOUNT_ID,
+CDK bootstrap/deploy IAM, COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID, approved callback_urls,
+JOURNEYS_TABLE, PREFERENCES_TABLE, ROUTE_METADATA_TABLE, IDEMPOTENCY_TABLE, ALERTS_TABLE,
+ENVIRONMENT_TABLE, WEARABLES_TABLE, S3_DATA_BUCKET, SQS_INGEST_QUEUE_URL, OPENAQ_SECRET_ARN,
+BEDROCK_MODEL_ID, SNS_ALLOWED_TOPIC_ARNS, SMS_ENTITY_ID, SMS_TEMPLATE_ID, SMS_SENDER_ID,
+WORKFLOW_STATE_MACHINE_ARN, ML_INFERENCE_FUNCTION_ARN, SAGEMAKER_EXECUTION_ROLE_ARN,
+reviewed ML image/model/dataset, IOT_DATA_ENDPOINT and IOT certificate/key paths.
+Selected profile/region/account are configured locally but live grants remain unverified;
+service-specific identifiers are required only when that integration is enabled.
+Do not use root. Keep AWS temporary credentials in the CLI provider, secrets in ignored .env
+or Secrets Manager, device keys in protected keystores. Exact creation/IAM/verification steps
+remain below and in ML_WORKFLOW.md, WEARABLES.md and PHASE6_ADVISORIES.md.
+Budget alerts never hard-cap costs; approve charges before manage_cloud.py deploy --apply.
+
 Phase5: confirmed Noise ColorFit Pro3 Alpha / NoiseFit Assist; OS/export API/Health Connect
 capabilities unverified. No hardware credentials are requested. [Wearable setup](WEARABLES.md#credentials-iam-and-exact-enrollment-steps)
 lists every required/optional identifier, purpose, sensitivity, Console steps, minimum IAM,

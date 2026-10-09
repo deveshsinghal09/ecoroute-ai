@@ -1,4 +1,53 @@
-# EcoRoute AI project state — Phases 1–6
+# EcoRoute AI project state — Phases 1–7
+
+## Phase 7 current state — 2026-10-10 IST
+
+Local integration, complete 42-operation OpenAPI/response contracts, token-free Postman examples,
+authenticated isolated demo, real-road Delhi benchmark, replay verifier, guarded deployment/
+retaining-teardown wrapper and structural infrastructure review are implemented. No frontend.
+The following Phase7 status supersedes older historical credential/feature notes below.
+Full evidence, costs, commands and cleanup are in [DEMO_READINESS.md](DEMO_READINESS.md).
+**AWS resources actually provisioned/used: none. Public deployed backend URL: none.**
+
+Real external checks: Open-Meteo 192 records; OpenAQ two bounded authenticated sensor queries
+returned 0 new observations; live OSRM six cases/two real road candidates each. Complete
+PM2.5 coverage in four cases; two partial cases have null full exposure. No improvement over
+fastest demonstrated. Saved benchmark arithmetic replay verified 12 routes without provider calls.
+The original live report predates content hashing: zero content hashes verified for that report;
+new benchmark reports include Parquet content hashes. Do not infer reproducible provider state
+from replay alone. Demo uses actual saved forecasts plus clearly synthetic wearable/alert fixtures;
+no notification or real watch event. Genuine Amazon Location routing remains unverified live.
+
+ML preparation:389 records,5 observed PM2.5,1 station,0 eligible hourly samples. Training unavailable;
+no measured MAE/RMSE/bias or persistence comparison. Bedrock fallback/ownership/consent and JWT
+failure tests run offline. Cognito cloud login, SMS delivery, CloudWatch alarms and live IoT remain
+unverified. User continues to defer credentials. No authenticated AWS action/deploy/training run.
+
+Files created: src/ecoroute/contracts.py; scripts/{export_api,benchmark_routes,demo_backend,
+replay_benchmark,manage_cloud,security_review}.py; tests/test_phase7.py;
+docs/{FRONTEND_INTEGRATION,DEMO_READINESS}.md, docs/openapi.json and examples/Postman JSONs.
+Updated app description, grounded coverage field, ML/wearable repository dependency injection,
+development dependency lock, CI Docker/API checks and all five living project documents.
+Existing Dockerfiles, CDK stacks and schemas reused; no completed phase recreated.
+
+Validation commands: pytest; Ruff; pip check; export_api.py; smoke_local.py; build_lambda.py;
+offline cdk synth --no-lookups; security_review.py; manage_cloud.py plan; bounded ingest_air.py;
+benchmark_routes --provider osrm --live; replay_benchmark; demo_backend; train.py --prepare-only.
+Expected ML preparation failure is insufficient real data. Initial full test failures exposed a
+legacy config test inheriting local AWS settings; it now explicitly supplies empty prerequisites.
+A concurrent synthesis/test attempt encountered Node-process errors; sequential execution is used
+on this laptop. Final local validation: **164 passed, 1 Docker-dependent skipped, 3 upstream
+deprecation warnings**. Ruff, pip check, health/docs/auth smoke, default and optional IoT/workflow
+CDK synth, structural security review and export passed. Linux Lambda asset 183.1 MiB rebuilt and
+updated with final source changes. Recorded replay verified 4 routes and 5 Parquet content hashes;
+live report replay verified 12 routes with no content hashes (older report format). No vulnerability
+database scan or live penetration test was performed. Docker execution is a CI verification step.
+
+Remaining work: configure least-privilege non-root deployment credentials/Cognito and selected
+provider/model/channel settings, review resource costs, obtain deployment approval, verify real
+AWS services after deployment, gather enough measured history, and validate a supported watch
+bridge. Credentials and exact steps remain in CREDENTIALS_CHECKLIST.md and linked runbooks.
+Separate individually attributed commits are used with all three teammates' authorization.
 
 ## Phase 6 current state — 2026-10-10 IST
 
@@ -29,7 +78,7 @@ accuracy. New tests use explicitly synthetic mechanics fixtures, not fabricated 
 data. Bedrock model ID/access/region compatibility, quotas, SNS topic/destination/DLT IDs,
 spending settings, deployed workflow ARN, Cognito IDs and bootstrap remain unverified/missing.
 Defaults: 20 Bedrock requests/day, 5/hour, max output256; SMS disabled with 1 USD monthly
-allowance and 0.05 USD maximum acceptable message price; proposed Phase6 budget5 USD/month
+allowance and 0.05 USD maximum acceptable message price; proposed Phase6 budget 5 USD/month
 requires approval before live enablement. Alerts are not a financial hard cap.
 
 Commands executed: Ruff, focused/full pytest with existing memory/thread caps,
