@@ -7,13 +7,15 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<{camera:THREE.PerspectiveCamera; controls:OrbitControls} | undefined>(undefined);
   const motion = useRef(moving); motion.current=moving;
+  const dirty=useRef(true);
+  useEffect(()=>{dirty.current=true;},[moving,zoom,reset]);
   const [failed,setFailed]=useState(false);
   useEffect(()=>{
     const element=host.current!; let renderer:THREE.WebGLRenderer;
     try { renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:'low-power'}); }
     catch {setFailed(true); return;}
     renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.5)); renderer.shadowMap.enabled=true;
-    renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate=false; renderer.shadowMap.needsUpdate=true; renderer.toneMapping=THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure=.9; element.appendChild(renderer.domElement);
     renderer.domElement.setAttribute('aria-label','Illustrative 3D transit city. Drag to orbit; use the zoom buttons.');
     const scene=new THREE.Scene(); scene.background=new THREE.Color('#b6c2cc'); scene.fog=new THREE.Fog('#b6c2cc',85,240);
@@ -85,16 +87,23 @@ export default function City({ moving, zoom, reset }: {moving:boolean; zoom:numb
     for(let x=-80;x<85;x+=12){box(x,2.8,8,.1,5.6,.1,dark);box(x+.6,5.5,8,1.4,.13,.4,warm);}
     function tram(z:number){const g=new THREE.Group();scene.add(g);for(let i=0;i<3;i++){const x=i*4.8;box(x,1.25,0,4.5,2,1.7,white,g);box(x,1.6,.87,3.8,.85,.06,dark,g);box(x,1.6,-.87,3.8,.85,.06,dark,g);box(x-1.3,1.2,.92,.6,1.85,.07,orange,g);box(x,2.35,0,4,.15,1.6,silver,g);box(x,.32,0,3.4,.5,1.4,dark,g);}g.position.set(0,0,z);return g;}
     const trams=[tram(11.3),tram(16.9)];
+    // Batch the static city by geometry/material: hundreds of boxes become a handful of draws.
+    for(const geometry of [boxGeometry,treeGeo]){
+      const groups=new Map<THREE.Material,THREE.Mesh[]>();
+      for(const child of [...scene.children])if(child instanceof THREE.Mesh && child.geometry===geometry){const material=child.material as THREE.Material;const group=groups.get(material)||[];group.push(child);groups.set(material,group);}
+      for(const [material,meshes] of groups){const instances=new THREE.InstancedMesh(geometry,material,meshes.length);meshes.forEach((mesh,index)=>{mesh.updateMatrix();instances.setMatrixAt(index,mesh.matrix);scene.remove(mesh);});instances.castShadow=true;instances.receiveShadow=true;instances.instanceMatrix.needsUpdate=true;scene.add(instances);}
+    }
+    const changed=()=>{dirty.current=true;};controls.addEventListener('change',changed);
     controls.update();
-    const resize=()=>{const {width,height}=element.getBoundingClientRect();renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();};
+    const resize=()=>{const {width,height}=element.getBoundingClientRect();renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();dirty.current=true;};
     const observer=new ResizeObserver(resize);observer.observe(element);resize();
     let frame=0,last=0,elapsed=0;const animate=(time:number)=>{frame=requestAnimationFrame(animate);if(time-last<32)return;const dt=Math.min((time-last)/1000,.1);last=time;
-      if(document.hidden)return;if(motion.current)elapsed+=dt;
+      if(document.hidden)return;if(motion.current){elapsed+=dt;dirty.current=true;}
       trams[0].position.x=((elapsed*3+25)%180)-90;trams[1].position.x=90-((elapsed*3+75)%180);
-      controls.update();renderer.render(scene,camera);
+      controls.update();if(dirty.current){renderer.render(scene,camera);dirty.current=false;}
     };frame=requestAnimationFrame(animate);
     const loss=(event:Event)=>{event.preventDefault();setFailed(true);};renderer.domElement.addEventListener('webglcontextlost',loss);
-    return()=>{cancelAnimationFrame(frame);observer.disconnect();controls.dispose();boxGeometry.dispose();extras.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());windowTexture.dispose();env.dispose();room.dispose();pmrem.dispose();renderer.dispose();renderer.domElement.removeEventListener('webglcontextlost',loss);renderer.domElement.remove();api.current=undefined;};
+    return()=>{cancelAnimationFrame(frame);observer.disconnect();controls.removeEventListener('change',changed);controls.dispose();boxGeometry.dispose();extras.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());windowTexture.dispose();env.dispose();room.dispose();pmrem.dispose();renderer.dispose();renderer.domElement.removeEventListener('webglcontextlost',loss);renderer.domElement.remove();api.current=undefined;};
   },[]);
   useEffect(()=>{const value=api.current;if(!value)return;const delta=value.camera.position.clone().sub(value.controls.target).normalize();value.camera.position.copy(value.controls.target).addScaledVector(delta,Math.max(48,Math.min(130,94-zoom*10)));},[zoom]);
   useEffect(()=>{const value=api.current;if(value){value.camera.position.set(59,33,66);value.controls.target.set(0,5,-8);}},[reset]);
