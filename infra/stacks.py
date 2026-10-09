@@ -64,16 +64,25 @@ class DataStack(Stack):
 
 
 class MlStack(Stack):
-    def __init__(self, scope, name, **kwargs):
+    def __init__(self, scope, name, *, data=None, asset_path=None, image_uri=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         self.bucket = bucket(self, "MlArtifacts", [("datasets/", 90), ("models/", 180)])
         CfnOutput(self, "MlBucket", value=self.bucket.bucket_name)
-        # No training instances, endpoint, Studio domain or model invoke privileges.
+        self.inference_arn = None
+        if image_uri:
+            if data is None or not asset_path:
+                raise ValueError("ML workflow requires existing Data stack and packaged handlers")
+            if __package__ == "infra":
+                from .ml_workflow import MlWorkflow
+            else:
+                from ml_workflow import MlWorkflow
+            workflow = MlWorkflow(self, "ML", bucket=self.bucket, data=data, asset_path=asset_path, image_uri=image_uri)
+            self.inference_arn = workflow.inference.attr_arn
 
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None,
-                 provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, **kwargs):
+                 provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         if not 60 <= ingestion_interval_minutes <= 1440:
             raise ValueError("Collection interval must be 60..1440 minutes")
@@ -86,6 +95,8 @@ class CoreStack(Stack):
         ingest_logs = logs.LogGroup(self, "IngestionLogs", retention=logs.RetentionDays.ONE_WEEK,
                                     removal_policy=RemovalPolicy.DESTROY)
         api_role = iam.Role(self, "ApiRole", assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
+        if ml_inference_arn:
+            api_role.add_to_policy(iam.PolicyStatement(actions=["lambda:InvokeFunction"], resources=[ml_inference_arn]))
         worker_role = iam.Role(self, "WorkerRole", assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
         for role, group in ((api_role, api_logs), (worker_role, worker_logs)):
             role.add_to_policy(iam.PolicyStatement(actions=["logs:CreateLogStream", "logs:PutLogEvents"],
@@ -129,7 +140,8 @@ class CoreStack(Stack):
                        "ENVIRONMENT_TABLE": data.tables["environment"].table_name,
                        "ENABLE_AWS_LOCATION": str(enable_location).lower(),
                        "EXPECTED_AWS_ACCOUNT_ID": self.account,
-                       "LOCATION_DAILY_LIMIT": "100", "LOCATION_HOURLY_LIMIT": "30",
+                        "LOCATION_DAILY_LIMIT": "100", "LOCATION_HOURLY_LIMIT": "30",
+                        "ML_INFERENCE_FUNCTION_ARN": ml_inference_arn or "",
                        **{env: data.tables[key].table_name for env, key in table_vars.items()}}
         # Runtime only uses get/put and transactional puts; DynamoDB authorizes transactions via PutItem.
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:PutItem"],

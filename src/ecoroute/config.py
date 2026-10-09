@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     osrm_base_url: str = ""
     location_daily_limit: int = Field(default=100, ge=1, le=1000)
     location_hourly_limit: int = Field(default=30, ge=1, le=100)
+    ml_local_root: str = "work/ml/models"
+    ml_inference_function_arn: str = ""
     enable_openaq: bool = False
     enable_weather: bool = False
     enable_wearable: bool = False

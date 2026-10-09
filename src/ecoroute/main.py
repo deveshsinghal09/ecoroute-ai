@@ -19,6 +19,8 @@ from ecoroute.storage import Conflict, DynamoStore, LocalStore, Unavailable
 from ecoroute.environment.api import router as environmental_router
 from ecoroute.routing.api import router as routing_router
 from ecoroute.routing.models import RoutingError
+from ecoroute.ml.api import router as ml_router
+from ecoroute.ml.inference import MLUnavailable
 
 logger = logging.getLogger("ecoroute")
 logger.setLevel(logging.INFO)
@@ -87,6 +89,10 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     async def routing_error(request, exc):
         return error(request, exc.status, exc.code)
 
+    @app.exception_handler(MLUnavailable)
+    async def ml_unavailable(request, exc):
+        return error(request, 503, str(exc))
+
     @app.exception_handler(Conflict)
     async def conflict_error(request, exc):
         return error(request, 409, "idempotency_conflict")
@@ -115,6 +121,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
         app.include_router(router, prefix="/api/v1")
     app.include_router(environmental_router, prefix="/api/v1")
     app.include_router(routing_router, prefix="/api/v1")
+    app.include_router(ml_router, prefix="/api/v1")
     return app
 
 

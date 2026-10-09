@@ -30,7 +30,8 @@ class DisabledProvider:
 
 
 class RouteService:
-    def __init__(self, provider, store, objects, *, index_factory=None):
+    def __init__(self, provider, store, objects, *, index_factory=None, cache_namespace="routing-v1"):
+        self.cache_namespace = cache_namespace
         self.provider, self.store, self.objects = provider, store, objects
         self.index_factory = index_factory or (
             lambda start, end: PollutionIndex.load(objects, start, end)
@@ -48,7 +49,7 @@ class RouteService:
 
     def compare(self, owner, request):
         started = time.monotonic()
-        cache_key = fingerprint(["routing-v1", self.provider.name, request.model_dump(mode="json")])
+        cache_key = fingerprint([self.cache_namespace, self.provider.name, request.model_dump(mode="json")])
         cached = self.store.get("route_cache", owner, cache_key)
         if cached:
             result = json.loads(self.objects.get_bytes(cached["object_key"]))
