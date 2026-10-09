@@ -91,13 +91,13 @@ def school_forecast(request: Request, school_id: Identifier, forecast_date: date
     if not school:
         raise HTTPException(404, "school_not_found")
     day = forecast_date or (datetime.now(INDIA).date() + timedelta(days=1))
-    # India midnight is not UTC-hour aligned: hourly provider samples cannot form exact
-    # local calendar means. Use explicit UTC 24h forecast window containing commute.
+    # India midnight is not UTC-hour aligned. Use the preceding UTC hour for an
+    # explicit approximate school-day window, within the provider's two-day forecast.
     commute = datetime.combine(day, time.fromisoformat(school["commute_start"]), INDIA)
-    start = commute.astimezone(UTC).replace(minute=0, second=0, microsecond=0)
+    start = datetime.combine(day, time.min, INDIA).astimezone(UTC).replace(minute=0, second=0, microsecond=0)
     result = daily_window(repo, "open_meteo", school["forecast_location_id"], start + timedelta(hours=24))
     return {"school_id": school_id, "commute_start": commute.isoformat(), "forecast": result,
-            "official_closure_status": "not_provided", "warning": "Window starts at UTC hour before commute, not local calendar midnight; coarse grid is not school-site sensing."}
+            "official_closure_status": "not_provided", "warning": "Window starts at the UTC hour preceding India midnight, not exact local calendar midnight; coarse grid is not school-site sensing."}
 
 
 @router.get("/workflows/status")
