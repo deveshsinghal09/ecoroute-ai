@@ -40,3 +40,29 @@ test('backend connection failure is actionable',async({page})=>{
   await page.getByRole('button',{name:'Check backend connection'}).click();
   await expect(page.getByRole('status')).toContainText('Cannot reach the backend');
 });
+test('dialog keeps keyboard focus and returns it on Escape',async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Connection settings'}).click();
+  await expect(page.getByRole('button',{name:'Close dialog'})).toBeFocused();
+  await page.keyboard.press('Shift+Tab');await expect(page.getByRole('button',{name:'Check backend connection'})).toBeFocused();
+  await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Close dialog'})).toBeFocused();
+  await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Connection settings'})).toBeFocused();
+});
+test('cancelled authentication shows an error without leaking callback parameters',async({page})=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/?error=access_denied&state=example');
+  await expect(page.getByRole('status')).toContainText('Sign-in was cancelled or expired');
+  expect(new URL(page.url()).search).toBe('');expect(errors).toEqual([]);
+});
+test('WebGL unavailable still permits real route exploration',async({page})=>{
+  await page.addInitScript(()=>{
+    const original=HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext=function(type:string,...args:unknown[]){
+      if(type==='webgl2'||type==='webgl'||type==='experimental-webgl')return null;
+      return original.apply(this,[type,...args] as never);
+    } as typeof original;
+  });
+  await page.goto('/');await expect(page.getByText('WebGL is unavailable on this device.',{exact:false})).toBeVisible();
+  await page.getByRole('button',{name:'Explore recorded routes'}).click();
+  await expect(page.locator('.route-map polyline')).toHaveCount(2);
+});

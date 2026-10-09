@@ -4,11 +4,11 @@ STORY: Explore a city, open genuine road routes, compare time and estimated expo
 FIRST VIEWPORT: Narrow left metrics, floating pill navigation, large 3D plaza, right route planner.
 FORM: User-pinned Axle reference composition; confirmed city-first with side planner. No random direction. */
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { ArrowDownUp, ArrowUpRight, Bell, Bike, Box, Car, Check, ChevronDown, CircleHelp, Compass, Footprints, Layers, Leaf, LoaderCircle, MapPin, Menu, Minus, Navigation, Pause, Play, Plus, Radio, RotateCcw, Settings2, ShieldCheck, Sparkles, Watch, Wind, X } from 'lucide-react';
+import { ArrowDownUp, ArrowUpRight, Bell, Bike, Box, Car, Check, ChevronDown, CircleHelp, Footprints, Layers, Leaf, LoaderCircle, MapPin, Menu, Minus, Navigation, Pause, Play, Plus, Radio, RotateCcw, Settings2, ShieldCheck, Sparkles, Watch, Wind, X } from 'lucide-react';
 import { capturedAt, historical, number, projectRoutes, weightedConcentration, type Comparison, type Route } from './data';
 import { config, finishSignIn, request, signedIn, signIn, signOut } from './api';
 const City = lazy(()=>import('./City'));
-const completion = finishSignIn();
+let completion: Promise<boolean> | undefined;
 const tabs=['City overview','Air quality','Journeys','Wearable','Insights'] as const;
 type Tab=typeof tabs[number];
 const localTime=(date:Date)=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
@@ -34,10 +34,10 @@ export default function App() {
   const [drawer,setDrawer]=useState<'connection'|'alerts'|null>(null);const [serviceData,setServiceData]=useState<unknown>(null);
   const [deviceId,setDeviceId]=useState('');const [explanation,setExplanation]=useState('');const [panel,setPanel]=useState(true);
   const dialogRef=useRef<HTMLElement>(null);
-  useEffect(()=>{if(!drawer)return;const previous=document.activeElement as HTMLElement|null;const oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
+  useEffect(()=>{if(!drawer)return;const previous=document.querySelector<HTMLElement>(drawer==='connection'?'[aria-label="Connection settings"]':'[aria-label="Alerts"]');const oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
     const trap=(event:KeyboardEvent)=>{if(event.key==='Escape'){setDrawer(null);return;}if(event.key!=='Tab')return;const elements=Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href]')||[]);const first=elements[0],last=elements.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}};
     document.addEventListener('keydown',trap);return()=>{document.removeEventListener('keydown',trap);document.body.style.overflow=oldOverflow;previous?.focus();};},[drawer]);
-  useEffect(()=>{let active=true;completion.then(ok=>{if(active&&ok){setAuthenticated(true);setNotice('Signed in. Switch to live services to compare a new journey.');}}).catch(e=>{if(active)setNotice(e.message);});return()=>{active=false;};},[]);
+  useEffect(()=>{let active=true;completion ||= finishSignIn();completion.then(ok=>{if(active&&ok){setAuthenticated(true);setNotice('Signed in. Switch to live services to compare a new journey.');}}).catch(e=>{if(active)setNotice(e.message);});return()=>{active=false;};},[]);
   useEffect(()=>{const listener=()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)setMoving(false);};const media=matchMedia('(prefers-reduced-motion: reduce)');media.addEventListener('change',listener);return()=>media.removeEventListener('change',listener);},[]);
   const routes=comparison?.routes||[];const selectedRoute=routes.find(r=>r.route_id===selected)||routes[0];
   const pm=weightedConcentration(selectedRoute);const coverage=selectedRoute?Math.round(selectedRoute.pm25_coverage_fraction*100):null;
