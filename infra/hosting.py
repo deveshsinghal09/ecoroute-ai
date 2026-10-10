@@ -28,10 +28,10 @@ class HostingStack(Stack):
         domain = {}
         if options.domain_name:
             domain = {"domain_names": [options.domain_name], "certificate": acm.Certificate.from_certificate_arn(
-                self, "GlobalCertificate", options.cloudfront_certificate_arn)}
+                self, "GlobalCertificate", options.cloudfront_certificate_arn),
+                "minimum_protocol_version": cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021}
         # OAC signs requests; website endpoint/public ACLs are deliberately not used.
         distribution = cloudfront.Distribution(self, "Website", default_root_object="index.html",
-            minimum_protocol_version=cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
             price_class=cloudfront.PriceClass.PRICE_CLASS_200,
             default_behavior=cloudfront.BehaviorOptions(origin=origins.S3BucketOrigin.with_origin_access_control(bucket),
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS, compress=True,

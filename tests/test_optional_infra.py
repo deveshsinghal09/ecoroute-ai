@@ -119,3 +119,15 @@ def test_http_runtime_handoff_preserves_paths_jwt_and_scopes(tmp_path):
         if "proxy+" in props["RouteKey"]:
             assert props["AuthorizationType"] == "JWT" and props["AuthorizationScopes"]
     assert_complete_assembly(app)
+
+
+def test_custom_frontend_domain_enforces_tls_and_scoped_dns_aliases(tmp_path):
+    app = cdk.App(outdir=str(tmp_path / "domain"))
+    stack = HostingStack(app, "Hosting", options=DeploymentOptions(hosting="cloudfront", domain_name="app.example.org",
+        hosted_zone_name="example.org", hosted_zone_id="Z123456789", cloudfront_certificate_arn="arn:aws:acm:us-east-1:123456789012:certificate/example"))
+    template = Template.from_stack(stack).to_json()
+    distribution = resources(template, "AWS::CloudFront::Distribution")[0]["Properties"]["DistributionConfig"]
+    assert distribution["ViewerCertificate"]["MinimumProtocolVersion"] == "TLSv1.2_2021"
+    assert distribution["Aliases"] == ["app.example.org"]
+    assert {r["Properties"]["Type"] for r in resources(template, "AWS::Route53::RecordSet")} == {"A", "AAAA"}
+    assert_complete_assembly(app)
