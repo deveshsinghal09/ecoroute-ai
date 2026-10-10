@@ -24,6 +24,12 @@ def test_default_configuration_does_not_enable_idle_services():
     assert plan["nat_gateways"] == 0 and not plan["training_started"]
 
 
+def test_accidental_secret_in_configuration_is_not_echoed():
+    with pytest.raises(ValueError) as error:
+        DeploymentOptions.model_validate({"AWS_SECRET_ACCESS_KEY": "DO_NOT_PRINT_CONFIG_MARKER"})
+    assert "DO_NOT_PRINT" not in str(error.value)
+
+
 @pytest.mark.parametrize("configuration", [
     {"runtime": "eks"}, {"runtime": "ec2"}, {"analytics": "rds"},
     {"runtime": "apprunner", "image_uri": "123456789012.dkr.ecr.ap-south-1.amazonaws.com/backend@sha256:" + "a" * 64},

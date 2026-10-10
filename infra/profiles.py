@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class DeploymentOptions(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
     runtime: Literal["lambda", "ecs-fargate", "ec2", "eks", "apprunner", "lightsail-proxy"] = "lambda"
     hosting: Literal["none", "cloudfront", "amplify"] = "none"
     analytics: Literal["none", "rds", "aurora"] = "none"
