@@ -591,3 +591,5 @@ sides. Real hardware connection remains unavailable; no new integration is claim
 build and five watch browser tests passed. Existing lazy bundle warning unchanged.
 
 Wearable palette refinement: pale sky-blue outer panel and navigation, warm ivory inner showcase, light-orange border on all four sides and selected controls. No placeholder readings restored. Production build and five watch browser tests passed; desktop screenshot reviewed.
+
+Wearable styling: darkened outer sky blue to #d3e7f1 and hid the sidebar scrollbar without disabling wheel/touch scrolling. Updated palette assertion.

@@ -19,7 +19,7 @@
 @keyframes eco-watch-enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 /* Wearable-only porcelain/orange surface, aligned with the city dashboard. */
-.city-stage .detail-panel.wearable-panel{background:#e8f3f8;color:#25333c;border:1px solid #b8d6e4;box-shadow:0 18px 55px #24323c25,inset 0 0 0 1px #ffffffb3;backdrop-filter:none;scrollbar-color:#a8c5d3 #e8f3f8}
+.city-stage .detail-panel.wearable-panel{background:#d3e7f1;color:#25333c;border:1px solid #b8d6e4;box-shadow:0 18px 55px #24323c25,inset 0 0 0 1px #ffffffb3;backdrop-filter:none;scrollbar-width:none}
 .wearable-panel .eco-watch{background:#fffaf4;color:#25333c;border:2px solid #efbc96;box-shadow:0 7px 22px #4037280b}
 .wearable-panel .panel-heading h2,.wearable-panel>h3,.eco-watch-title h3{color:#25292b}
 .eco-watch-title h3 span{color:#c34e18}.eco-watch-title>svg{color:#a44921}
@@ -35,3 +35,5 @@
 .wearable-panel .field-label input::placeholder{color:#697477}.wearable-panel .data-result{background:#eeede8;color:#26383e}
 .wearable-panel .primary-button:disabled{opacity:1;background:#f1d2bf;color:#775f51}
 .eco-watch-fallback p{color:#5c6465}
+
+.detail-panel.wearable-panel::-webkit-scrollbar{display:none;width:0;height:0}
