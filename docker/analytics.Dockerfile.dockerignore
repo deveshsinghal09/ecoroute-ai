@@ -1,0 +1,11 @@
+*
+!docker/
+!docker/analytics.Dockerfile
+!docker/analytics-requirements.txt
+!docker/analytics.lock
+!src/
+!src/**
+!build/
+!build/rds-ca.pem
+**/__pycache__/
+**/*.pyc

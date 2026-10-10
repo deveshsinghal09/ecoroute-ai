@@ -85,7 +85,7 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None, frontend_origins=None,
-                 google_routes_secret_arn=None, provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, **kwargs):
+                 google_routes_secret_arn=None, provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         frontend_origins = frontend_origins or []
         if not isinstance(frontend_origins, list):
@@ -203,6 +203,7 @@ class CoreStack(Stack):
                 raise ValueError("Use an exact regional foundation model ARN; cross-region profiles need separate review")
             api_role.add_to_policy(iam.PolicyStatement(actions=["bedrock:InvokeModel"], resources=[bedrock_model_arn]))
             self.api_function.add_environment("BEDROCK_MODEL_ID", bedrock_model_arn.split("/", 1)[1])
+            environment["BEDROCK_MODEL_ID"] = bedrock_model_arn.split("/", 1)[1]
         if sms_topic_arns:
             if any(not arn.startswith(f"arn:aws:sns:{self.region}:{self.account}:") or "*" in arn for arn in sms_topic_arns):
                 raise ValueError("SMS uses exact dedicated topics in the selected account and region")
@@ -210,6 +211,7 @@ class CoreStack(Stack):
             # These read-only SMS account APIs do not support resource-level permissions.
             api_role.add_to_policy(iam.PolicyStatement(actions=["sns:GetSMSSandboxAccountStatus", "sns:ListSMSSandboxPhoneNumbers", "sns:GetSMSAttributes"], resources=["*"], conditions={"StringEquals": {"aws:RequestedRegion": self.region}}))
             self.api_function.add_environment("SNS_ALLOWED_TOPIC_ARNS", __import__("json").dumps(sms_topic_arns))
+            environment["SNS_ALLOWED_TOPIC_ARNS"] = json.dumps(sms_topic_arns)
         if enable_workflows:
             if __package__ == "infra":
                 from .environment_workflow import EnvironmentalWorkflow
@@ -217,6 +219,7 @@ class CoreStack(Stack):
                 from environment_workflow import EnvironmentalWorkflow
             workflow = EnvironmentalWorkflow(self, "EnvironmentalWorkflow", data=data, code=code, environment=environment, sms_topic_arns=sms_topic_arns)
             self.api_function.add_environment("WORKFLOW_STATE_MACHINE_ARN", workflow.machine.state_machine_arn)
+            environment["WORKFLOW_STATE_MACHINE_ARN"] = workflow.machine.state_machine_arn
             CfnOutput(self, "EnvironmentalWorkflowArn", value=workflow.machine.state_machine_arn)
             CfnOutput(self, "EnvironmentalJobsQueue", value=workflow.queue.queue_url)
         self.queue, self.dlq = data.queue, data.dlq
@@ -277,7 +280,18 @@ class CoreStack(Stack):
                                 expose_headers=["X-Request-ID"], max_age=Duration.minutes(5),
                             ) if frontend_origins else None,
                             default_authorizer=authorizer, default_authorization_scopes=["ecoroute/read"])
-        integration = integrations.HttpLambdaIntegration("FastApi", self.api_function)
+        self.http_api = api
+        self.runtime_environment = {**environment, "AWS_REGION": self.region}
+        self.runtime_policy_document = api_role.node.find_child("DefaultPolicy").document
+        if backend_origin:
+            parsed = urlsplit(backend_origin)
+            if parsed.scheme != "https" or not parsed.hostname or parsed.path not in ("", "/") or parsed.query or parsed.fragment or parsed.username or parsed.password:
+                raise ValueError("backend_origin must be an exact HTTPS origin")
+            integration = integrations.HttpUrlIntegration("FastApi", backend_origin.rstrip("/"),
+                parameter_mapping=apigw.ParameterMapping().overwrite_path(apigw.MappingValue.request_path()),
+                timeout=Duration.seconds(28))
+        else:
+            integration = integrations.HttpLambdaIntegration("FastApi", self.api_function)
         for path in ("/api/v1/health", "/healthz", "/docs", "/openapi.json"):
             api.add_routes(path=path, methods=[apigw.HttpMethod.GET], integration=integration,
                            authorizer=apigw.HttpNoneAuthorizer())
@@ -294,6 +308,7 @@ class CoreStack(Stack):
                     '{"requestId":"$context.requestId","route":"$context.routeKey",'
                     '"status":"$context.status","latency":"$context.responseLatency"}')))
         topic = sns.Topic(self, "OperationalAlerts", enforce_ssl=True)
+        self.operational_alerts = topic
         alarm_list = [
             cloudwatch.Alarm(self, "ApiErrors", metric=self.api_function.metric_errors(),
                              threshold=1, evaluation_periods=1),
