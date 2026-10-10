@@ -38,5 +38,5 @@ test('watch artwork keeps every label inside screen and metric card bounds',asyn
   for(const name of watchPages){current=name;paintScreen(canvas,name,undefined,{accent:'#ff914d',brightness:100,motion:false,previewAlerts:true},new Date('2026-10-10T08:00:00Z'));}
   return failures;
  });expect(violations).toEqual([]);
- await page.getByRole('button',{name:'Wearable',exact:true}).click();await expect(page.locator('.wearable-panel')).toHaveCSS('background-color','rgb(244, 243, 239)');
+ await page.getByRole('button',{name:'Wearable',exact:true}).click();await expect(page.locator('.wearable-panel')).toHaveCSS('background-color','rgb(232, 243, 248)');
 });
