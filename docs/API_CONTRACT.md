@@ -183,7 +183,7 @@ no HTTP request/response contracts changed. The rendered city image is not route
 ## Google routing integration (2026-10-10)
 See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
 restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
-Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Journeys displays Maps JavaScript tiles and route overlays. Live provider verification is recorded below.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
 
@@ -193,3 +193,14 @@ local demo state; existing authenticated wearable API requests remain in the ori
 ## Public map and travel modes — 2026-10-10
 
 New public POST /api/v1/routes/preview: PreviewRequest (consent_to_store=false, max_alternatives<=2, segment_length_m>=250) -> RouteComparison, persistence=request_only. Enabled explicitly; otherwise guest_routes_disabled (503). Request-only Google provider required. Drive/Walk dispatch to Google; Cycle dispatches to configured ORS, otherwise cycling_provider_not_configured (422) / cycling_key_missing (503). Private /routes/compare and wearable/health/owned APIs remain protected. New OpenAPI/Postman/FRONTEND_INTEGRATION exports include this operation. Named Point inputs are used for map picks; GeoJSON outputs retain [longitude,latitude].
+
+## Geographic selection — 2026-10-11
+
+No request/response schema or endpoint changed. Google text geocoding no longer imposes a Delhi
+bias/India region and accepts valid worldwide coordinates where provider coverage permits.
+Legacy AWS/OSRM profiles remain Delhi-limited; route comparisons remain bounded to 100km/six hours.
+Invalid/non-finite coordinate responses fail with invalid_geocoding_coordinates (422); ambiguous
+place searches require selecting an exact map point. Live fields begin empty and geolocation is
+an explicit browser action, not inferred account/device location. Source resolution/coverage still
+govern exposure availability. Local Google/ORS comparisons and guest browser drawing are verified;
+no deployed API URL or global air-quality coverage is implied.

@@ -728,3 +728,59 @@ route verification. Cognito can be configured later for private features. Genuin
 must cover departure before exposure is available. Guest results cannot be retrieved by saved
 route ID/correlated with an owned journey or used by saved-route Bedrock APIs; displayed guest
 metrics use explicitly labeled deterministic explanations. No medical dose or hardware claims.
+
+## Configured live navigation and geographic selection — 2026-10-11
+
+Completed this change: connected existing Google/ORS credentials to the local adapters, corrected
+the frontend API URL, removed fixed Delhi inputs/bias for Google routing, and removed the red input
+focus rectangle. Live fields now start empty; users enter specific addresses, pick real map points
+or explicitly grant browser geolocation through My location. Selected points recenter the map;
+both points fit together. No new navigation, dashboard redesign or private API bypass was added.
+
+Credentials: server-only GOOGLE_ROUTES_API_KEY, OPENROUTESERVICE_API_KEY and CYCLING_PROVIDER were
+moved from frontend/.env.local to the ignored root .env without exposing values. Frontend retains
+the restricted browser key and corrected VITE_API_BASE_URL=http://127.0.0.1:8000. Initial browser
+verification failed because the URL had a typo and an unmatched quote; normalization and guarded
+HTTP/HTTPS URL validation fixed it. Both env files are ignored. Scan against five configured secret
+values found zero matches in tracked/new source files. No AWS authenticated action was performed.
+
+Actual bounded checks using public Delhi landmark coordinates:
+
+| Mode | HTTP | Provider | Distance | Duration | Geometry points | Existing forecast exposure |
+|---|---|---|---|---|---|---|
+| Drive | 200 | google_routes | 2,702 m | 333 s | 122 | Available |
+| Walk | 200 | google_routes | 2,824 m | 2,428 s | 146 | Available |
+| Cycle | 200 | openrouteservice | 3,558.9 m | 806.9 s | 109 | Available |
+
+One Google Places call also resolved Gateway of India, Mumbai outside Delhi. One real browser
+guest comparison with address text returned HTTP200, three Google alternatives, two visible pins,
+available exposure and input outline=none. Desktop screenshot inspected. Text searches and supplied
+coordinates may snap to different endpoints; those measurements are not the same benchmark.
+Filtered verification reports/screenshots remain in ignored work/; full Google geometry is not
+saved/committed. Existing curated forecasts were reused; no new measured air data was collected.
+
+Files created: frontend/src/api.test.ts (connection/auth safety), frontend/scripts/verify-routing.mjs
+(explicit opt-in real browser/provider check). Modified: routing provider validation/Google mode
+dispatch/service; App.tsx, GoogleMap.tsx, api.ts and journey-map.css; backend and browser tests;
+GOOGLE_MAPS_SETUP, frontend README, architecture, credentials, AWS services, API contract and
+frontend integration guide/export source. Exported OpenAPI/Postman schemas remain unchanged.
+
+Commands/checks: npm run dev (restarted backend/frontend); pytest -q (229 passed, 1 skipped,
+three existing deprecation warnings); Ruff check . (passed); npm --prefix frontend run test
+(17 passed); npm --prefix frontend run build (passed); both Playwright configs (8 map tests,
+16 dashboard/watch tests passed); live HTTP/Places probes; frontend/scripts/verify-routing.mjs;
+scripts/export_api.py; scripts/security_review.py (existing synthesized Core/Data/ML templates:
+zero structural findings, not live IAM verification); git diff --check and ignored-env/source
+secret checks passed. UI detector returned no findings. Existing lazy Three.js chunk-size/clock
+warnings remain. The WebGL fallback test deliberately denies WebGL and verifies a usable fallback.
+No infrastructure definition changed; CDK synth was not repeated for this change.
+
+Limitations/remaining work: Google routes cover valid locations where supported, with the existing
+100km/six-hour limits; legacy AWS/OSRM providers remain Delhi-scoped. Pollution is unavailable when
+genuine curated data does not cover the chosen location/time, and coarse forecasts cannot establish
+street-level differences. India photorealistic 3D is not promised. Guest results remain request-only
+and cannot use saved-route/owned-journey workflows. Cognito setup is still needed for private APIs;
+no live IoT, trained-model, Bedrock, SNS or AWS deployment verification was added. Provider API
+restrictions, quotas, privacy/terms and reviewed abuse controls are required before public deployment.
+Google/ORS billing is separate from AWS credits. Local frontend: http://127.0.0.1:5173; backend:
+http://127.0.0.1:8000. No deployed backend URL or new AWS resource exists from this change.

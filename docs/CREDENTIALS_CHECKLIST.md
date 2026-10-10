@@ -302,4 +302,15 @@ IoT, health APIs or SNS. Existing authorized bridge/Cognito requirements still a
 
 ## Public map and travel modes — 2026-10-10
 
-Browser VITE_GOOGLE_MAPS_API_KEY is populated locally and tiles verified. Missing for live routing: GOOGLE_ROUTES_API_KEY (or GOOGLE_ROUTES_SECRET_ARN). Optional cycling: CYCLING_PROVIDER=openrouteservice plus OPENROUTESERVICE_API_KEY (or OPENROUTESERVICE_SECRET_ARN). Set ENABLE_GUEST_ROUTES=true and ROUTING_PROVIDER=google for local guest comparisons. No Cognito needed for map/guest routes; private APIs still require COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID and frontend VITE_COGNITO_DOMAIN/VITE_COGNITO_CLIENT_ID. Exact provider setup, secret permissions, cost controls, verification and revocation: GOOGLE_MAPS_SETUP.md. Never use a browser key as a private server key or paste credentials into chat.
+Browser VITE_GOOGLE_MAPS_API_KEY is populated locally and tiles verified. On 2026-10-11,
+GOOGLE_ROUTES_API_KEY and OPENROUTESERVICE_API_KEY were found configured and moved from the frontend
+file into the ignored root .env. Google driving/walking/Places and ORS cycling live checks passed.
+Root CYCLING_PROVIDER=openrouteservice, ENABLE_GUEST_ROUTES=true and ROUTING_PROVIDER=google select
+the existing guest adapters. Frontend VITE_API_BASE_URL was corrected to http://127.0.0.1:8000.
+No secret values were logged or committed. Keep only public browser configuration in frontend/.env.local.
+No Cognito needed for map/guest routes; private APIs still require COGNITO_USER_POOL_ID,
+COGNITO_CLIENT_ID and frontend VITE_COGNITO_DOMAIN/VITE_COGNITO_CLIENT_ID. No AWS authentication,
+secret lookup, provisioning or deployment was attempted in this change. Exact provider setup,
+secret permissions, cost controls, verification and revocation: GOOGLE_MAPS_SETUP.md. Never use
+a browser key as a private server key or paste credentials into chat. Secrets Manager ARN settings
+are optional until separately approved AWS deployment; local keys need no AWS IAM permissions.

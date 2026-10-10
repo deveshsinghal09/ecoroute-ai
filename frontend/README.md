@@ -85,7 +85,7 @@ composites architectural artwork, moving transparent train sprites and reflectio
 ## Google routing integration (2026-10-10)
 See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
 restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
-Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Journeys displays Maps JavaScript tiles and route overlays. Live provider verification is recorded below.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
 
@@ -96,3 +96,21 @@ existing connection controls. See ../docs/CUSTOM_WATCH.md. No keys are needed fo
 ## Public map and travel modes — 2026-10-10
 
 Google map tiles now verified locally without sign-in. With a browser key, the default view is the actual satellite map with tilt/camera controls, coordinate selection and provider route overlays. Guest comparisons use /routes/preview; private APIs retain Cognito. Drive/Walk require the backend Google server key; Cycle needs a separate ORS key. See ../docs/GOOGLE_MAPS_SETUP.md. Google photorealistic 3D and bicycle coverage are not listed for India; no building/sensor precision is claimed. Browser tests isolate fake keys and mocked APIs on ports 5174/5175; npm run dev remains on 5173.
+
+## Live routing verified — 2026-10-11
+
+Google Drive/Walk and ORS Cycle returned real routes locally with the configured server keys.
+The guest browser comparison displayed three Google alternatives and two geographic pins.
+Live fields start empty: enter specific addresses, Choose start/destination on the map, or
+click My location and grant browser permission. There is no fixed Delhi location in Google routing;
+the existing historical preview remains explicitly Delhi-based. Missing air coverage stays unavailable.
+The focused location field uses a warm highlight with no red rectangle. Keys stay in ignored files:
+server keys in root .env; browser key/public API base in frontend/.env.local. The local API base must
+be exactly http://127.0.0.1:8000 (without an extra letter or unmatched quote).
+
+Opt-in billed browser/provider verification using public landmarks:
+```
+node scripts/verify-routing.mjs --origin "India Gate, New Delhi, India" --destination "Connaught Place, New Delhi, India" --mode driving
+```
+The output excludes secrets and full geometry. Ignored work/ holds the screenshot and filtered result.
+Private wearable/health endpoints remain Cognito-protected. No AWS deployment performed.

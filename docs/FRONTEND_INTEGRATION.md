@@ -30,7 +30,9 @@ GeoJSON geometry is {"type":"LineString","coordinates":[[longitude,latitude],...
 These are provider road routes, not straight-line substitutes. JSON Point inputs instead use
 named longitude/latitude. Benchmark landmarks are approximate map coordinates, snapped by
 the routing provider; no surveyed precision is claimed. Driving and walking are supported
-where the provider permits. Delhi Google cycling is dispatched to openrouteservice cycling-regular
+where the provider permits. Google geocoding/coordinates are not restricted to Delhi; comparisons
+remain limited to 100km and six hours. Legacy AWS/OSRM profiles retain their Delhi boundary.
+Cycling is dispatched to openrouteservice cycling-regular
 when CYCLING_PROVIDER=openrouteservice and its backend key are configured; otherwise an explicit
 error is returned. Google currently does not list bicycle or photorealistic 3D coverage for India.
 The map uses genuine satellite/streets with a vector tilted camera where supported.

@@ -1,7 +1,8 @@
 # Google Maps + Routes setup
 
-Updated 2026-10-10. Real Google satellite tiles verified locally with the browser key.
-No live Google Routes/Places or ORS request verified; server credentials are missing. No deployment performed.
+Updated 2026-10-11. Real Google map tiles, Places geocoding, driving/walking routes and
+openrouteservice cycling verified locally. Browser guest comparison returned three Google routes
+and two map pins. No AWS action or deployment performed.
 
 ## Two different keys
 1. Google Cloud Console: create/select a project, attach billing, then APIs & Services > Library.
@@ -33,15 +34,19 @@ Map display and the separate request-only guest comparison do not require Cognit
 private endpoints still require Cognito. Guests consent to processing, never storage. Signed-in
 comparisons use the protected endpoint. ENABLE_GUEST_ROUTES is disabled by default in infrastructure.
 Stop any old preview server and run `npm run dev` from repository root. Vite configuration changes
-require a restart; production builds require rebuilding. Open Journeys: a Google map is centered on
-Delhi, and returned route alternatives are drawn as selectable orange/grey polylines.
+require a restart; production builds require rebuilding. Open Journeys: start/destination are empty
+and the map opens at a neutral world overview. Enter specific addresses, choose map points or click
+My location (browser permission required). Returned alternatives are selectable orange/grey polylines.
+Live routing has no fixed Delhi location. Historical mode still labels its saved Delhi comparison.
 
 ## Verify without exposing keys
 - Open Journeys and confirm Google map tiles/attribution appear. No browser key means setup guidance
   in live mode; historical mode retains its offline geometry view.
 - Choose Live services. Guests can compare without signing in when the backend is configured. Provide
-  unambiguous Delhi locations and a departure within 48 hours, consent, then Compare routes.
-- Check source details for google_routes and actual returned warnings. Delhi boundary remains enforced.
+  unambiguous locations and a departure within 48 hours, consent, then Compare routes.
+- Check source details for google_routes and actual returned warnings. Google coordinates/geocoding
+  accept valid worldwide locations where providers offer coverage. Comparisons remain bounded to
+  100 km and six hours; legacy AWS/OSRM profiles retain their existing Delhi boundary.
 - Drive and Walk use Google. Cycle uses ORS as described below; no car-route substitution exists.
 - Pollution requires existing curated observations/forecasts covering the requested date. Missing
   pollution stays unavailable even when routing works. A map key does not provide air quality.
@@ -91,8 +96,8 @@ node node_modules/@playwright/test/cli.js test --config playwright.maps.config.t
 Map tests intercept Google's script using a mock. They verify configuration, coordinate order,
 polylines and failure UI, not real Google coverage or billing entitlement.
 
-## Delhi view and public access
-With a browser key, the opening screen uses a genuine Delhi satellite/street map with vector
+## User-selected map and public access
+With a browser key, the opening screen uses a genuine satellite/street map with vector
 rendering, camera tilt, zoom, north, fit, satellite toggle and map coordinate picking. A/B markers
 use Google-projected coordinates from selected points or returned route geometry. Default text
 addresses are not invented geocoded pins. No pollution sensors/buildings are fabricated.
@@ -111,7 +116,7 @@ server to the internet. No automatic route polling occurs.
 AWS requires explicit CDK enable_guest_routes=true and google_routes_secret_arn. The one public
 POST route is added only then; all private routes retain JWT authorization. Not deployed here.
 
-## Genuine Delhi cycling (optional provider)
+## Genuine cycling (optional provider)
 Google does not list Indian bicycle coverage. Register at https://account.heigit.org/ using
 openrouteservice's official account link. Verify your email, create an API key in the account
 API-key/dashboard area, and review the current quota/plan and attribution requirements. Store
@@ -130,8 +135,9 @@ OSM coverage. Durations are seconds, distances metres, coordinates longitude the
 See https://giscience.github.io/openrouteservice/api-reference/endpoints/directions/ and
 https://openrouteservice.org/restrictions/. Plan quotas can change; AWS credits do not pay for ORS.
 For verification choose two map points (skips Google Places), Cycle and Compare; verify provider
-openrouteservice and profile cycling-regular in Sources. No successful live cycling request has
-been made. Missing key/configuration stops integration with a specific error.
+openrouteservice and profile cycling-regular in Sources. One real Delhi cycling request succeeded
+on 2026-10-11. This does not guarantee coverage for every location. Missing key/configuration stops
+integration with a specific error.
 Optional AWS storage: Secrets Manager > Other type > Plaintext, store only the key. Copy ARN,
 set cycling_secret_arn CDK context, and approve deployment separately. The API receives scoped
 secretsmanager:GetSecretValue on this ARN and CYCLING_PROVIDER=openrouteservice. No secret is
@@ -142,6 +148,23 @@ Secret storage/access and non-free plans may charge; check current provider quot
 ## Verification performed
 One local Maps browser verification confirmed tiles_loaded=true and authorization_failure=false,
 without sign-in. Screenshot is local work/google-map-live.png; no URLs or keys were logged.
-Automated SDK/provider tests use mocks and recorded road geometry for contract mechanics only;
-they do not establish live Delhi bicycle coverage. Separate scripts/verify-map.mjs under frontend
-loads the real map once when explicitly run (may incur map billing).
+On 2026-10-11, local guest HTTP requests returned real driving (2,702 m / 333 s), walking
+(2,824 m / 2,428 s) and cycling (3,558.9 m / 806.9 s) routes between public Delhi landmarks.
+Each had existing curated forecast coverage; no new pollution measurements were collected.
+Google Places resolved Gateway of India in Mumbai, demonstrating geocoding outside Delhi.
+A separate browser comparison using address text returned HTTP 200, three Google alternatives,
+two visible pins, available exposure and input outline=none without sign-in. Its desktop screenshot
+was inspected locally. Route lengths can differ because coordinate endpoints and text places snap
+differently. No route geometry or keys are committed with verification reports.
+
+Automated SDK/provider tests use mocks and recorded road geometry for contract mechanics only.
+Separate scripts/verify-map.mjs under frontend loads the real map once when explicitly run.
+The opt-in live routing verifier also incurs provider/map usage:
+```
+cd frontend
+node scripts/verify-routing.mjs --origin "India Gate, New Delhi, India" --destination "Connaught Place, New Delhi, India" --mode driving
+```
+Use public landmarks, not private home/work addresses, in verification commands. No provider URLs,
+keys or raw error bodies are logged. Filtered results and screenshot stay under ignored work/.
+The configured local frontend API URL was corrected to http://127.0.0.1:8000 (a typo and mismatched
+quote prevented requests). Server-only keys were moved from frontend/.env.local to root .env.

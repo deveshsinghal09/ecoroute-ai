@@ -201,7 +201,7 @@ resources have been provisioned; eventual static-hosting storage/transfer charge
 ## Google routing integration (2026-10-10)
 See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
 restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
-Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Journeys displays Maps JavaScript tiles and route overlays. Live provider verification is recorded below.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
 
@@ -211,3 +211,14 @@ notification or cloud cost. Real wearable integration remains subject to existin
 ## Public map and travel modes — 2026-10-10
 
 Guest Google routing and optional ORS cycling are external provider integrations; AWS credits do not cover their billing. Existing Lambda/API Gateway runs scoring. CDK adds an opt-in public preview route while preserving JWT private routes, and scoped Secrets Manager references for each server key. No new resource was deployed or AWS API invoked in this change. Existing global provider budgets and Gateway throttles apply; browser map loads need Google quotas separately.
+
+## Local live-provider verification — 2026-10-11
+
+Configured Google server and ORS cycling keys were connected to existing FastAPI adapters.
+Three bounded public-landmark HTTP comparisons succeeded: Google driving/walking and ORS cycling.
+Google Places also resolved a Mumbai landmark; the browser drew three actual Google alternatives
+with two pins without sign-in. Existing curated forecasts supplied exposure; no measured pollution
+ingestion or model training occurred. No AWS action, deployment, SNS delivery or Bedrock invocation
+was performed. This validates external-provider/local runtime integration, not deployed AWS services.
+Google map loads, Routes/Places requests and any paid ORS usage bill separately from AWS credits.
+Exact current provider/account invoices were not queried; existing budgets/quotas remain necessary.

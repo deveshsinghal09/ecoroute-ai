@@ -271,7 +271,7 @@ composites architectural artwork, moving transparent train sprites and reflectio
 ## Google routing integration (2026-10-10)
 See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
 restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
-Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Journeys displays Maps JavaScript tiles and route overlays. Live provider verification is recorded below.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
 
@@ -283,3 +283,19 @@ See CUSTOM_WATCH.md for data boundaries, performance and verification.
 ## Public map and travel modes — 2026-10-10
 
 Public Google Maps now opens by default when the browser key exists. Guest POST /routes/preview is a separate request-only comparison path; existing owned/location/health APIs remain Cognito-protected. Backend Google Drive/Walk routes and optional ORS cycling feed the existing exposure engine. Live pollution remains unavailable unless genuine curated data covers the departure. ORS/Google content is not saved in this profile. Infrastructure guest access is opt-in; no AWS deployment was performed.
+
+## User-selected locations and live wiring — 2026-10-11
+
+Google mode routing validates worldwide WGS84 coordinates and uses unbiased Places text searches;
+it no longer applies the Delhi-only boundary. Legacy AWS/OSRM profiles retain their existing scope.
+Existing limits of 100km, six hours and bounded provider request budgets remain enforced.
+Live origin/destination start empty. A neutral world viewport contains no invented pins. Map picks
+and explicit browser geolocation feed named latitude/longitude inputs; results retain GeoJSON
+[longitude,latitude]. My location requests permission only when clicked. Missing coverage stays null.
+
+Server-only Google/ORS keys reside in the ignored root .env; the frontend .env.local holds the
+restricted browser key and public API URL. A malformed local API URL was corrected and URL validation
+now rejects invalid protocols, embedded credentials and query/hash settings before networking.
+No authentication bypass was added to private endpoints. Real Google Drive/Walk, ORS Cycle and
+Mumbai Places were verified; one full guest browser comparison returned three road routes and two
+pins. Provider content remains request-only; no AWS resources were created or invoked in this change.
