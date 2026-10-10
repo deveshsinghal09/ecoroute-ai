@@ -53,3 +53,8 @@ Readability update: case/display scale increased 45%; full straps remain in the 
 Screen texture is now 1024x1200 with DPR capped at 2, minimum 25px logical texture text, stronger
 contrast, and a more front-facing viewing angle. Wearable width is now 460px on desktop. Build
 and four watch tests passed; desktop screenshot reviewed.
+
+Theme/containment update: warm-white sidebar with orange accents replaces the blue surround.
+Display uses a flat rounded geometry with a separate physical glass surround, bounded text fitting
+and no texture mipmaps, at DPR 2. A browser canvas test measures all seven screens for overflow and
+checks home-card limits. Build and all 15 browser tests passed. No real telemetry added.

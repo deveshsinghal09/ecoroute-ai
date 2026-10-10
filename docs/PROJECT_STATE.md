@@ -573,3 +573,12 @@ screen texture resolution to 1024x1200, raised DPR cap to 2, and increased text 
 metric type and label contrast. Accessible summary is larger too. Production build and all four
 watch browser tests passed, including mobile render, WebGL fallback, swipe and modeled crown.
 Desktop screenshot inspected; no API/data/auth changes. Lazy bundle size warning remains.
+
+Wearable theme and screen containment (2026-10-10): user superseded blue-sidebar request with
+white/orange. Sidebar and device controls now share warm white surfaces, fine neutral borders,
+orange selection states and a transit-orange default screen theme. Screen uses a flat rounded
+ShapeGeometry instead of mapping text across extruded bevels. Label widths are measured and fitted
+inside individual safe boxes, shortened labels avoid overlap, mipmap blur is disabled and renderer
+DPR is 2. Desktop screenshot inspected. Build and all 15 browser tests passed, including a new
+canvas measurement test across all seven screens and home metric-card bounds. No backend changes.
+Existing lazy Three.js bundle warning remains. No new resources or credentials required.
