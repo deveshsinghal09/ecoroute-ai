@@ -314,3 +314,15 @@ secret lookup, provisioning or deployment was attempted in this change. Exact pr
 secret permissions, cost controls, verification and revocation: GOOGLE_MAPS_SETUP.md. Never use
 a browser key as a private server key or paste credentials into chat. Secrets Manager ARN settings
 are optional until separately approved AWS deployment; local keys need no AWS IAM permissions.
+
+## Wearable connection update — 2026-10-11
+
+ADB USB authorization and nRF Connect installation are verified on the connected OPPO phone.
+Discovered watch services are vendor-specific; standard Heart Rate was not found. No Noise health
+metric is verified. The browser connector for standard Heart Rate/optional Battery requires no
+AWS secret or key; physical selection, Bluetooth permission and explicit browser consent are mandatory.
+Debugging authorization is a phone-local permission; it is not an AWS role or health-data API.
+Exact local setup, revocation, diagnostic commands, source contract, blocked Noise adapter and
+cloud prerequisites: [LIVE_WATCH_SETUP.md](LIVE_WATCH_SETUP.md). Noise vendor SDK/API/export support
+is still required before decoding this device. Backend cloud reads remain Cognito-protected;
+no private key, vendor token, password or AWS credential was requested in chat.

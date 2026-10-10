@@ -1,5 +1,13 @@
 # Phase 5 wearable-independent telemetry
 
+Hardware check update 2026-10-11: the user's OPPO phone is ADB-authorized and nRF Connect receives
+vendor 0x0AF7 notifications. The discovered watch session exposes proprietary 0x0AF0 services,
+not standard Heart Rate 0x180D/0x2A37. No Noise health metric was decoded/ingested. The frontend now
+has an opt-in standard Bluetooth adapter and protected latest-record display mapping, described
+in [LIVE_WATCH_SETUP.md](LIVE_WATCH_SETUP.md). Cloud deployment, vendor SDK/API/export support and
+physical measured-data validation remain unverified. Earlier Phase 5 deployment statements below
+describe that phase's evidence, not successful cloud/hardware health integration now.
+
 Verified 2026-10-10 IST. Backend and offline tests work; **no AWS resource, certificate,
 MQTT connection or physical watch connection has been deployed/tested**. The user confirmed
 Noise ColorFit Pro 3 Alpha and NoiseFit Assist. [Official Noise support](https://support.gonoise.com/support/solutions/articles/47001212418-my-watch-is-not-pairing-with-bluetooth-auto-disconnect)

@@ -1,5 +1,14 @@
 # Original EcoRoute Pulse wearable preview
 
+Current behavior (2026-10-11) supersedes earlier sample descriptions below: no default measurement
+data. An explicit standard Bluetooth connection can feed received BPM/optional battery into the
+3D display, and a protected backend latest-record snapshot can supply supported real fields.
+Consent gates Bluetooth selection, stale readings are hidden, missing metrics stay unavailable
+and the heart chart uses actual received BPM samples rather than the illustrative ECG artwork.
+No inferred health score or daily calorie conversion is supplied. Browser-only readings clear on
+disconnect/revocation/unmount and are never uploaded. The Noise watch's vendor packet meaning is
+not verified; ADB/nRF transport works but health integration remains blocked. See LIVE_WATCH_SETUP.md.
+
 This design is authored from scratch. No watch template, UI kit, CodePen code, external 3D model,
 remote texture, or branded watch geometry is used. This concept is not a Noise hardware replica.
 

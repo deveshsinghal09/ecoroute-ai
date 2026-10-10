@@ -299,3 +299,17 @@ now rejects invalid protocols, embedded credentials and query/hash settings befo
 No authentication bypass was added to private endpoints. Real Google Drive/Walk, ORS Cycle and
 Mumbai Places were verified; one full guest browser comparison returned three road routes and two
 pins. Provider content remains request-only; no AWS resources were created or invoked in this change.
+
+## Browser wearable adapter — 2026-10-11
+
+An opt-in Web Bluetooth adapter uses only standard Heart Rate notifications and optional Battery
+reads. Measurements and up to 60 BPM trend samples stay in the current tab's memory; no anonymous
+health endpoint, persistent browser store or cloud upload is introduced. Browser consent, device
+chooser, scope-limited GATT access, validated packets, freshness and disconnect cleanup apply.
+Partial values render on the existing 3D watch; unavailable fields and inferred health scores are
+never filled. The graph is a received BPM trend, not ECG. Backend latest readings map through a
+separate non-synthetic adapter after existing Cognito ownership/consent validation; they are manual
+snapshots, not a phone stream. API/storage/IAM definitions remain unchanged.
+
+Actual ADB/nRF inspection verified authorized USB and vendor notifications, not health semantics.
+Noise 0x0AF0/0x0AF7 lacks a verified decoder; its bridge remains blocked. See LIVE_WATCH_SETUP.md.

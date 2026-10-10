@@ -114,3 +114,13 @@ node scripts/verify-routing.mjs --origin "India Gate, New Delhi, India" --destin
 ```
 The output excludes secrets and full geometry. Ignored work/ holds the screenshot and filtered result.
 Private wearable/health endpoints remain Cognito-protected. No AWS deployment performed.
+
+## Wearable sensor connection — 2026-10-11
+
+Wearable includes an explicit Bluetooth-consent checkbox and Connect Bluetooth/Disconnect & clear
+controls. Only standard Heart Rate and optional Battery are read; no automatic connection/upload.
+Missing metrics remain unavailable, stale values are hidden and the chart is received BPM, not ECG.
+Protected backend latest records also map into the display as manual snapshots. Physical inspection
+found the user's Noise session using vendor 0x0AF0/0x0AF7, with no standard Heart Rate service;
+its health data is not decoded or verified. See ../docs/LIVE_WATCH_SETUP.md for prerequisites,
+phone diagnostics, privacy and the remaining verified vendor-bridge requirement.

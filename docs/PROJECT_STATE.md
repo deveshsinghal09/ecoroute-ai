@@ -784,3 +784,56 @@ no live IoT, trained-model, Bedrock, SNS or AWS deployment verification was adde
 restrictions, quotas, privacy/terms and reviewed abuse controls are required before public deployment.
 Google/ORS billing is separate from AWS credits. Local frontend: http://127.0.0.1:5173; backend:
 http://127.0.0.1:8000. No deployed backend URL or new AWS resource exists from this change.
+
+## Wearable hardware assessment and display wiring — 2026-10-11
+
+User connected Noise ColorFit Pro3 Alpha through nRF Connect and enabled phone development mode.
+Initial adb devices found no phone; after file-transfer mode Windows saw OPPO Reno8 5G over MTP;
+after USB debugging ADB reported unauthorized. User accepted the RSA prompt, and ADB authorization
+and nRF Connect package presence were verified. Inspected only the requested nRF watch session,
+including the Client characteristic list and notification transport. No app installation, root,
+private app database extraction, phone-wide log capture, BLE command/firmware write or AWS call.
+
+Actual hardware finding: vendor service 0x0AF0 with characteristics 0x0AF6/0x0AF7/0x0AF1/0x0AF2;
+0x0AF7 notifications were present. Generic Access/Attribute were also visible. Standard Heart Rate
+0x180D/0x2A37 was not found. This verifies transport only: **no Noise heart-rate, steps, oxygen,
+sleep or other metric has been decoded, ingested or displayed as a real reading.** The requested
+live Noise integration remains blocked pending a documented authorized vendor SDK/API/export.
+Asked whether NoiseFit Assist supports Health Connect/Google Fit/export; support is not verified.
+Temporary phone screenshots/UI dump were removed; no personal packets/serials were committed.
+
+Implemented a standard-sensor Web Bluetooth adapter behind explicit browser consent and physical
+device selection. Only Heart Rate/optional Battery services are accessed; proprietary-only devices
+stop with an actionable error. Strict packet length, 8/16-bit BPM, range/contact and RR handling;
+cumulative kJ is not relabeled daily calories. Up to 60 received BPM samples stay in memory. Heart
+rate expires after 60s, battery after five minutes. Disconnect/revocation/unmount clears readings
+and subscriptions. No browser persistence or public/cloud health upload. The 3D screen accepts
+partial values, shows missing metrics as unavailable, uses received BPM trends instead of fake
+ECG artwork and never infers health/sleep/SpO2/calorie scores. Waiting/connected/stale states are
+distinct. Existing protected backend latest-record button now maps non-synthetic BPM/daily steps
+into the display as a manual snapshot; observation timestamps are not confused with BLE receipt
+time. Old UTC-day steps are omitted. Private APIs retain Cognito/ownership/consent protections.
+
+Created: frontend/src/wearable/watchBluetooth.ts, watchBluetooth.test.ts,
+frontend/tests/watch-bluetooth.spec.ts, scripts/check_watch_connection.py, docs/LIVE_WATCH_SETUP.md.
+Modified: existing watch data/artwork/showcase/styles, App.tsx, browser regression tests and
+README; maintained architecture/services/credentials/API/frontend integration/WEARABLES/CUSTOM_WATCH
+docs and export source. No API schema, CDK resource or IAM policy changed. Local runtime stays
+http://127.0.0.1:5173 / http://127.0.0.1:8000; no AWS deployment/URL was added.
+
+Commands/checks: adb devices/getprop/package check, bounded nRF UI inspection;
+check_watch_connection.py (authorized, nRF installed, health_data_verified=false);
+pytest tests/test_wearable.py -q (8 passed); Ruff (passed); frontend Vitest (36 passed);
+production build (passed); dashboard/watch browser runs and targeted fixes (all 20 distinct cases
+passed across final runs); mocked map suite (8 passed); UI detector (zero findings); API export,
+diff/secret checks (passed). Screenshot inspected using explicitly synthetic test events, not Noise
+readings. Initial TypeScript test-case typing issue, old badge-label expectation and late fake-clock
+installation were fixed; corresponding reruns passed. Existing Three.js chunk/clock warnings and
+intentional WebGL-denied fallback test output remain. No CDK synth repeated because infra unchanged.
+
+Remaining: verify NoiseFit authorized export/API/SDK and packet semantics with time-matched actual
+watch readings before a vendor decoder/Android bridge. Standard BLE adapter tests use synthetic
+events and do not prove Noise compatibility. No physical standard-sensor measurement is verified.
+Cloud telemetry still needs configured Cognito, registered ownership and consent; this work did not
+authenticate to AWS, provision IoT, send SNS, invoke Bedrock or claim health data ingestion. Local
+BLE/ADB has no AWS cost. See LIVE_WATCH_SETUP.md for exact prerequisites, revocation and contracts.

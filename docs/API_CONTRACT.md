@@ -204,3 +204,14 @@ place searches require selecting an exact map point. Live fields begin empty and
 an explicit browser action, not inferred account/device location. Source resolution/coverage still
 govern exposure availability. Local Google/ORS comparisons and guest browser drawing are verified;
 no deployed API URL or global air-quality coverage is implied.
+
+## Wearable display adapter — 2026-10-11
+
+No HTTP schema or endpoint changed. Standard browser Bluetooth readings stay local and are never
+sent to a public health endpoint. Protected GET /wearables/latest retains ownership, Cognito and
+consent checks; the frontend maps only explicitly non-synthetic BPM/daily_total steps. Interval
+counts are not shown as daily totals, timestamps need timezone information and missing fields
+remain unavailable. Backend values are manual snapshots. Standard BLE provides no observation
+timestamp; its browser receipt time is labeled explicitly and cannot be silently substituted for
+a device observation timestamp in the existing Measurement API. A verified future companion bridge
+must follow the unchanged Registration/Consent/Measurement schemas. See LIVE_WATCH_SETUP.md.

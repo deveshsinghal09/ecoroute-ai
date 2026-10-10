@@ -26,6 +26,12 @@ Local /api/v1/ready is public; deployed API Gateway requires the ecoroute/read s
 
 ## Geometry, units and confidence
 
+The wearable screen has an optional consent-based standard Web Bluetooth adapter. Those readings
+stay in browser memory; no anonymous health API or cloud upload exists. BLE timestamps describe
+receipt time, not device observation time. GET /wearables/latest is still authenticated and maps
+only non-synthetic available fields as a manual snapshot. Unknown vendor packets are not decoded;
+the Noise adapter remains blocked pending a verified SDK/export. See LIVE_WATCH_SETUP.md.
+
 GeoJSON geometry is {"type":"LineString","coordinates":[[longitude,latitude],...]} in WGS84.
 These are provider road routes, not straight-line substitutes. JSON Point inputs instead use
 named longitude/latitude. Benchmark landmarks are approximate map coordinates, snapped by

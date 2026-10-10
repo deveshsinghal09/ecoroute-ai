@@ -222,3 +222,12 @@ ingestion or model training occurred. No AWS action, deployment, SNS delivery or
 was performed. This validates external-provider/local runtime integration, not deployed AWS services.
 Google map loads, Routes/Places requests and any paid ORS usage bill separately from AWS credits.
 Exact current provider/account invoices were not queried; existing budgets/quotas remain necessary.
+
+## Local wearable adapter — 2026-10-11
+
+Web Bluetooth consent/notifications and Android ADB/nRF inspection use local device/browser facilities.
+They do not invoke AWS IoT Core, Lambda, Cognito, DynamoDB, S3 or SNS. No paid cloud service or role
+was added/deployed. Existing protected GET /wearables/latest can populate the watch from approved
+backend records when Cognito/device consent are configured; this change does not verify cloud ingestion.
+Live Noise health data remains blocked by undocumented vendor packet semantics. Standard-sensor
+tests are synthetic and cannot establish physical watch compatibility. See LIVE_WATCH_SETUP.md.
