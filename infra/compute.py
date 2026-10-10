@@ -18,6 +18,11 @@ from aws_cdk import aws_logs as logs
 
 
 class ComputeStack(Stack):
+    @property
+    def availability_zones(self):
+        """Resolve account-specific AZs in CloudFormation, never via synth-time credentials."""
+        return [Fn.select(i, Fn.get_azs(self.region)) for i in (0, 1)]
+
     def __init__(self, scope, name, *, core, options, **kwargs):
         super().__init__(scope, name, **kwargs)
         runtime = options.runtime
@@ -65,7 +70,7 @@ class ComputeStack(Stack):
                             runtime_environment_variables=[apprunner.CfnService.KeyValuePairProperty(name=k, value=v) for k, v in environment.items()]))))
             CfnOutput(self, "RuntimeUrl", value=Fn.join("", ["https://", service.attr_service_url]))
             return
-        vpc = ec2.Vpc(self, "RuntimeVpc", max_azs=2, nat_gateways=0,
+        vpc = ec2.Vpc(self, "RuntimeVpc", availability_zones=[Fn.select(i, Fn.get_azs(self.region)) for i in (0, 1)], nat_gateways=0,
                       subnet_configuration=[ec2.SubnetConfiguration(name="public", subnet_type=ec2.SubnetType.PUBLIC)])
         if runtime == "eks":
             cluster_name = f"ecoroute-{self.account}-{self.region}"

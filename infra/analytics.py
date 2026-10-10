@@ -1,5 +1,5 @@
 """Optional RDS/Aurora analytics consumes existing reports/routes S3 events."""
-from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
+from aws_cdk import CfnOutput, Duration, Fn, RemovalPolicy, Stack
 from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import aws_cloudwatch_actions as alarm_actions
 from aws_cdk import aws_ec2 as ec2
@@ -16,13 +16,17 @@ from aws_cdk import aws_sqs as sqs
 
 
 class AnalyticsStack(Stack):
+    @property
+    def availability_zones(self):
+        return [Fn.select(i, Fn.get_azs(self.region)) for i in (0, 1)]
+
     def __init__(self, scope, name, *, data, options, asset_path, alert_topic=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         if options.analytics not in ("rds", "aurora"):
             raise ValueError("SQL analytics disabled")
         if not options.sql_writer_secret_arn.startswith(f"arn:aws:secretsmanager:{self.region}:{self.account}:"):
             raise ValueError("Writer secret must be in the selected account and region")
-        vpc = ec2.Vpc(self, "DatabaseVpc", max_azs=2, nat_gateways=0,
+        vpc = ec2.Vpc(self, "DatabaseVpc", availability_zones=[Fn.select(i, Fn.get_azs(self.region)) for i in (0, 1)], nat_gateways=0,
             subnet_configuration=[ec2.SubnetConfiguration(name="isolated", subnet_type=ec2.SubnetType.PRIVATE_ISOLATED)])
         security = ec2.SecurityGroup(self, "DatabaseSecurity", vpc=vpc, allow_all_outbound=False)
         # Master credentials are generated and NEVER passed to the worker. Restricted writer is separate.
