@@ -85,7 +85,7 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None, frontend_origins=None,
-                 google_routes_secret_arn=None, provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
+                 google_routes_secret_arn=None, cycling_secret_arn=None, enable_guest_routes=False, provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         frontend_origins = frontend_origins or []
         if not isinstance(frontend_origins, list):
@@ -177,6 +177,14 @@ class CoreStack(Stack):
                 raise ValueError("Use a complete Google secret ARN")
             environment.update(ROUTING_PROVIDER="google", GOOGLE_ROUTES_SECRET_ARN=google_routes_secret_arn)
             api_role.add_to_policy(iam.PolicyStatement(actions=["secretsmanager:GetSecretValue"], resources=[google_routes_secret_arn]))
+        if cycling_secret_arn:
+            if "*" in cycling_secret_arn or ":secretsmanager:" not in cycling_secret_arn:
+                raise ValueError("Use a complete cycling secret ARN")
+            environment.update(CYCLING_PROVIDER="openrouteservice", OPENROUTESERVICE_SECRET_ARN=cycling_secret_arn)
+            api_role.add_to_policy(iam.PolicyStatement(actions=["secretsmanager:GetSecretValue"], resources=[cycling_secret_arn]))
+        if enable_guest_routes and not google_routes_secret_arn:
+            raise ValueError("Guest routes require a request-only Google provider secret")
+        environment["ENABLE_GUEST_ROUTES"] = str(enable_guest_routes).lower()
         if enable_location:
             for service, action in (("geo-routes", "CalculateRoutes"), ("geo-places", "Geocode")):
                 api_role.add_to_policy(iam.PolicyStatement(actions=[service + ":" + action],
@@ -296,6 +304,9 @@ class CoreStack(Stack):
             api.add_routes(path=path, methods=[apigw.HttpMethod.GET], integration=integration,
                            authorizer=apigw.HttpNoneAuthorizer())
         # Ready is protected in AWS to avoid public paid dependency probes.
+        if enable_guest_routes:
+            api.add_routes(path="/api/v1/routes/preview", methods=[apigw.HttpMethod.POST], integration=integration,
+                           authorizer=apigw.HttpNoneAuthorizer())
         api.add_routes(path="/api/v1/{proxy+}", methods=[apigw.HttpMethod.GET], integration=integration,
                        authorization_scopes=["ecoroute/read"])
         api.add_routes(path="/api/v1/{proxy+}", methods=[apigw.HttpMethod.POST, apigw.HttpMethod.PUT, apigw.HttpMethod.DELETE],

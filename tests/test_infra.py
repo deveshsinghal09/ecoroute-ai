@@ -31,6 +31,35 @@ def resources(template, kind):
     return [r for r in template["Resources"].values() if r["Type"] == kind]
 
 
+def test_guest_routes_are_opt_in_and_secret_permissions_are_scoped(templates, tmp_path):
+    from infra.stacks import CoreStack, DataStack
+    assert not any(r["Properties"].get("RouteKey") == "POST /api/v1/routes/preview"
+                   for r in resources(templates["core"], "AWS::ApiGatewayV2::Route"))
+    asset = tmp_path / "asset"
+    asset.mkdir()
+    (asset / "handler.py").write_text("# structural test asset\n")
+    app = cdk.App()
+    env = cdk.Environment(account="123456789012", region="ap-south-1")
+    data = DataStack(app, "GuestData", env=env)
+    google_secret = "arn:aws:secretsmanager:ap-south-1:123456789012:secret:google-AbCdEf"
+    cycle_secret = "arn:aws:secretsmanager:ap-south-1:123456789012:secret:cycling-AbCdEf"
+    stack = CoreStack(app, "GuestCore", data=data, env=env, asset_path=str(asset),
+                      google_routes_secret_arn=google_secret, cycling_secret_arn=cycle_secret,
+                      enable_guest_routes=True)
+    template = Template.from_stack(stack).to_json()
+    guest = next(r["Properties"] for r in resources(template, "AWS::ApiGatewayV2::Route")
+                 if r["Properties"].get("RouteKey") == "POST /api/v1/routes/preview")
+    assert guest["AuthorizationType"] == "NONE"
+    private = next(r["Properties"] for r in resources(template, "AWS::ApiGatewayV2::Route")
+                   if r["Properties"].get("RouteKey") == "POST /api/v1/{proxy+}")
+    assert private["AuthorizationType"] == "JWT" and private["AuthorizationScopes"] == ["ecoroute/write"]
+    policies = resources(template, "AWS::IAM::Policy")
+    grants = [s for p in policies for s in p["Properties"]["PolicyDocument"]["Statement"]
+              if s.get("Action") == "secretsmanager:GetSecretValue"]
+    assert any(s["Resource"] == google_secret for s in grants)
+    assert any(s["Resource"] == cycle_secret for s in grants)
+
+
 def test_frontend_cors_is_exact_and_not_credentialed(templates):
     api = resources(templates["core"], "AWS::ApiGatewayV2::Api")[0]["Properties"]
     assert api["CorsConfiguration"]["AllowOrigins"] == ["https://example.org"]

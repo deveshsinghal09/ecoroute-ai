@@ -12,6 +12,7 @@ from ecoroute.models import Point
 from ecoroute.environment.repository import BudgetExceeded
 from ecoroute.routing.geometry import segments
 from ecoroute.routing.google import GoogleRoutes
+from ecoroute.routing.cycling import DelhiGoogleRouting, OpenRouteCycling
 from ecoroute.routing.models import CompareRequest, RoutingError
 from ecoroute.routing.pollution import PollutionIndex, rank_routes, score_exposure
 from ecoroute.routing.providers import AmazonLocation, OsrmProvider, in_delhi
@@ -58,6 +59,8 @@ class RouteService:
             return result
         if request.mode == "cycling" and self.provider.name != "google_routes":
             raise RoutingError("cycling_provider_not_configured", 422)
+        if hasattr(self.provider, "validate_mode"):
+            self.provider.validate_mode(request)
         origin = in_delhi(self.provider.resolve(request.origin))
         destination = in_delhi(self.provider.resolve(request.destination))
         if origin == destination:
@@ -264,7 +267,17 @@ def create_service(settings, store, objects):
                 return session.client("secretsmanager", config=Config(connect_timeout=1, read_timeout=3, retries={"total_max_attempts": 1})).get_secret_value(SecretId=settings.google_routes_secret_arn)["SecretString"]
             except (ClientError, BotoCoreError, KeyError):
                 raise RoutingError("google_secret_unavailable") from None
-        provider = GoogleRoutes(google_key, reserve=reserve)
+        def cycling_key():
+            key = settings.openrouteservice_api_key.get_secret_value()
+            if key or not settings.openrouteservice_secret_arn:
+                return key
+            try:
+                session = boto3.Session(profile_name=settings.aws_profile or None, region_name=settings.aws_region)
+                return session.client("secretsmanager", config=Config(connect_timeout=1, read_timeout=3, retries={"total_max_attempts": 1})).get_secret_value(SecretId=settings.openrouteservice_secret_arn)["SecretString"]
+            except (ClientError, BotoCoreError, KeyError):
+                raise RoutingError("cycling_secret_unavailable") from None
+        cycling = OpenRouteCycling(cycling_key, reserve=reserve) if settings.cycling_provider == "openrouteservice" else None
+        provider = DelhiGoogleRouting(GoogleRoutes(google_key, reserve=reserve), cycling)
     elif settings.routing_provider == "osrm":
         if not settings.osrm_base_url:
             raise RoutingError("fallback_endpoint_not_configured")

@@ -25,6 +25,8 @@ core = CoreStack(app, "EcoRouteCore", data=data, asset_path="build/lambda", env=
           bedrock_model_arn=app.node.try_get_context("bedrock_model_arn"),
           sms_topic_arns=app.node.try_get_context("sms_topic_arns"),
           google_routes_secret_arn=app.node.try_get_context("google_routes_secret_arn"),
+          cycling_secret_arn=app.node.try_get_context("cycling_secret_arn"),
+          enable_guest_routes=str(app.node.try_get_context("enable_guest_routes")).lower() == "true",
           provider_secret_arn=app.node.try_get_context("provider_secret_arn"),
           ingestion_interval_minutes=int(app.node.try_get_context("ingestion_interval_minutes") or 60))
 if str(app.node.try_get_context("enable_iot")).lower() == "true":

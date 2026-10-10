@@ -32,6 +32,13 @@ class CompareRequest(StrictModel):
         return self
 
 
+class PreviewRequest(CompareRequest):
+    """Guest route processing with no permission to persist personal route data."""
+    consent_to_store: Literal[False] = False
+    max_alternatives: int = Field(default=2, ge=0, le=2)
+    segment_length_m: int = Field(default=250, ge=250, le=1000)
+
+
 class ExposureRequest(StrictModel):
     route_id: str = Field(pattern=r"^[a-f0-9]{32}$")
     departure_at: AwareDatetime | None = None

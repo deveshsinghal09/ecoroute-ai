@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from ecoroute.auth import Principal, require
 from ecoroute.environment.pipeline import repository
 from ecoroute.models import Identifier
-from ecoroute.routing.models import CompareRequest, DepartureRequest, ExposureRequest
+from ecoroute.routing.models import CompareRequest, DepartureRequest, ExposureRequest, PreviewRequest, RoutingError
 from ecoroute.routing.service import create_service
 
 router = APIRouter(prefix="/routes", tags=["pollution-aware routes"])
@@ -22,6 +22,21 @@ def compare(
     body: CompareRequest, user: Principal = Depends(require("write")), engine=Depends(service)
 ):
     return engine.compare(user.subject, body)
+
+
+@router.post("/preview")
+def preview(body: PreviewRequest, request: Request):
+    settings = request.app.state.settings
+    if not settings.enable_guest_routes:
+        raise RoutingError("guest_routes_disabled")
+    if settings.routing_provider != "google":
+        raise RoutingError("guest_routes_require_request_only_google")
+    engine = service(request)
+    if engine.provider.name != "google_routes" or getattr(engine.provider, "persist_results", True):
+        raise RoutingError("guest_routes_require_request_only_google")
+    # Provider requests share the atomic global hourly/daily budget. There is no
+    # guest owner record, per-location cache, saved geometry or journey identifier.
+    return engine.compare("guest-request-only", body)
 
 
 @router.post("/optimize")

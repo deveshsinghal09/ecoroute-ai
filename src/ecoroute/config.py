@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     routing_provider: Literal["aws", "osrm", "google"] = "aws"
     google_routes_secret_arn: str = ""
     google_routes_api_key: SecretStr = SecretStr("")
+    cycling_provider: Literal["none", "openrouteservice"] = "none"
+    openrouteservice_api_key: SecretStr = SecretStr("")
+    openrouteservice_secret_arn: str = ""
+    enable_guest_routes: bool = False
     osrm_base_url: str = ""
     location_daily_limit: int = Field(default=100, ge=1, le=1000)
     location_hourly_limit: int = Field(default=30, ge=1, le=100)

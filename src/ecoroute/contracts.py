@@ -61,6 +61,7 @@ SCHEMAS = {
 def response_schema(path, method):
     relative = path.removeprefix("/api/v1/")
     exact = {
+        "routes/preview": ref("RouteComparison"),
         "health": obj({"status": STRING, "profile": STRING, "phase": STRING, "live_domain_providers": BOOL}),
         "ready": obj({"status": STRING}), "routes/compare": ref("RouteComparison"),
         "routes/optimize": obj({"recommended_route": ref("ScoredRoute"), "recommended_route_ids": OBJECT,
