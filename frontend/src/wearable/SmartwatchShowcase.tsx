@@ -1,6 +1,7 @@
-import {Component,Suspense,lazy,useCallback,useEffect,useRef,useState,type ReactNode} from 'react';
+import {Component,Suspense,lazy,useCallback,useEffect,useMemo,useRef,useState,type ReactNode} from 'react';
 import {Activity,ArrowLeft,ArrowRight,Battery,Heart,Home,Moon,Settings,ShieldCheck,Wind,Bell,Pause,Play} from 'lucide-react';
 import {pageAfter,pageSummary,watchPages,type WatchData,type WatchSettings} from './watchData';
+import {WatchBluetooth,type BluetoothState} from './watchBluetooth';
 import './watch.css';
 const WatchScene=lazy(()=>import('./WatchScene'));
 const icons=[Home,Heart,Activity,Moon,Wind,Bell,Settings];
@@ -9,7 +10,18 @@ class RenderBoundary extends Component<{children:ReactNode;fallback:ReactNode;on
 }
 function FallbackWatch(){return <div className="eco-watch-fallback"><svg viewBox="0 0 220 440" role="img" aria-label="Static fallback of original watch with complete straps"><rect x="73" y="12" width="74" height="416" rx="27" fill="#233b45"/>{[30,45,60,75,350,365,380,395].map(y=><rect key={y} x="104" y={y} width="12" height="5" rx="2" fill="#09151d"/>)}<rect x="37" y="131" width="148" height="176" rx="30" fill="#526774"/><rect x="42" y="136" width="138" height="166" rx="26" fill="#050c12"/><circle cx="110" cy="219" r="42" fill="none" stroke="#58ddeb" strokeWidth="5"/><text x="110" y="226" textAnchor="middle" fill="white" fontSize="24">ECO</text><rect x="185" y="182" width="10" height="28" rx="4" fill="#7796a7"/></svg><p>3D unavailable. Screen controls and connection details remain available below.</p></div>;}
 
-export default function SmartwatchShowcase({data}:{data?:WatchData}){
+export default function SmartwatchShowcase({data:provided}:{data?:WatchData}){
+ const [readings,setReadings]=useState<WatchData>(),[connection,setConnection]=useState<BluetoothState>('disconnected');
+ const [consent,setConsent]=useState(false),[connectionError,setConnectionError]=useState(''),[clock,setClock]=useState(Date.now());
+ const bluetooth=useMemo(()=>new WatchBluetooth(value=>{setReadings(value);setClock(Date.now());},setConnection,setConnectionError),[]);
+ useEffect(()=>()=>bluetooth.disconnect(),[bluetooth]);
+ useEffect(()=>{if(connection!=='connected'&&!provided)return;const timer=setInterval(()=>setClock(Date.now()),5000);return()=>clearInterval(timer);},[connection,provided]);
+ const incoming=readings||provided;
+ const freshHeart=Boolean(incoming?.heartRateAt&&clock-Date.parse(incoming.heartRateAt)<60000&&clock-Date.parse(incoming.heartRateAt)>=-5000);
+ const freshBattery=Boolean(incoming?.batteryAt&&clock-Date.parse(incoming.batteryAt)<300000);
+ const currentSteps=incoming?.reportedAt?.slice(0,10)===new Date(clock).toISOString().slice(0,10);
+ const data=incoming?{...incoming,heartRate:freshHeart?incoming.heartRate:undefined,battery:freshBattery?incoming.battery:undefined,steps:currentSteps?incoming.steps:undefined}:undefined;
+ const status=connection==='connecting'?'CONNECTING':incoming?.source==='backend'?'RECORDED READING':freshHeart?'READING RECEIVED':connection==='connected'||incoming?'WAITING FOR READING':'NOT CONNECTED';
  const [page,setPage]=useState(0),[failed,setFailed]=useState(false),[ready,setReady]=useState(false);
  const [settings,setSettings]=useState<WatchSettings>({accent:'#ff914d',brightness:100,motion:true,previewAlerts:true});
  const [reduced,setReduced]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -20,8 +32,17 @@ export default function SmartwatchShowcase({data}:{data?:WatchData}){
  const fail=useCallback(()=>setFailed(true),[]),loaded=useCallback(()=>setReady(true),[]);
  const animate=settings.motion&&!reduced&&visible&&active;
  return <section className="eco-watch" aria-label="EcoRoute 3D smartwatch preview">
-  <div className="ew:flex ew:items-center ew:justify-between eco-watch-eyebrow"><span>ECOROUTE / PULSE</span><span className="eco-watch-demo">NOT CONNECTED</span></div>
+  <div className="ew:flex ew:items-center ew:justify-between eco-watch-eyebrow"><span>ECOROUTE / PULSE</span><span className="eco-watch-demo">{status}</span></div>
   <div className="eco-watch-title"><div><h3>Your rhythm.<br/><span>Your journey.</span></h3><p>An original wearable concept</p></div><Battery size={20}/></div>
+  <div className="eco-watch-connection">
+   <label><input type="checkbox" checked={consent} onChange={e=>{setConsent(e.target.checked);if(!e.target.checked)bluetooth.disconnect();}}/>Allow this browser to read my watch over Bluetooth</label>
+   <div><button disabled={!consent||connection!=='disconnected'} onClick={()=>void bluetooth.connect()}>Connect Bluetooth</button><button disabled={connection==='disconnected'} onClick={()=>{bluetooth.disconnect();setConnectionError('');}}>Disconnect & clear</button></div>
+   <p>Standard heart-rate sensors only. No health readings are uploaded or saved by this connection.</p>
+   {incoming?.heartRateAt&&<p>{incoming.source==='backend'?'Last heart-rate observation reported':'Last heart-rate packet received'}: {new Date(incoming.heartRateAt).toLocaleTimeString()}{!freshHeart?' · stale; no current reading':''}</p>}
+   {incoming?.reportedAt&&<p>Backend record reported: {new Date(incoming.reportedAt).toLocaleString()}. Read latest measurement to refresh.</p>}
+   {connection==='connected'&&!incoming?.heartRateAt&&<p role="status">Connected. Waiting for the watch to report a heart-rate reading.</p>}
+   {connectionError&&<p role="status">{connectionError}</p>}
+  </div>
   <div ref={host} className="eco-watch-viewport" data-renderer={failed?'fallback':ready?'three':'loading'} data-motion={animate?'active':'paused'}
    onPointerDown={event=>{swipe.current={x:event.clientX,y:event.clientY};}}
    onPointerMove={event=>{if(reduced)return;const box=event.currentTarget.getBoundingClientRect();setTilt({x:Math.max(-1,Math.min(1,(event.clientX-box.left)/box.width*2-1)),y:Math.max(-1,Math.min(1,(event.clientY-box.top)/box.height*2-1))});}}
@@ -40,6 +61,6 @@ export default function SmartwatchShowcase({data}:{data?:WatchData}){
    <label className="eco-watch-toggle"><span>Notification preview</span><input type="checkbox" checked={settings.previewAlerts} onChange={e=>setSettings(s=>({...s,previewAlerts:e.target.checked}))}/></label>
   </div>}
   <div className="eco-watch-actions"><button aria-label="Watch crown home" onClick={home}><Home size={13}/>Home</button><button aria-pressed={!settings.motion} onClick={()=>setSettings(s=>({...s,motion:!s.motion}))}>{settings.motion?<Pause size={13}/>:<Play size={13}/>} {settings.motion?'Pause motion':'Resume motion'}</button></div>
-  <div className="eco-watch-disclaimer"><ShieldCheck size={14}/><span>No watch readings available. Connect an authorized device bridge to view measurements.</span></div>
+  <div className="eco-watch-disclaimer"><ShieldCheck size={14}/><span>{incoming?'Only received fields are displayed. Heart rate does not measure pollution exposure; no health score is inferred.':'No watch readings available. Connect a supported sensor or an authorized device bridge.'}</span></div>
  </section>;
 }

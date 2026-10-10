@@ -35,7 +35,7 @@ test('watch artwork keeps every label inside screen and metric card bounds',asyn
   const fill=c.fillText.bind(c);c.fillText=(text,x,y)=>{const m=c.measureText(text),left=c.textAlign==='center'?x-m.width/2:c.textAlign==='right'?x-m.width:x;
    if(left<20||left+m.width>492||y-m.actualBoundingBoxAscent<0||y+m.actualBoundingBoxDescent>590)failures.push(`${current}: ${text}`);
    if(current==='Home'&&y>=390&&y<=540){const edge=x<256?249:486;if(left+m.width>edge)failures.push(`card: ${text}`);}fill(text,x,y);};
-  for(const name of watchPages){current=name;paintScreen(canvas,name,undefined,{accent:'#ff914d',brightness:100,motion:false,previewAlerts:true},new Date('2026-10-10T08:00:00Z'));}
+  for(const data of [undefined,{source:'bluetooth' as const,heartRate:76,battery:42,heartSamples:[{at:'2026-10-11T08:00:00Z',bpm:76},{at:'2026-10-11T08:00:01Z',bpm:77}]}])for(const name of watchPages){current=name;paintScreen(canvas,name,data,{accent:'#ff914d',brightness:100,motion:false,previewAlerts:true},new Date('2026-10-10T08:00:00Z'));}
   return failures;
  });expect(violations).toEqual([]);
  await page.getByRole('button',{name:'Wearable',exact:true}).click();await expect(page.locator('.wearable-panel')).toHaveCSS('background-color','rgb(211, 231, 241)');

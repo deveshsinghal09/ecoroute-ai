@@ -8,7 +8,7 @@ test('historical dashboard, route geometry and honest unavailable features',asyn
   await page.getByRole('button',{name:'Alternative route'}).click();
   await expect(page.locator('.route-option.chosen')).toContainText('Alternative route');
   await page.getByRole('button',{name:'Wearable',exact:true}).click();
-  await expect(page.getByText('Hardware bridge not connected')).toBeVisible();
+  await expect(page.getByText('Cloud bridge not connected')).toBeVisible();
   await page.getByRole('button',{name:'Insights',exact:true}).click();
   await page.getByRole('button',{name:'Explain this comparison'}).click();
   await expect(page.getByText('Deterministic summary · no LLM invoked')).toBeVisible();
