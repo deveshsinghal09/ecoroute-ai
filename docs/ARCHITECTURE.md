@@ -241,3 +241,7 @@ restricted secret IAM and verification. Google Routes/Places feed the existing e
 Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
+
+Wearable UI: SmartwatchHealth.jsx is an isolated demo presentation with scoped CSS and local React
+state. It does not write to or read from telemetry APIs; existing authenticated device controls
+remain separate. No Three.js, cloud service or dependency was added for the watch.
