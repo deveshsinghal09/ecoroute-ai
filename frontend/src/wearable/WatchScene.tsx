@@ -13,7 +13,7 @@ function geometry(w:number,h:number,r:number,depth:number,holes=false){
  if(holes)for(let i=0;i<5;i++){const hole=new Path();hole.absellipse(0,-h/2+.26+i*.29,.13,.055,0,Math.PI*2,true);shape.holes.push(hole);}
  return new ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.045,bevelThickness:.04,curveSegments:12});
 }
-type Props={data:WatchData;page:WatchPage;settings:WatchSettings;animate:boolean;tilt:{x:number;y:number};onNext:()=>void;onHome:()=>void;onFailure:()=>void;onReady:()=>void};
+type Props={data?:WatchData;page:WatchPage;settings:WatchSettings;animate:boolean;tilt:{x:number;y:number};onNext:()=>void;onHome:()=>void;onFailure:()=>void;onReady:()=>void};
 
 function Product({data,page,settings,animate,tilt,onNext,onHome,onFailure,onReady}:Props){
  const group=useRef<Group>(null);const display=useRef<MeshBasicMaterial>(null);const changed=useRef(0);const start=useRef<number|null>(null);const pulseFrame=useRef(0);const {invalidate,gl}=useThree();
