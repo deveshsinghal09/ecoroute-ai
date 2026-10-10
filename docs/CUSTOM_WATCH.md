@@ -58,3 +58,7 @@ Theme/containment update: warm-white sidebar with orange accents replaces the bl
 Display uses a flat rounded geometry with a separate physical glass surround, bounded text fitting
 and no texture mipmaps, at DPR 2. A browser canvas test measures all seven screens for overflow and
 checks home-card limits. Build and all 15 browser tests passed. No real telemetry added.
+
+Current behavior supersedes the sample-data descriptions above: the component has no default
+measurement dataset. Disconnected screens show no readings; only the local clock and appearance
+settings work without device data. The orange frame now surrounds the entire showcase.

@@ -582,3 +582,10 @@ inside individual safe boxes, shortened labels avoid overlap, mipmap blur is dis
 DPR is 2. Desktop screenshot inspected. Build and all 15 browser tests passed, including a new
 canvas measurement test across all seven screens and home metric-card bounds. No backend changes.
 Existing lazy Three.js bundle warning remains. No new resources or credentials required.
+
+Wearable placeholder removal (2026-10-10): removed the default health fixture entirely. With no
+connected data, every measurement page now reports no readings / watch not connected; only local
+time/date and appearance settings are populated. No invented health or battery readings are shown.
+Replaced visible demo wording, and extended the orange showcase border uniformly around all four
+sides. Real hardware connection remains unavailable; no new integration is claimed. Production
+build and five watch browser tests passed. Existing lazy bundle warning unchanged.
