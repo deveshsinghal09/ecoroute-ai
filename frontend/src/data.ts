@@ -8,7 +8,7 @@ export interface Route {
   source_metadata?: unknown; warnings: string[]; recommendation_reason: string; routing_source: Record<string, unknown>;
   segments: { duration_s: number; pm25_exposure_ug_h_m3: number | null; pollutants: Record<string, {value_ug_m3: number | null; source?: string; reported_at?: string}> }[];
 }
-export interface Comparison { routes: Route[]; selected_route_id: string; candidate_count: number; recommended_route_ids: Record<string,string|null>; warnings: string[]; spatial_differentiation: string; }
+export interface Comparison { routes: Route[]; selected_route_id: string; candidate_count: number; recommended_route_ids: Record<string,string|null>; warnings: string[]; spatial_differentiation: string; persistence?:'request_only'; }
 export const historical = recording.response as unknown as Comparison;
 export const capturedAt = recording.captured_at;
 export function number(value: number | null | undefined, digits = 1) { return value == null || !Number.isFinite(value) ? '—' : value.toFixed(digits); }

@@ -8,6 +8,22 @@ let expiresAt = 0;
 export function signedIn() { return !!accessToken && Date.now() < expiresAt; }
 export function signOut() { accessToken = ''; expiresAt = 0; }
 const messages: Record<number,string> = {401:'Your session has expired. Sign in again.',403:'Your account does not have permission for this action.',404:'This record is unavailable or belongs to another account.',422:'Check your locations, mode and departure time.',429:'Request limit reached. Wait before trying again.',503:'This service is not configured or temporarily unavailable.'};
+const routingMessages:Record<string,string> = {
+  guest_routes_disabled:'Guest routing is not enabled on this backend. Configure ENABLE_GUEST_ROUTES or sign in.',
+  guest_routes_require_request_only_google:'Guest routing requires ROUTING_PROVIDER=google on the backend. Private journey storage remains protected.',
+  cycling_request_rejected:'The bicycle route request was rejected. Try nearby endpoints or reduce alternatives.',
+  google_routes_key_missing:'The map is connected, but routing needs GOOGLE_ROUTES_API_KEY in the backend .env. Use a separate server key.',
+  google_access_or_billing_unavailable:'Google routing access is unavailable. Check the server key, Routes/Places APIs and Google billing.',
+  google_no_route_for_selected_mode:'Google returned no route for this travel mode. Try different endpoints; no driving route was substituted.',
+  google_route_request_rejected:'Google rejected this route request. Check your endpoints, travel mode and departure time.',
+  cycling_provider_not_configured:'Cycle needs CYCLING_PROVIDER=openrouteservice and its server key. Google does not list bicycle routing for India.',
+  cycling_key_missing:'Add OPENROUTESERVICE_API_KEY to the backend .env to connect cycling routes.',
+  cycling_no_route:'The cycling provider could not find a bicycle route between these points. Try nearby accessible points.',
+  cycling_access_unavailable:'The cycling provider rejected its key or plan. Check the server configuration.',
+  geocoding_no_match:'The place could not be found. Choose the location on the map or enter a more specific address.',
+  geocoding_ambiguous_use_coordinates:'Several places matched that name. Choose the exact point on the map.',
+  outside_supported_delhi_area:'This route planner currently supports Delhi. Choose start and destination within the supported area.',
+};
 export async function request<T>(path: string, body?: unknown, authenticated = true): Promise<T> {
   if (authenticated && !signedIn()) throw new Error('Sign in with Cognito to use live services. Historical preview remains available.');
   const url = new URL(config.base);
@@ -16,7 +32,12 @@ export async function request<T>(path: string, body?: unknown, authenticated = t
   try {
     const response = await fetch(config.base + '/api/v1' + path, { method: body === undefined ? 'GET':'POST', cache:'no-store', credentials:'omit', signal:controller.signal,
       headers: { ...(body === undefined ? {} : {'Content-Type':'application/json'}), ...(authenticated ? {Authorization:`Bearer ${accessToken}`} : {}) }, ...(body === undefined ? {} : {body:JSON.stringify(body)}) });
-    if (!response.ok) { if(response.status===401) signOut(); throw new Error(messages[response.status] || 'The request failed. Try again later.'); }
+    if (!response.ok) {
+      if(response.status===401) signOut();
+      // Only allowlisted codes become UI messages; never render provider bodies or echoed secrets.
+      let code=''; try {const body=await response.json(); code=typeof body?.error?.code==='string'?body.error.code:'';} catch { /* Non-JSON failures use the HTTP status. */ }
+      throw new Error(routingMessages[code] || messages[response.status] || 'The request failed. Try again later.');
+    }
     return await response.json();
   } catch (error) { if (error instanceof TypeError || (error instanceof DOMException && error.name==='AbortError')) throw new Error('Cannot reach the backend. Check its address, connection and CORS configuration.'); throw error; }
   finally { clearTimeout(timer); }

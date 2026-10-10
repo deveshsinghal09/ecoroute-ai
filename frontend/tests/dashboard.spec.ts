@@ -14,7 +14,8 @@ test('historical dashboard, route geometry and honest unavailable features',asyn
   await expect(page.getByText('Deterministic summary · no LLM invoked')).toBeVisible();
   expect(errors).toEqual([]);
 });
-test('live mode clears preview and cannot silently authenticate',async({page})=>{
+test('live mode clears preview and guest routing never authenticates private features',async({page})=>{
+  await page.route('**/api/v1/routes/preview',route=>route.fulfill({status:503,headers:{'Access-Control-Allow-Origin':'*'},json:{error:{code:'google_routes_key_missing'}}}));
   await page.goto('/');await page.getByRole('button',{name:'Connection settings'}).click();
   await page.getByRole('button',{name:'Live services',exact:true}).click();
   await page.getByRole('button',{name:'Sign in with Cognito'}).click();
@@ -24,7 +25,7 @@ test('live mode clears preview and cannot silently authenticate',async({page})=>
   await expect(page.locator('.route-option')).toHaveCount(0);
   await page.getByLabel('Allow processing my locations and route. Google routes are not saved.').check();
   await page.getByRole('button',{name:'Compare routes',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('Sign in with Cognito');
+  await expect(page.getByRole('status')).toContainText('server key');
   expect(await page.evaluate(()=>Object.keys(localStorage))).toEqual([]);
 });
 test('mobile layout and reduced motion',async({page})=>{
@@ -37,7 +38,7 @@ test('mobile layout and reduced motion',async({page})=>{
   await expect(page.locator('.city-backdrop')).toHaveAttribute('href','/assets/ecoroute-city-clear.png');await page.screenshot({path:'../work/frontend-mobile.png',fullPage:true});
 });
 test('backend connection failure is actionable',async({page})=>{
-  await page.route('http://127.0.0.1:8000/**',route=>route.abort());
+  await page.route('**/api/v1/**',route=>route.abort());
   await page.goto('/');await page.getByRole('button',{name:'Connection settings'}).click();
   await page.getByRole('button',{name:'Check backend connection'}).click();
   await expect(page.getByRole('status')).toContainText('Cannot reach the backend');
@@ -103,7 +104,7 @@ test('travel mode controls explain prerequisites without reusing driving results
  await expect(page.locator('.route-option')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Connect routing'})).toBeVisible();
  await page.getByRole('button',{name:'Cycle',exact:true}).click();
- await expect(page.getByText('Cycling requires Google routing in Live services; availability depends on local coverage.')).toBeVisible();
+ await expect(page.getByText('Delhi cycling requires an openrouteservice connection. Google bicycle directions are not listed for India.')).toBeVisible();
  await expect(page.locator('.route-option')).toHaveCount(0);
  await page.getByRole('button',{name:'Drive',exact:true}).click();
  await expect(page.locator('.route-option')).toHaveCount(2);
