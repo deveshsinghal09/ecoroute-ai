@@ -550,3 +550,19 @@ Google Maps integration verification (2026-10-10): implemented server-only Route
 
 Local display recovery: restarted npm run dev after port 5173 had no listener. Dashboard, city background, train sprite and backend health all returned HTTP 200. Existing animation test passed. Insights already uses Bedrock Converse for supported stored routes when enabled; deterministic explanations remain the fallback (including Google request-only routes). No Gemini integration added, per user preference. Configure ENABLE_BEDROCK, BEDROCK_MODEL_ID and an authorized AWS profile/region before live use; no model invocation was performed.
 CDK synth --no-lookups passed on retry; the first attempt failed with a temporary jsii module extraction error (Cannot find module ../errors). Synthesis does not provision resources.
+
+## Original 3D wearable showcase — 2026-10-10
+
+Added an original procedural React Three Fiber / Three.js watch in the existing Wearable panel.
+No CodePen/template/model/image asset reused. Seven canvas-textured screens, full modeled straps,
+beveled case/glass, crown, bounded rotation, floating motion, local theme/brightness/demo-card settings.
+Wearable panel only is widened (430px desktop, 370px tablet; mobile remains fluid). Existing device
+read/auth/consent behavior is preserved. All health values remain explicitly demo; no hardware
+connection, API data ingestion, notification delivery or AWS changes claimed.
+
+Validation: production build passed; 6 existing frontend unit tests passed; 13 browser tests passed
+in one run (10 existing + 3 new), plus a fourth new 3D tap/crown/pause test passed separately after
+correcting its scroll position. Visually reviewed desktop and mobile screenshots. Initial texture
+UV cropping found during visual review was fixed. Dependency installation reported 0 vulnerabilities.
+Build warns about the lazy Three.js chunk (~245 kB gzip); this code loads only for Wearable.
+No backend tests rerun for this frontend-only change. See CUSTOM_WATCH.md for limitations.

@@ -88,3 +88,7 @@ restricted secret IAM and verification. Google Routes/Places feed the existing e
 Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
+
+Wearable now includes the original EcoRoute Pulse 3D preview. Full straps and seven demo screens
+are modeled/rendered locally; tap/swipe or use accessible controls. The expanded sidebar retains
+existing connection controls. See ../docs/CUSTOM_WATCH.md. No keys are needed for the preview.

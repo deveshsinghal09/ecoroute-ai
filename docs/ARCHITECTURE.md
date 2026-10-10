@@ -241,3 +241,8 @@ restricted secret IAM and verification. Google Routes/Places feed the existing e
 Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
+
+Original wearable preview: lazily loaded Three.js/Fiber procedural model with a canvas-textured
+screen, plus accessible React controls and static fallback. Tailwind utilities are prefixed and
+Preflight is omitted. The demo is isolated from backend telemetry and does not modify consent.
+See CUSTOM_WATCH.md for data boundaries, performance and verification.
