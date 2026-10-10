@@ -23,6 +23,7 @@ test('live mode clears preview and guest routing never authenticates private fea
   await page.getByRole('button',{name:'Close dialog'}).click();
   await page.getByRole('button',{name:'Open journey planner'}).click();
   await expect(page.locator('.route-option')).toHaveCount(0);
+  await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
   await page.getByLabel('Allow processing my locations and route. Google routes are not saved.').check();
   await page.getByRole('button',{name:'Compare routes',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('server key');
@@ -104,7 +105,7 @@ test('travel mode controls explain prerequisites without reusing driving results
  await expect(page.locator('.route-option')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Connect routing'})).toBeVisible();
  await page.getByRole('button',{name:'Cycle',exact:true}).click();
- await expect(page.getByText('Delhi cycling requires an openrouteservice connection. Google bicycle directions are not listed for India.')).toBeVisible();
+ await expect(page.getByText('Cycling requires an openrouteservice connection. Google bicycle directions are not listed for India.')).toBeVisible();
  await expect(page.locator('.route-option')).toHaveCount(0);
  await page.getByRole('button',{name:'Drive',exact:true}).click();
  await expect(page.locator('.route-option')).toHaveCount(2);

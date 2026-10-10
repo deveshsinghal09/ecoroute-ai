@@ -22,11 +22,13 @@ const routingMessages:Record<string,string> = {
   cycling_access_unavailable:'The cycling provider rejected its key or plan. Check the server configuration.',
   geocoding_no_match:'The place could not be found. Choose the location on the map or enter a more specific address.',
   geocoding_ambiguous_use_coordinates:'Several places matched that name. Choose the exact point on the map.',
-  outside_supported_delhi_area:'This route planner currently supports Delhi. Choose start and destination within the supported area.',
+  outside_supported_delhi_area:'The selected legacy routing provider is limited to Delhi. Select the Google provider for other locations.',
+  route_outside_demo_limits:'Choose a shorter route: comparisons support up to 100 km and six hours of travel.',
 };
 export async function request<T>(path: string, body?: unknown, authenticated = true): Promise<T> {
   if (authenticated && !signedIn()) throw new Error('Sign in with Cognito to use live services. Historical preview remains available.');
   const url = new URL(config.base);
+  if (!['http:','https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) throw new Error('Check VITE_API_BASE_URL: use an HTTP/HTTPS backend address without credentials or query parameters.');
   if (url.protocol !== 'https:' && !['localhost','127.0.0.1'].includes(url.hostname)) throw new Error('The API must use HTTPS.');
   const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 20000);
   try {

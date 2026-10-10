@@ -1,0 +1,36 @@
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+
+describe('API connection and guest authorization', () => {
+  let api: typeof import('./api');
+  beforeEach(async () => {
+    vi.stubGlobal('window', {location:{origin:'http://127.0.0.1:5173'}});
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok:true,json:async()=>({routes:[]})}));
+    api = await import('./api');
+    api.config.base = 'http://127.0.0.1:8000';
+    api.signOut();
+  });
+  afterEach(() => {api.config.base='http://127.0.0.1:8000';vi.unstubAllGlobals();});
+
+  it.each(['shttp://127.0.0.1:8000','ftp://127.0.0.1:8000',
+    'http://user:password@127.0.0.1:8000','http://127.0.0.1:8000?token=example',
+    'http://127.0.0.1:8000#example'])('rejects unsafe or malformed base %s before networking', async base => {
+    api.config.base=base;
+    await expect(api.request('/routes/preview',{},false)).rejects.toThrow('Check VITE_API_BASE_URL');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it('requires HTTPS outside local development', async () => {
+    api.config.base='http://example.com';
+    await expect(api.request('/routes/preview',{},false)).rejects.toThrow('HTTPS');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it('allows the explicit guest comparison without credentials', async () => {
+    await api.request('/routes/preview',{consent_to_store:false},false);
+    expect(fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/api/v1/routes/preview',expect.objectContaining({
+      method:'POST',credentials:'omit',headers:{'Content-Type':'application/json'},
+    }));
+  });
+  it('keeps private wearable reads protected', async () => {
+    await expect(api.request('/wearables/latest')).rejects.toThrow('Sign in with Cognito');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+});

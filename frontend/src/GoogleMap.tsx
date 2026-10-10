@@ -7,7 +7,7 @@ import './journey-map.css';
 
 export const mapsKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 const mapId = import.meta.env.VITE_GOOGLE_MAP_ID || '';
-const DELHI = {lat:28.6139, lng:77.209};
+const WORLD = {lat:0, lng:0};
 let loading:Promise<void>|undefined;
 
 function loadMaps() {
@@ -56,15 +56,16 @@ interface Props {
 }
 
 export default function GoogleMap({routes, selected, onSelect, live=false,
-  originLabel='India Gate', destinationLabel='Connaught Place', chosenLocations, onChooseLocation}:Props) {
+  originLabel='Start', destinationLabel='Destination', chosenLocations, onChooseLocation}:Props) {
   const host = useRef<HTMLDivElement>(null), map = useRef<google.maps.Map|null>(null);
   const lines = useRef<{route:Route; line:google.maps.Polyline}[]>([]), fitted = useRef('');
-  const perspectiveRef = useRef(true);
+  const perspectiveRef = useRef(false);
   const [ready, setReady] = useState(false), [error, setError] = useState('');
-  const [attempt, setAttempt] = useState(0), [perspective, setPerspective] = useState(true);
+  const [attempt, setAttempt] = useState(0), [perspective, setPerspective] = useState(false);
   const [vector, setVector] = useState(true), [satellite, setSatellite] = useState(true);
   const [picking, setPicking] = useState<'origin'|'destination'|null>(null);
   const [pinDetail, setPinDetail] = useState<{label:string; position:google.maps.LatLngLiteral}|null>(null);
+  const [locating,setLocating]=useState(false),[locationError,setLocationError]=useState('');
   const active = routes.find(route => route.route_id === selected && routePath(route).length >= 2)
     || routes.find(route => routePath(route).length >= 2);
 
@@ -80,7 +81,7 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
     loadMaps().then(() => {
       if (!mounted || !host.current) return;
       map.current = new google.maps.Map(host.current, {
-        center:DELHI, zoom:15.5, tilt:50, heading:0, renderingType:google.maps.RenderingType.VECTOR,
+        center:WORLD, zoom:2, tilt:0, heading:0, renderingType:google.maps.RenderingType.VECTOR,
         ...(mapId ? {mapId} : {}), mapTypeId:'hybrid', mapTypeControl:false,
         streetViewControl:false, fullscreenControl:false, zoomControl:false, rotateControl:false,
         cameraControl:false, clickableIcons:true, tiltInteractionEnabled:true,
@@ -138,14 +139,14 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
   function fitJourney() {
     if (!map.current) return;
     const points = routes.flatMap(routePath);
-    if (!points.length) {map.current.moveCamera({center:DELHI, zoom:15.5, tilt:perspectiveRef.current ? 50 : 0, heading:0}); return;}
+    if (!points.length) {const chosen=[chosenLocations?.origin,chosenLocations?.destination].filter((p):p is google.maps.LatLngLiteral=>!!p);if(chosen.length){const bounds=new google.maps.LatLngBounds();chosen.forEach(p=>bounds.extend(p));map.current.fitBounds(bounds,80);return;}map.current.moveCamera({center:WORLD, zoom:2, tilt:0, heading:0}); return;}
     const bounds = new google.maps.LatLngBounds(); points.forEach(point => bounds.extend(point));
     // fitBounds resets tilt and heading; restore the requested view after it finishes.
     google.maps.event.addListenerOnce(map.current, 'idle', () => {map.current?.moveCamera({tilt:perspectiveRef.current ? 50 : 0, heading:0});});
     map.current.fitBounds(bounds, {top:96, bottom:70, left:65, right:65});
   }
   useEffect(() => {
-    const signature = routes.map(route => route.route_id).join('|') || 'delhi';
+    const signature = routes.map(route => route.route_id).join('|') || 'world';
     if (!ready || fitted.current === signature) return;
     fitted.current = signature; fitJourney();
   }, [ready, routes]);
@@ -159,13 +160,28 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
     return () => listener.remove();
   }, [ready, picking, onChooseLocation]);
 
+  useEffect(()=>{
+    if(!ready||!map.current||active)return;
+    if(chosenLocations?.origin&&chosenLocations?.destination){fitJourney();return;}
+    const point=chosenLocations?.origin||chosenLocations?.destination;
+    if(point)map.current.moveCamera({center:point,zoom:Math.max(15,map.current.getZoom()||2),tilt:perspectiveRef.current?50:0});
+  },[ready,active,chosenLocations?.origin?.lat,chosenLocations?.origin?.lng,chosenLocations?.destination?.lat,chosenLocations?.destination?.lng]);
+
+  function useMyLocation(){
+    if(!navigator.geolocation){setLocationError('Your browser does not support location access. Choose a point or enter an address.');return;}
+    setLocating(true);setLocationError('');
+    navigator.geolocation.getCurrentPosition(position=>{
+      const point={lat:position.coords.latitude,lng:position.coords.longitude};
+      onChooseLocation?.('origin',point);map.current?.moveCamera({center:point,zoom:16,tilt:perspectiveRef.current?50:0});setLocating(false);
+    },()=>{setLocating(false);setLocationError('Location access was unavailable. Choose a point or enter an address instead.');},{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
+  }
   function togglePerspective() {const next = !perspective; setPerspective(next); perspectiveRef.current = next; map.current?.moveCamera({tilt:next ? 50 : 0, heading:0});}
   function toggleSatellite() {setSatellite(!satellite); map.current?.setMapTypeId(satellite ? 'roadmap' : 'hybrid');}
   return <section className="google-map-area" aria-label="Geographic journey map">
     <div ref={host} className="google-map-host" aria-label="Journey map"/>
     {ready && <>
       <div className="journey-map-toolbar">
-        <div className="journey-map-location"><span className="signal-dot"/><span>New Delhi<small>{satellite ? 'Satellite + streets' : 'Street map'}</small></span></div>
+        <div className="journey-map-location"><span className="signal-dot"/><span>{active?'Your journey':chosenLocations?.origin||chosenLocations?.destination?'Selected locations':'Explore the map'}<small>{satellite ? 'Satellite + streets' : 'Street map'}</small></span></div>
         <div className="journey-map-switches">
           <button type="button" aria-label="Toggle tilted perspective" aria-pressed={perspective} disabled={!vector} onClick={togglePerspective}>{perspective ? '3D view' : '2D view'}</button>
           <button type="button" aria-label="Toggle satellite imagery" aria-pressed={satellite} onClick={toggleSatellite}><Layers size={15}/><span>Satellite</span></button>
@@ -177,11 +193,12 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
         <button aria-label="Point map north" onClick={() => map.current?.setHeading(0)}><Compass size={18}/></button>
         <button aria-label="Fit journey on map" onClick={fitJourney}><LocateFixed size={18}/></button>
       </div>
-      {onChooseLocation && <div className="journey-map-picking">{(['origin','destination'] as const).map(kind => <button key={kind} aria-pressed={picking === kind} onClick={() => setPicking(picking === kind ? null : kind)}><Crosshair size={14}/>{kind === 'origin' ? 'Choose start' : 'Choose destination'}</button>)}</div>}
+      {onChooseLocation && <div className="journey-map-picking"><button disabled={locating} aria-label="Use my location as start" onClick={useMyLocation}><LocateFixed size={14}/>{locating?'Locating…':'My location'}</button>{(['origin','destination'] as const).map(kind => <button key={kind} aria-pressed={picking === kind} onClick={() => setPicking(picking === kind ? null : kind)}><Crosshair size={14}/>{kind === 'origin' ? 'Choose start' : 'Choose destination'}</button>)}</div>}
       {picking && <p className="journey-map-hint" role="status">Click the map to choose your {picking === 'origin' ? 'start' : 'destination'}. <button onClick={() => setPicking(null)}>Cancel</button></p>}
-      {pinDetail && <div className="journey-pin-detail"><strong>{pinDetail.label}</strong><span>{pinDetail.position.lat.toFixed(5)}° N · {pinDetail.position.lng.toFixed(5)}° E</span><button onClick={() => setPinDetail(null)} aria-label="Close location details">×</button></div>}
+      {locationError&&<p className="journey-map-hint" role="status">{locationError}<button onClick={()=>setLocationError('')}>Dismiss</button></p>}
+      {pinDetail && <div className="journey-pin-detail"><strong>{pinDetail.label}</strong><span>{Math.abs(pinDetail.position.lat).toFixed(5)}° {pinDetail.position.lat>=0?'N':'S'} · {Math.abs(pinDetail.position.lng).toFixed(5)}° {pinDetail.position.lng>=0?'E':'W'}</span><button onClick={() => setPinDetail(null)} aria-label="Close location details">×</button></div>}
       <div className="journey-map-provenance"><span>{active ? (live ? 'Returned road route' : 'Historical road route') : 'Choose a journey'}</span><small>{vector ? 'Tilted view · building detail depends on coverage' : '2D map · 3D rendering unavailable on this device'}</small></div>
     </>}
-    {!ready && <div className="map-setup" role="status"><Compass size={28}/><strong>{error ? 'Connect your map' : 'Opening New Delhi'}</strong><p>{error || 'Loading Google streets and satellite imagery…'}</p>{error && mapsKey && <button onClick={() => setAttempt(value => value + 1)}><RotateCcw size={15}/>Retry map</button>}</div>}
+    {!ready && <div className="map-setup" role="status"><Compass size={28}/><strong>{error ? 'Connect your map' : 'Opening your map'}</strong><p>{error || 'Loading Google streets and satellite imagery…'}</p>{error && mapsKey && <button onClick={() => setAttempt(value => value + 1)}><RotateCcw size={15}/>Retry map</button>}</div>}
   </section>;
 }

@@ -11,3 +11,13 @@
 .google-map-area button:focus-visible{outline:3px solid #156c9d;outline-offset:3px}
 @media(max-width:1100px){.journey-map-location{display:none}.journey-map-toolbar{justify-content:flex-start}.journey-map-picking button{padding:9px;font-size:11px}.journey-pin-name{max-width:105px}}
 @media(max-width:740px){.city-stage.panel-open .google-map-area{right:10px}.journey-map-toolbar{top:12px;left:12px;right:12px}.journey-map-tools{right:12px;top:66px}.journey-map-tools button{width:34px;height:34px}.journey-map-picking{left:12px;bottom:78px}.journey-map-provenance{left:12px;bottom:32px}.journey-map-hint,.journey-pin-detail{left:12px;top:64px}.journey-map-switches button{padding:8px 10px}}
+
+/* Focus is drawn on the location field, never a red rectangle around its text. */
+.detail-panel .location-fields input:focus,.detail-panel .location-fields input:focus-visible{outline:none;box-shadow:none}
+.detail-panel .location-fields label:focus-within{background:#fff0df;border-radius:12px}
+.detail-panel .location-fields input{padding-right:28px}
+.detail-panel .location-fields input::placeholder{color:#626b70;opacity:1}
+.journey-map-picking button:disabled{opacity:.65;cursor:wait}
+@media(max-width:1100px){.journey-map-picking{flex-wrap:wrap;max-width:calc(100% - 36px)}.journey-map-picking button{padding:8px;font-size:10px}}
+
+.brand-panel .location>span:nth-child(2){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.brand-panel .rail-small{overflow-wrap:anywhere}
