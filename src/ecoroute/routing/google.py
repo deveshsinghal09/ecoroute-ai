@@ -5,12 +5,13 @@ import httpx
 
 from ecoroute.routing.geometry import distance
 from ecoroute.routing.models import RoutingError
-from ecoroute.routing.providers import in_delhi, validate_candidate
+from ecoroute.routing.providers import valid_world_point, validate_candidate
 
 
 class GoogleRoutes:
     name = "google_routes"
     persist_results = False
+    validate_location = staticmethod(valid_world_point)
 
     def __init__(self, key, reserve=lambda: None, client=None):
         self.key, self.reserve = key, reserve
@@ -42,18 +43,17 @@ class GoogleRoutes:
 
     def resolve(self, place):
         if not isinstance(place, str):
-            return in_delhi([place.longitude, place.latitude])
+            return valid_world_point([place.longitude, place.latitude])
         data = self.call("https://places.googleapis.com/v1/places:searchText", {
-            "textQuery": place, "pageSize": 2, "regionCode": "IN",
-            "locationBias": {"circle": {"center": {"latitude": 28.6139, "longitude": 77.209}, "radius": 30000}},
+            "textQuery": place, "pageSize": 2,
         }, "places.location")
         try:
-            points = [[p["location"]["longitude"], p["location"]["latitude"]] for p in data.get("places", [])]
+            points = [valid_world_point([p["location"]["longitude"], p["location"]["latitude"]]) for p in data.get("places", [])]
             if not points:
                 raise RoutingError("geocoding_no_match", 422)
             if len(points) > 1 and distance(points[0], points[1]) > 500:
                 raise RoutingError("geocoding_ambiguous_use_coordinates", 422)
-            return in_delhi(points[0])
+            return points[0]
         except (KeyError, TypeError, ValueError):
             raise RoutingError("google_geocoding_schema_changed", 502) from None
 

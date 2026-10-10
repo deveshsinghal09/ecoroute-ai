@@ -26,6 +26,14 @@ def in_delhi(p):
     return p
 
 
+def valid_world_point(p):
+    if (not isinstance(p, (list, tuple)) or len(p) != 2
+            or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in p)
+            or not -180 <= p[0] <= 180 or not -90 <= p[1] <= 90):
+        raise RoutingError("invalid_geocoding_coordinates", 422)
+    return list(p)
+
+
 def validate_candidate(candidate, origin, destination):
     coordinates = []
     duration = 0

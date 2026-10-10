@@ -12,7 +12,7 @@ from ecoroute.models import Point
 from ecoroute.environment.repository import BudgetExceeded
 from ecoroute.routing.geometry import segments
 from ecoroute.routing.google import GoogleRoutes
-from ecoroute.routing.cycling import DelhiGoogleRouting, OpenRouteCycling
+from ecoroute.routing.cycling import GoogleModeRouting, OpenRouteCycling
 from ecoroute.routing.models import CompareRequest, RoutingError
 from ecoroute.routing.pollution import PollutionIndex, rank_routes, score_exposure
 from ecoroute.routing.providers import AmazonLocation, OsrmProvider, in_delhi
@@ -61,8 +61,9 @@ class RouteService:
             raise RoutingError("cycling_provider_not_configured", 422)
         if hasattr(self.provider, "validate_mode"):
             self.provider.validate_mode(request)
-        origin = in_delhi(self.provider.resolve(request.origin))
-        destination = in_delhi(self.provider.resolve(request.destination))
+        validate_location = getattr(self.provider, "validate_location", in_delhi)
+        origin = validate_location(self.provider.resolve(request.origin))
+        destination = validate_location(self.provider.resolve(request.destination))
         if origin == destination:
             raise RoutingError("origin_equals_destination", 422)
         candidates = self.provider.candidates(origin, destination, request)
@@ -277,7 +278,7 @@ def create_service(settings, store, objects):
             except (ClientError, BotoCoreError, KeyError):
                 raise RoutingError("cycling_secret_unavailable") from None
         cycling = OpenRouteCycling(cycling_key, reserve=reserve) if settings.cycling_provider == "openrouteservice" else None
-        provider = DelhiGoogleRouting(GoogleRoutes(google_key, reserve=reserve), cycling)
+        provider = GoogleModeRouting(GoogleRoutes(google_key, reserve=reserve), cycling)
     elif settings.routing_provider == "osrm":
         if not settings.osrm_base_url:
             raise RoutingError("fallback_endpoint_not_configured")

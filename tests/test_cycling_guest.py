@@ -11,7 +11,7 @@ from ecoroute.config import Settings
 from ecoroute.environment.repository import LocalRepository
 from ecoroute.main import create_app
 from ecoroute.models import Point
-from ecoroute.routing.cycling import DelhiGoogleRouting, OpenRouteCycling
+from ecoroute.routing.cycling import GoogleModeRouting, OpenRouteCycling
 from ecoroute.routing.google import GoogleRoutes
 from ecoroute.routing.models import PreviewRequest, RoutingError
 from ecoroute.routing.pollution import PollutionIndex
@@ -97,7 +97,7 @@ def test_guest_cycle_scoring_stays_request_only_and_private_routes_require_auth(
     store = LocalStore(str(tmp_path / "state.db"))
     objects = LocalRepository(tmp_path / "objects")
     cycle = OpenRouteCycling("test", client=httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=payload))))
-    provider = DelhiGoogleRouting(GoogleRoutes(""), cycle)
+    provider = GoogleModeRouting(GoogleRoutes(""), cycle)
     app = create_app(Settings(_env_file=None, routing_provider="google", enable_guest_routes=True), store=store)
     app.state.route_service = RouteService(provider, store, objects, index_factory=lambda *_: PollutionIndex([]))
     client = TestClient(app)

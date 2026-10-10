@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 import httpx
 
 from ecoroute.routing.models import RoutingError
-from ecoroute.routing.providers import validate_candidate
+from ecoroute.routing.providers import valid_world_point, validate_candidate
 
 
 class OpenRouteCycling:
@@ -71,9 +71,10 @@ class OpenRouteCycling:
         return list({r["candidate_key"]: r for r in result}.values())
 
 
-class DelhiGoogleRouting:
+class GoogleModeRouting:
     name = "google_routes"
     persist_results = False
+    validate_location = staticmethod(valid_world_point)
 
     def __init__(self, google, cycling=None):
         self.google, self.cycling = google, cycling

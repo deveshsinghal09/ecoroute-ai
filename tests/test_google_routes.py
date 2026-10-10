@@ -77,3 +77,34 @@ def test_missing_key_no_network(tmp_path):
     with pytest.raises(RoutingError,match="google_routes_key_missing"):
         engine.provider.resolve("India Gate Delhi")
     assert "hidden-secret" not in repr(Settings(google_routes_api_key="hidden-secret"))
+
+
+def test_geocoding_is_not_forced_to_delhi_or_india():
+    def handler(request):
+        body = json.loads(request.content)
+        assert body == {"textQuery": "A precise Mumbai landmark", "pageSize": 2}
+        return httpx.Response(200, json={"places": [{"location": {"longitude": 72.8347, "latitude": 18.922}}]})
+    provider = GoogleRoutes("test-only", client=httpx.Client(transport=httpx.MockTransport(handler)))
+    assert provider.resolve("A precise Mumbai landmark") == [72.8347, 18.922]
+    assert provider.resolve(Point(longitude=-0.1278, latitude=51.5074)) == [-0.1278, 51.5074]
+
+
+def test_comparison_passes_global_coordinates_to_google_provider(tmp_path):
+    from ecoroute.routing.cycling import GoogleModeRouting
+    class Provider(GoogleRoutes):
+        def candidates(self, origin, destination, request):
+            assert origin == [72.8347, 18.922] and destination == [72.8258, 18.9352]
+            raise RoutingError("test_provider_reached_without_city_restriction")
+    request = CompareRequest(origin=Point(longitude=72.8347, latitude=18.922),
+        destination=Point(longitude=72.8258, latitude=18.9352),
+        departure_at=datetime.now(UTC)+timedelta(minutes=10), consent_to_store=True, mode="walking")
+    engine = RouteService(GoogleModeRouting(Provider("test")), LocalStore(str(tmp_path/"state.db")), LocalRepository(tmp_path/"objects"))
+    with pytest.raises(RoutingError, match="test_provider_reached_without_city_restriction"):
+        engine.compare("owner", request)
+
+
+@pytest.mark.parametrize("point", [[181, 20], [77, 91], [float("nan"), 20], [True, 20], [77], "untrusted"])
+def test_global_coordinate_validation_rejects_bad_values(point):
+    from ecoroute.routing.providers import valid_world_point
+    with pytest.raises(RoutingError, match="invalid_geocoding_coordinates"):
+        valid_world_point(point)
