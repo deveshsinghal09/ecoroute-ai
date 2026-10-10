@@ -109,3 +109,11 @@ test('travel mode controls explain prerequisites without reusing driving results
  await expect(page.locator('.route-option')).toHaveCount(2);
  await expect(page.locator('.scene-heading,.stage-bottom,.workspace-footer,.text-action')).toHaveCount(0);
 });
+test('all dashboard panels share dimensions and hide scrollbars',async({page})=>{
+ await page.goto('/');let reference:{width:number;height:number}|undefined;
+ for(const name of ['Wearable','City overview','Air quality','Journeys','Insights']){
+  await page.getByRole('button',{name,exact:true}).click();const panel=page.locator('.detail-panel');await expect(panel).toBeVisible();
+  const box=await panel.boundingBox();if(!box)throw Error('Missing panel');reference??=box;expect(box.width).toBeCloseTo(reference.width,0);expect(box.height).toBeCloseTo(reference.height,0);
+  await expect(panel).toHaveCSS('scrollbar-width','none');await expect(panel).toHaveCSS('overflow-y','auto');
+ }
+});
