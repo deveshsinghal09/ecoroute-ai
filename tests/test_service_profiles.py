@@ -118,6 +118,21 @@ def test_offline_publisher_plan_never_authenticates(monkeypatch, capsys):
         main(["--target", "amplify", "--apply"])
 
 
+def test_amplify_upload_failure_never_prints_temporary_credential(tmp_path):
+    from scripts.publish_frontend import upload_zip
+    bundle = tmp_path / "frontend.zip"
+    bundle.write_bytes(b"offline-fixture-only")
+    url = "https://example.org/upload?temporary_secret=DO_NOT_PRINT_TEST_MARKER"
+    with pytest.raises(SystemExit) as error:
+        upload_zip(bundle, url, httpx.MockTransport(lambda request: httpx.Response(403)))
+    assert "DO_NOT_PRINT" not in str(error.value)
+    def outage(request):
+        raise httpx.ConnectError(url, request=request)
+    with pytest.raises(SystemExit) as error:
+        upload_zip(bundle, url, httpx.MockTransport(outage))
+    assert "DO_NOT_PRINT" not in str(error.value) and error.value.__suppress_context__
+
+
 def test_kubernetes_manifest_is_nonroot_private_and_resource_bounded():
     from scripts.render_eks import manifest
     result = manifest({"BackendImage": "image@sha256:" + "a" * 64,

@@ -13,6 +13,17 @@ sys.path.insert(0, str(ROOT))
 from scripts.manage_cloud import guard_identity  # noqa: E402
 
 
+def upload_zip(bundle, upload_url, transport=None):
+    """Failure text must never expose the temporary signed upload credential."""
+    try:
+        with bundle.open("rb") as stream, httpx.Client(timeout=120, trust_env=False, transport=transport) as http:
+            response = http.put(upload_url, content=stream, headers={"content-type": "application/zip"})
+            if not 200 <= response.status_code < 300:
+                raise SystemExit("frontend_upload_failed; temporary URL redacted")
+    except httpx.HTTPError:
+        raise SystemExit("frontend_upload_failed; temporary URL redacted") from None
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", choices=["cloudfront", "amplify"], required=True)
@@ -63,9 +74,7 @@ def main(argv=None):
         client = session.client("amplify")
         upload = client.create_deployment(appId=outputs["AmplifyAppId"], branchName="main")
         # Upload URL is a temporary credential; never print/log it.
-        with bundle.open("rb") as stream, httpx.Client(timeout=120, trust_env=False) as http:
-            response = http.put(upload["zipUploadUrl"], content=stream, headers={"content-type": "application/zip"})
-            response.raise_for_status()
+        upload_zip(bundle, upload["zipUploadUrl"])
         result = client.start_deployment(appId=outputs["AmplifyAppId"], branchName="main", jobId=upload["jobId"])
         print(json.dumps({"status": "deployment_submitted", "job_status": result["jobSummary"]["status"]}))
     print("Verify hosted page and authenticated API in browser; submitted is not verified deployment success.")
