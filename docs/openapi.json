@@ -2510,6 +2510,128 @@
         "x-ecoroute-scope": "ecoroute/write"
       }
     },
+    "/api/v1/routes/preview": {
+      "post": {
+        "tags": [
+          "pollution-aware routes"
+        ],
+        "summary": "Preview",
+        "operationId": "preview_api_v1_routes_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteComparison"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-ecoroute-scope": null
+      }
+    },
     "/api/v1/routes/optimize": {
       "post": {
         "tags": [
@@ -6753,6 +6875,104 @@
         "additionalProperties": false,
         "type": "object",
         "title": "Preferences"
+      },
+      "PreviewRequest": {
+        "properties": {
+          "origin": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Point"
+              },
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 3
+              }
+            ],
+            "title": "Origin"
+          },
+          "destination": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Point"
+              },
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 3
+              }
+            ],
+            "title": "Destination"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "walking",
+              "cycling",
+              "driving"
+            ],
+            "title": "Mode",
+            "default": "walking"
+          },
+          "departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Departure At"
+          },
+          "objective": {
+            "type": "string",
+            "enum": [
+              "fastest",
+              "lowest_exposure",
+              "balanced"
+            ],
+            "title": "Objective",
+            "default": "balanced"
+          },
+          "max_detour_percent": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Max Detour Percent",
+            "default": 25
+          },
+          "exposure_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Exposure Weight",
+            "default": 0.5
+          },
+          "segment_length_m": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 250.0,
+            "title": "Segment Length M",
+            "default": 250
+          },
+          "max_alternatives": {
+            "type": "integer",
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Max Alternatives",
+            "default": 2
+          },
+          "consent_to_store": {
+            "type": "boolean",
+            "const": false,
+            "title": "Consent To Store",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "origin",
+          "destination",
+          "departure_at"
+        ],
+        "title": "PreviewRequest",
+        "description": "Guest route processing with no permission to persist personal route data."
       },
       "Provenance": {
         "properties": {

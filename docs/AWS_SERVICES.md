@@ -207,3 +207,7 @@ No AWS resources were deployed. Google charges are separate from AWS credits.
 
 Custom 3D smartwatch preview: browser-only rendering, no new AWS service, resource, invocation,
 notification or cloud cost. Real wearable integration remains subject to existing bridge setup.
+
+## Public map and travel modes — 2026-10-10
+
+Guest Google routing and optional ORS cycling are external provider integrations; AWS credits do not cover their billing. Existing Lambda/API Gateway runs scoring. CDK adds an opt-in public preview route while preserving JWT private routes, and scoped Secrets Manager references for each server key. No new resource was deployed or AWS API invoked in this change. Existing global provider budgets and Gateway throttles apply; browser map loads need Google quotas separately.

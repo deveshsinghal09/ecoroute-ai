@@ -299,3 +299,7 @@ No AWS resources were deployed. Google charges are separate from AWS credits.
 
 Custom smartwatch preview requires no credentials. It does not connect to the Noise watch, AWS
 IoT, health APIs or SNS. Existing authorized bridge/Cognito requirements still apply for real data.
+
+## Public map and travel modes — 2026-10-10
+
+Browser VITE_GOOGLE_MAPS_API_KEY is populated locally and tiles verified. Missing for live routing: GOOGLE_ROUTES_API_KEY (or GOOGLE_ROUTES_SECRET_ARN). Optional cycling: CYCLING_PROVIDER=openrouteservice plus OPENROUTESERVICE_API_KEY (or OPENROUTESERVICE_SECRET_ARN). Set ENABLE_GUEST_ROUTES=true and ROUTING_PROVIDER=google for local guest comparisons. No Cognito needed for map/guest routes; private APIs still require COGNITO_USER_POOL_ID, COGNITO_CLIENT_ID and frontend VITE_COGNITO_DOMAIN/VITE_COGNITO_CLIENT_ID. Exact provider setup, secret permissions, cost controls, verification and revocation: GOOGLE_MAPS_SETUP.md. Never use a browser key as a private server key or paste credentials into chat.

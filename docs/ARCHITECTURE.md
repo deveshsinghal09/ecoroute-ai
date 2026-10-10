@@ -279,3 +279,7 @@ Original wearable preview: lazily loaded Three.js/Fiber procedural model with a 
 screen, plus accessible React controls and static fallback. Tailwind utilities are prefixed and
 Preflight is omitted. The demo is isolated from backend telemetry and does not modify consent.
 See CUSTOM_WATCH.md for data boundaries, performance and verification.
+
+## Public map and travel modes — 2026-10-10
+
+Public Google Maps now opens by default when the browser key exists. Guest POST /routes/preview is a separate request-only comparison path; existing owned/location/health APIs remain Cognito-protected. Backend Google Drive/Walk routes and optional ORS cycling feed the existing exposure engine. Live pollution remains unavailable unless genuine curated data covers the departure. ORS/Google content is not saved in this profile. Infrastructure guest access is opt-in; no AWS deployment was performed.

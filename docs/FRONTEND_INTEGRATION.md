@@ -16,6 +16,12 @@ issuer, client_id, token_use=access, expiry, subject and required scope. Server 
 from verified sub; another owner's IDs return404 or denied consent. Default local mode has NO
 JWT bypass: unconfigured Cognito gives503 with a supplied bearer; missing bearer gives401.
 An offline demo uses ephemeral signed test tokens ONLY inside an isolated TestClient process.
+Google Maps display is public and needs only the restricted browser key. POST /api/v1/routes/preview
+is a separate guest endpoint, disabled by default unless ENABLE_GUEST_ROUTES=true. It accepts
+PreviewRequest (consent_to_store=false) and only request-only Google/optional ORS comparisons.
+It never creates journeys, route caches or saved coordinates, and shares global provider budgets.
+The AWS public POST route is defined only with CDK enable_guest_routes=true plus a Google secret.
+Cognito remains mandatory for every existing private route, location, health, wearable and alert API.
 Local /api/v1/ready is public; deployed API Gateway requires the ecoroute/read scope for it.
 
 ## Geometry, units and confidence
@@ -24,7 +30,10 @@ GeoJSON geometry is {"type":"LineString","coordinates":[[longitude,latitude],...
 These are provider road routes, not straight-line substitutes. JSON Point inputs instead use
 named longitude/latitude. Benchmark landmarks are approximate map coordinates, snapped by
 the routing provider; no surveyed precision is claimed. Driving and walking are supported
-where the provider permits; cycling fails explicitly until a supported provider exists.
+where the provider permits. Delhi Google cycling is dispatched to openrouteservice cycling-regular
+when CYCLING_PROVIDER=openrouteservice and its backend key are configured; otherwise an explicit
+error is returned. Google currently does not list bicycle or photorealistic 3D coverage for India.
+The map uses genuine satellite/streets with a vector tilted camera where supported.
 
 PM2.5/PM10/NO2/O3 concentrations use ug/m3, not AQI. Aware ISO8601 timestamps include UTC offset;
 backend normalizes to UTC. duration_s is seconds, distance_m is meters. PM2.5 exposure index
@@ -96,8 +105,8 @@ provider payloads/model metrics use flexible objects without pretending their co
 
 | Method/path | Scope | Body / parameters | Response schema | Status |
 |---|---|---|---|---|
-| GET /api/v1/health | public local health | none; no parameters | inline object; pointer paths/~1api~1v1~1health/get/responses | configuration-dependent |
-| GET /api/v1/ready | public local health | none; no parameters | inline object; pointer paths/~1api~1v1~1ready/get/responses | configuration-dependent |
+| GET /api/v1/health | public (configuration-dependent) | none; no parameters | inline object; pointer paths/~1api~1v1~1health/get/responses | configuration-dependent |
+| GET /api/v1/ready | public (configuration-dependent) | none; no parameters | inline object; pointer paths/~1api~1v1~1ready/get/responses | configuration-dependent |
 | POST /api/v1/navigation/routes | ecoroute/write | RouteRequest; no parameters | ApiError; pointer paths/~1api~1v1~1navigation~1routes/post/responses | legacy unavailable/retired |
 | GET /api/v1/air-quality | ecoroute/read | none; longitude, latitude | ApiError; pointer paths/~1api~1v1~1air-quality/get/responses | legacy unavailable/retired |
 | GET /api/v1/predictions | ecoroute/read | none; longitude, latitude, horizon_hours | ApiError; pointer paths/~1api~1v1~1predictions/get/responses | legacy unavailable/retired |
@@ -114,6 +123,7 @@ provider payloads/model metrics use flexible objects without pretending their co
 | GET /api/v1/air-quality/stations | ecoroute/read | none; no parameters | inline object; pointer paths/~1api~1v1~1air-quality~1stations/get/responses | configuration-dependent |
 | GET /api/v1/data/quality | ecoroute/read | none; source | inline object; pointer paths/~1api~1v1~1data~1quality/get/responses | configuration-dependent |
 | POST /api/v1/routes/compare | ecoroute/write | CompareRequest; no parameters | RouteComparison; pointer paths/~1api~1v1~1routes~1compare/post/responses | configuration-dependent |
+| POST /api/v1/routes/preview | public (configuration-dependent) | PreviewRequest; no parameters | RouteComparison; pointer paths/~1api~1v1~1routes~1preview/post/responses | configuration-dependent |
 | POST /api/v1/routes/optimize | ecoroute/write | CompareRequest; no parameters | inline object; pointer paths/~1api~1v1~1routes~1optimize/post/responses | configuration-dependent |
 | POST /api/v1/routes/exposure | ecoroute/write | ExposureRequest; no parameters | ScoredRoute; pointer paths/~1api~1v1~1routes~1exposure/post/responses | configuration-dependent |
 | POST /api/v1/routes/departure-time-analysis | ecoroute/write | DepartureRequest; no parameters | DepartureAnalysis; pointer paths/~1api~1v1~1routes~1departure-time-analysis/post/responses | configuration-dependent |

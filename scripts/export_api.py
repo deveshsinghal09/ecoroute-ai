@@ -23,6 +23,12 @@ issuer, client_id, token_use=access, expiry, subject and required scope. Server 
 from verified sub; another owner's IDs return404 or denied consent. Default local mode has NO
 JWT bypass: unconfigured Cognito gives503 with a supplied bearer; missing bearer gives401.
 An offline demo uses ephemeral signed test tokens ONLY inside an isolated TestClient process.
+Google Maps display is public and needs only the restricted browser key. POST /api/v1/routes/preview
+is a separate guest endpoint, disabled by default unless ENABLE_GUEST_ROUTES=true. It accepts
+PreviewRequest (consent_to_store=false) and only request-only Google/optional ORS comparisons.
+It never creates journeys, route caches or saved coordinates, and shares global provider budgets.
+The AWS public POST route is defined only with CDK enable_guest_routes=true plus a Google secret.
+Cognito remains mandatory for every existing private route, location, health, wearable and alert API.
 Local /api/v1/ready is public; deployed API Gateway requires the ecoroute/read scope for it.
 
 ## Geometry, units and confidence
@@ -31,7 +37,10 @@ GeoJSON geometry is {\"type\":\"LineString\",\"coordinates\":[[longitude,latitud
 These are provider road routes, not straight-line substitutes. JSON Point inputs instead use
 named longitude/latitude. Benchmark landmarks are approximate map coordinates, snapped by
 the routing provider; no surveyed precision is claimed. Driving and walking are supported
-where the provider permits; cycling fails explicitly until a supported provider exists.
+where the provider permits. Delhi Google cycling is dispatched to openrouteservice cycling-regular
+when CYCLING_PROVIDER=openrouteservice and its backend key are configured; otherwise an explicit
+error is returned. Google currently does not list bicycle or photorealistic 3D coverage for India.
+The map uses genuine satellite/streets with a vector tilted camera where supported.
 
 PM2.5/PM10/NO2/O3 concentrations use ug/m3, not AQI. Aware ISO8601 timestamps include UTC offset;
 backend normalizes to UTC. duration_s is seconds, distance_m is meters. PM2.5 exposure index
@@ -168,7 +177,7 @@ def export(root):
             successful = next((v for k, v in operation["responses"].items() if k.startswith("2")), None)
             response = successful["content"]["application/json"]["schema"] if successful else {}
             response_name = response.get("$ref", "inline object").split("/")[-1] if successful else "ApiError"
-            guide += f"| {method.upper()} {path} | {operation.get('x-ecoroute-scope') or 'public local health'} | {body_name}; {', '.join(p['name'] for p in parameters) or 'no parameters'} | {response_name}; pointer paths/{path.replace('/', '~1')}/{method}/responses | {'legacy unavailable/retired' if operation.get('deprecated') else 'configuration-dependent'} |\n"
+            guide += f"| {method.upper()} {path} | {operation.get('x-ecoroute-scope') or 'public (configuration-dependent)'} | {body_name}; {', '.join(p['name'] for p in parameters) or 'no parameters'} | {response_name}; pointer paths/{path.replace('/', '~1')}/{method}/responses | {'legacy unavailable/retired' if operation.get('deprecated') else 'configuration-dependent'} |\n"
             url = "{{base_url}}" + path
             for parameter in parameters:
                 if parameter["in"] == "path":

@@ -677,3 +677,54 @@ Wearable styling: darkened outer sky blue to #d3e7f1 and hid the sidebar scrollb
 Shared sidebar sizing: City overview, Air quality, Journeys, Insights and Wearable now share responsive width/height. All panel scrollbars hidden while wheel/touch scrolling remains enabled. Map area reserves the expanded panel width. Production build and 11 dashboard tests passed, including cross-tab dimension/scrollbar checks.
 
 Dashboard palette consistency: City overview, Air quality, Journeys and Insights now use light-orange surrounds, full peach borders, warm-white fields/cards and pale-orange selected controls. Wearable palette retained. Equal panel dimensions and hidden scrollbars preserved. Production build passed; existing lazy Three.js chunk warning unchanged.
+
+
+## Public Delhi map and travel-mode integration — 2026-10-10
+
+User deferred Cognito for public navigation. Browser map key found populated in frontend/.env.local;
+values never printed, copied to source or committed. Restarted local frontend/backend with npm run dev.
+Actual Google satellite/street tiles loaded successfully without sign-in; bounded headless Edge
+verification returned tiles_loaded=true, authorization_failure=false. Desktop screenshot inspected.
+No live Google Routes/Places or ORS request made: private server keys are missing. No AWS API call,
+resource deployment, training or notifications performed. Google map-load billing is separate from
+AWS credits. India photorealistic 3D/bicycle coverage is not listed; map uses vector camera tilt.
+
+Created Google map toolbar/perspective/imagery controls, actual-coordinate A/B pins and coordinate
+picking; retained dashboard/branding/sidebar sizes. Added mapGeometry utility/tests and scoped
+journey-map.css. With a browser key, initial view is the actual map with no invented route/air data.
+Maps SDK controls and route overlays use returned geometry. Browser private APIs retain Cognito.
+
+Added optional openrouteservice cycling adapter at current HeiGIT endpoint, header-only secret,
+strict response/geometry checks, bounded alternatives, existing global request budgets, redacted
+errors and provenance. Delhi Google wrapper dispatches Drive/Walk to Google, Cycle to configured
+ORS, or explicitly reports missing configuration. Reuses existing exposure scorer, no car routes
+relabeled as bicycles. Offline tests use captured road geometry for parsing/scoring mechanics only.
+
+Added public POST /api/v1/routes/preview with storage consent=false and request-only results;
+private comparison, wearable and owner APIs remain protected. Disabled by default; local ignored
+.env enables guest routing and selects Google (no credential was added). CDK guest route is opt-in
+and requires Google secret ARN; scoped optional cycling secret reference defined. No public reads
+of health/location records, per-user caches or saved journey data. Shared public budget can be
+exhausted by visitors; production requires reviewed abuse controls and Google provider quotas.
+
+Updated environment examples, config, adapters, route API/request/response contract, CDK,
+OpenAPI/Postman exports and GOOGLE_MAPS_SETUP.md; maintained architecture/services/credential/API
+state. Frontend screenshot verifier is explicit, not run by offline tests; maps tests fake SDK/API
+keys and isolate dev servers on 5174/5175 so private local keys are not used by the test suite.
+
+Commands: npm run dev; npm --prefix frontend run test/build; Playwright maps config and normal
+suite; pytest -q; Ruff check .; npm run synth -- --quiet (--no-lookups); security_review.py;
+export_api.py; frontend/scripts/verify-map.mjs. Final full backend run: 221 passed, 1 skipped, zero failures (22.33s); Ruff passed.
+Map suite: 7 passed. Existing dashboard/watch browser suite: 16 passed. Frontend unit tests: 9
+passed. Production build passed; existing lazy Three.js chunk warning remains. CDK offline synth
+passed; structural security review found zero issues (not live IAM verification). Detector found
+no UI findings. Earlier runs exposed a mock shadowing native Map, test-origin CORS mismatch,
+UTF-8 encoding issue and stale explanation label; fixed and corresponding reruns passed.
+Local checks: health 200; anonymous wearable/latest 401; guest preview 503 google_routes_key_missing.
+
+Remaining: configure GOOGLE_ROUTES_API_KEY (separate server key with Routes/Places APIs), optional
+CYCLING_PROVIDER=openrouteservice and OPENROUTESERVICE_API_KEY; restart backend; run bounded real
+route verification. Cognito can be configured later for private features. Genuine curated data
+must cover departure before exposure is available. Guest results cannot be retrieved by saved
+route ID/correlated with an owned journey or used by saved-route Bedrock APIs; displayed guest
+metrics use explicitly labeled deterministic explanations. No medical dose or hardware claims.

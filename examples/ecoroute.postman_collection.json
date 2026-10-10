@@ -549,6 +549,39 @@
       "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
     },
     {
+      "name": "POST /api/v1/routes/preview",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/preview",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "preview"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"departure_at\": \"{{departure_at}}\"\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
       "name": "POST /api/v1/routes/optimize",
       "request": {
         "method": "POST",

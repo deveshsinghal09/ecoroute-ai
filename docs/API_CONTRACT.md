@@ -189,3 +189,7 @@ No AWS resources were deployed. Google charges are separate from AWS credits.
 
 Custom smartwatch preview adds no API routes or schema changes. Its seven screens are explicitly
 local demo state; existing authenticated wearable API requests remain in the original panel.
+
+## Public map and travel modes — 2026-10-10
+
+New public POST /api/v1/routes/preview: PreviewRequest (consent_to_store=false, max_alternatives<=2, segment_length_m>=250) -> RouteComparison, persistence=request_only. Enabled explicitly; otherwise guest_routes_disabled (503). Request-only Google provider required. Drive/Walk dispatch to Google; Cycle dispatches to configured ORS, otherwise cycling_provider_not_configured (422) / cycling_key_missing (503). Private /routes/compare and wearable/health/owned APIs remain protected. New OpenAPI/Postman/FRONTEND_INTEGRATION exports include this operation. Named Point inputs are used for map picks; GeoJSON outputs retain [longitude,latitude].

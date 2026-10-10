@@ -92,3 +92,7 @@ No AWS resources were deployed. Google charges are separate from AWS credits.
 Wearable now includes the original EcoRoute Pulse 3D preview. Full straps and seven demo screens
 are modeled/rendered locally; tap/swipe or use accessible controls. The expanded sidebar retains
 existing connection controls. See ../docs/CUSTOM_WATCH.md. No keys are needed for the preview.
+
+## Public map and travel modes — 2026-10-10
+
+Google map tiles now verified locally without sign-in. With a browser key, the default view is the actual satellite map with tilt/camera controls, coordinate selection and provider route overlays. Guest comparisons use /routes/preview; private APIs retain Cognito. Drive/Walk require the backend Google server key; Cycle needs a separate ORS key. See ../docs/GOOGLE_MAPS_SETUP.md. Google photorealistic 3D and bicycle coverage are not listed for India; no building/sensor precision is claimed. Browser tests isolate fake keys and mocked APIs on ports 5174/5175; npm run dev remains on 5173.
