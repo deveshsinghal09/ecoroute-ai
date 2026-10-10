@@ -589,3 +589,5 @@ time/date and appearance settings are populated. No invented health or battery r
 Replaced visible demo wording, and extended the orange showcase border uniformly around all four
 sides. Real hardware connection remains unavailable; no new integration is claimed. Production
 build and five watch browser tests passed. Existing lazy bundle warning unchanged.
+
+Wearable palette refinement: pale sky-blue outer panel and navigation, warm ivory inner showcase, light-orange border on all four sides and selected controls. No placeholder readings restored. Production build and five watch browser tests passed; desktop screenshot reviewed.
