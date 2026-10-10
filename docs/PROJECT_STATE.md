@@ -566,3 +566,10 @@ correcting its scroll position. Visually reviewed desktop and mobile screenshots
 UV cropping found during visual review was fixed. Dependency installation reported 0 vulnerabilities.
 Build warns about the lazy Three.js chunk (~245 kB gzip); this code loads only for Wearable.
 No backend tests rerun for this frontend-only change. See CUSTOM_WATCH.md for limitations.
+
+Watch display readability (2026-10-10): enlarged physical case/display 45%, refit camera to retain
+both straps, expanded Wearable panel to 460px and canvas height, reduced viewing tilt, doubled
+screen texture resolution to 1024x1200, raised DPR cap to 2, and increased text weight/minimum size,
+metric type and label contrast. Accessible summary is larger too. Production build and all four
+watch browser tests passed, including mobile render, WebGL fallback, swipe and modeled crown.
+Desktop screenshot inspected; no API/data/auth changes. Lazy bundle size warning remains.

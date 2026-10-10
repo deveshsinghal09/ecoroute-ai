@@ -48,3 +48,8 @@ Commands:
 Library compatibility checked against official docs:
 https://r3f.docs.pmnd.rs/getting-started/installation (Fiber 9 + React 19)
 https://tailwindcss.com/docs/installation/using-vite (Vite plugin)
+
+Readability update: case/display scale increased 45%; full straps remain in the camera frame.
+Screen texture is now 1024x1200 with DPR capped at 2, minimum 25px logical texture text, stronger
+contrast, and a more front-facing viewing angle. Wearable width is now 460px on desktop. Build
+and four watch tests passed; desktop screenshot reviewed.
