@@ -1,5 +1,17 @@
 # Credentials and configuration checklist
 
+## Ordered Console and Windows CLI runbook — 2026-10-10
+
+[AWS_SETUP_FROM_ZERO.md](AWS_SETUP_FROM_ZERO.md) gives the current end-to-end setup order,
+temporary IAM login/SSO and Boto3 CRT requirements, diagnostic policy, budget, reviewed
+CDK bootstrap/deployment IAM, provider secret formats, generated resource identifiers,
+Cognito/frontend settings and optional Bedrock/SMS/ML/IoT/hosting/compute/SQL prerequisites.
+No AWS authentication or deployment was performed while writing this guide. It also records
+Free-plan/Organizations credit implications, Lambda concurrency quota gates, production
+activation flags that still need reviewed CDK changes, and the India SMS attribute
+compatibility correction required before a live paid test. Credentials alone do not
+resolve these prerequisites. Never send secret values in chat.
+
 ## Optional hosting/compute/SQL setup — 2026-10-10
 
 User deferred credentials; no authenticated AWS verification or deployment this update.

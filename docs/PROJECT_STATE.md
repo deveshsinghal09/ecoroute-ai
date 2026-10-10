@@ -1,5 +1,26 @@
 # EcoRoute AI project state — Phases 1–7
 
+## AWS setup runbook — 2026-10-10 IST
+
+Created docs/AWS_SETUP_FROM_ZERO.md and linked it from README/CREDENTIALS_CHECKLIST for
+the requested Console/CLI setup from the beginning. Reused actual profile/configuration,
+CDK context names, output names, scripts and secret-loading contracts. Verified current
+official AWS guidance for temporary console login/Boto3 CRT, bootstrap execution policies,
+account plans/credit consequences, Lambda concurrency, model activation and India SMS.
+No AWS authenticated action, deployment, provider request, paid job or notification was run.
+
+Commands: read repository docs/code; scripts/manage_cloud.py --help and scripts/diagnose.py
+--help passed. Both JSON policy examples parsed; all 14 PowerShell example blocks passed
+syntax parsing without execution; all nine local guide links resolved; git diff --check
+passed. Application tests were not rerun for these documentation-only changes; prior
+208 passed/1 skipped remain historical evidence, not this update's test result.
+
+Remaining: actual account-plan/credit/IAM/quota/bootstrap verification; reviewed deployer
+policy; service identifiers after approved deployment; production Bedrock/SMS/workflow
+flag wiring; India SMS EntityId/TemplateId prefix compatibility correction before a live
+test. Current publisher uses AWS.SNS.SMS.* while current official SNS guide specifies
+AWS.MM.SMS.EntityId/TemplateId. No code behavior or deployment status changed.
+
 ## AWS service profiles integrated — 2026-10-10 IST
 
 User requested all services in the supplied list and deferred credentials. Reused existing

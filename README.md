@@ -1,5 +1,9 @@
 # EcoRoute AI
 
+Start AWS configuration with the [ordered Console and PowerShell guide](docs/AWS_SETUP_FROM_ZERO.md).
+It reuses the existing IAM profile and CDK resources, documents the required permissions
+and distinguishes credential setup from approved provisioning and feature activation.
+
 ## Selectable AWS service integrations
 
 The existing API/data/ML/workflow services now have optional ECS/Fargate, EC2, EKS,
