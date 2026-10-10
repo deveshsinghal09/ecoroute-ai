@@ -550,10 +550,3 @@ Google Maps integration verification (2026-10-10): implemented server-only Route
 
 Local display recovery: restarted npm run dev after port 5173 had no listener. Dashboard, city background, train sprite and backend health all returned HTTP 200. Existing animation test passed. Insights already uses Bedrock Converse for supported stored routes when enabled; deterministic explanations remain the fallback (including Google request-only routes). No Gemini integration added, per user preference. Configure ENABLE_BEDROCK, BEDROCK_MODEL_ID and an authorized AWS profile/region before live use; no model invocation was performed.
 CDK synth --no-lookups passed on retry; the first attempt failed with a temporary jsii module extraction error (Cannot find module ../errors). Synthesis does not provision resources.
-
-Smartwatch UI (2026-10-10): added reusable SmartwatchHealth.jsx and scoped CSS in the existing
-Wearable panel, adapted from the inspected Sparsh Gupta CodePen. Four interactive demo screens,
-visible straps/buckle, CSS perspective and reduced-motion support. All health values are placeholders;
-existing device controls and backend remain unchanged. Production build passed, 10 existing browser
-tests passed, and 2 new watch tests passed after fixing dot-click capture and top-buckle spacing.
-See SMARTWATCH_UI.md for source, adaptation details and limitations. No new credentials/resources.
