@@ -81,3 +81,10 @@ and generation prompt are in public/assets/ASSET_PROVENANCE.md. No image API key
 The old procedural 3D UI and Three.js were removed at the user's request. City view now
 composites architectural artwork, moving transparent train sprites and reflections into a single
 2.5D scene. There is no orbit mode. Route view and all existing backend contracts are preserved.
+
+## Google routing integration (2026-10-10)
+See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
+restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
+Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
+No AWS resources were deployed. Google charges are separate from AWS credits.

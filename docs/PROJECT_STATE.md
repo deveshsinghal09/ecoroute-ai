@@ -1,5 +1,18 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Google Routes and Journeys map integration — 2026-10-10 IST
+
+Added Google Routes v2/Places text-search backend adapter, mode mapping for DRIVE/WALK/BICYCLE,
+field masks, typed road geometry validation, quotas, redacted failure codes, and request-only
+results (no Google route cache or persistent geometry). Existing pollution scoring reused.
+Journeys uses Maps JavaScript with selected route overlays; no browser server secret.
+CDK accepts an optional exact Google secret ARN with scoped GetSecretValue. No deployment.
+Google route-ID retrieval, persistent correlation and backend explanation are intentionally
+unavailable; frontend deterministic explanation uses current comparison metrics.
+Missing: GOOGLE_ROUTES_API_KEY (or GOOGLE_ROUTES_SECRET_ARN), VITE_GOOGLE_MAPS_API_KEY,
+existing Cognito setup, enabled Google APIs/billing and date-matched pollution data.
+See GOOGLE_MAPS_SETUP.md for exact configuration. No live key/provider verification claimed.
+
 ## Full-length rail alignment correction — 2026-10-10 IST
 
 User reported continued rail drift. Replaced rigid sprite rotation with 40 clipped image slices
@@ -532,3 +545,8 @@ only the final co-author. The helper preserves both teammates in a contiguous fi
 Published earlier history is preserved. Remote attribution is checked on the helper/report commit.
 
 UI cleanup and travel controls (2026-10-10): removed observatory/history overlay, scene-bottom badges, footer text and Explore your routes CTA as requested. Source/date disclosure remains in route details and connection settings. Walk/Cycle are selectable and clear mismatched driving results. Walking still requires authenticated live AWS routing; cycling remains blocked by missing bicycle provider (no fabricated routes). Production build and 10 browser tests passed, including travel-mode selection and removed-element assertions. No backend/provider provisioning performed.
+
+Google Maps integration verification (2026-10-10): implemented server-only Routes/Places adapter, request-only Google route results (no persistent route cache), and Journeys Google map with separate restricted browser key. Earlier validation in this work session: 179 backend tests passed, 1 skipped; Ruff passed; 6 frontend unit tests and 2 mocked Google Maps browser tests passed. Final production build and all 10 dashboard browser tests passed, including train motion/pause. No live Google requests or AWS deployment performed. Google keys and Cognito configuration remain prerequisites; see GOOGLE_MAPS_SETUP.md.
+
+Local display recovery: restarted npm run dev after port 5173 had no listener. Dashboard, city background, train sprite and backend health all returned HTTP 200. Existing animation test passed. Insights already uses Bedrock Converse for supported stored routes when enabled; deterministic explanations remain the fallback (including Google request-only routes). No Gemini integration added, per user preference. Configure ENABLE_BEDROCK, BEDROCK_MODEL_ID and an authorized AWS profile/region before live use; no model invocation was performed.
+CDK synth --no-lookups passed on retry; the first attempt failed with a temporary jsii module extraction error (Cannot find module ../errors). Synthesis does not provision resources.

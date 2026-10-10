@@ -170,3 +170,10 @@ See [Phase6 runbook](docs/PHASE6_ADVISORIES.md) for API examples, exact credenti
 steps, scientific limits, costs and activation/cleanup. Put local configuration in ignored .env;
 never put credentials in committed code. Separate meaningful commits use the three supplied
 individual Git authors as requested.
+
+## Google routing integration (2026-10-10)
+See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
+restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
+Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
+No AWS resources were deployed. Google charges are separate from AWS credits.

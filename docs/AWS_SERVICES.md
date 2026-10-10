@@ -183,3 +183,10 @@ Current AWS usage in Phase6: none. See PHASE6_ADVISORIES.md for formulas and off
 
 Frontend cinematic revision: bundled artwork and browser rendering add no AWS services. No hosting
 resources have been provisioned; eventual static-hosting storage/transfer charges need separate review.
+
+## Google routing integration (2026-10-10)
+See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
+restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
+Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
+No AWS resources were deployed. Google charges are separate from AWS credits.

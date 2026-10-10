@@ -259,3 +259,10 @@ separate, and live messages/model invocations need reviewed costs and approval.
 
 Cinematic artwork is bundled in the frontend and needs no runtime credentials or image-generation
 API key. Live Cognito/backend/provider configuration remains required as documented above.
+
+## Google routing integration (2026-10-10)
+See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
+restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
+Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
+Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
+No AWS resources were deployed. Google charges are separate from AWS credits.
