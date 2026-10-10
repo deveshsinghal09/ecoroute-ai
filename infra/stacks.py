@@ -85,7 +85,7 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None, frontend_origins=None,
-                 provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, **kwargs):
+                 google_routes_secret_arn=None, provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         frontend_origins = frontend_origins or []
         if not isinstance(frontend_origins, list):
@@ -172,6 +172,11 @@ class CoreStack(Stack):
             resources=[data.bucket.arn_for_objects("reports/routes/*")]))
         api_role.add_to_policy(iam.PolicyStatement(actions=["dynamodb:UpdateItem"],
             resources=[data.tables["environment"].table_arn]))
+        if google_routes_secret_arn:
+            if "*" in google_routes_secret_arn or ":secretsmanager:" not in google_routes_secret_arn:
+                raise ValueError("Use a complete Google secret ARN")
+            environment.update(ROUTING_PROVIDER="google", GOOGLE_ROUTES_SECRET_ARN=google_routes_secret_arn)
+            api_role.add_to_policy(iam.PolicyStatement(actions=["secretsmanager:GetSecretValue"], resources=[google_routes_secret_arn]))
         if enable_location:
             for service, action in (("geo-routes", "CalculateRoutes"), ("geo-places", "Geocode")):
                 api_role.add_to_policy(iam.PolicyStatement(actions=[service + ":" + action],

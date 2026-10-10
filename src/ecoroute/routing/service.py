@@ -11,6 +11,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from ecoroute.models import Point
 from ecoroute.environment.repository import BudgetExceeded
 from ecoroute.routing.geometry import segments
+from ecoroute.routing.google import GoogleRoutes
 from ecoroute.routing.models import CompareRequest, RoutingError
 from ecoroute.routing.pollution import PollutionIndex, rank_routes, score_exposure
 from ecoroute.routing.providers import AmazonLocation, OsrmProvider, in_delhi
@@ -50,12 +51,12 @@ class RouteService:
     def compare(self, owner, request):
         started = time.monotonic()
         cache_key = fingerprint([self.cache_namespace, self.provider.name, request.model_dump(mode="json")])
-        cached = self.store.get("route_cache", owner, cache_key)
+        cached = self.store.get("route_cache", owner, cache_key) if getattr(self.provider, "persist_results", True) else None
         if cached:
             result = json.loads(self.objects.get_bytes(cached["object_key"]))
             result["cache_hit"] = True
             return result
-        if request.mode == "cycling":
+        if request.mode == "cycling" and self.provider.name != "google_routes":
             raise RoutingError("cycling_provider_not_configured", 422)
         origin = in_delhi(self.provider.resolve(request.origin))
         destination = in_delhi(self.provider.resolve(request.destination))
@@ -96,6 +97,11 @@ class RouteService:
             candidate_count=len(candidates),
             requested_candidates=request.max_alternatives + 1,
         )
+        if not getattr(self.provider, "persist_results", True):
+            for route in result["routes"]:
+                route["expires_at"] = datetime.now(UTC).isoformat()
+            result["persistence"] = "request_only"
+            return result
         encoded = json.dumps(result, allow_nan=False).encode()
         if len(encoded) > 4 * 1024 * 1024:
             raise RoutingError(
@@ -248,7 +254,18 @@ def create_service(settings, store, objects):
         except BudgetExceeded:
             raise RoutingError("location_request_budget_exhausted", 429) from None
 
-    if settings.routing_provider == "osrm":
+    if settings.routing_provider == "google":
+        def google_key():
+            key = settings.google_routes_api_key.get_secret_value()
+            if key or not settings.google_routes_secret_arn:
+                return key
+            try:
+                session = boto3.Session(profile_name=settings.aws_profile or None, region_name=settings.aws_region)
+                return session.client("secretsmanager", config=Config(connect_timeout=1, read_timeout=3, retries={"total_max_attempts": 1})).get_secret_value(SecretId=settings.google_routes_secret_arn)["SecretString"]
+            except (ClientError, BotoCoreError, KeyError):
+                raise RoutingError("google_secret_unavailable") from None
+        provider = GoogleRoutes(google_key, reserve=reserve)
+    elif settings.routing_provider == "osrm":
         if not settings.osrm_base_url:
             raise RoutingError("fallback_endpoint_not_configured")
         provider = OsrmProvider(settings.osrm_base_url, reserve=reserve)

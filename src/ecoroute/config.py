@@ -1,7 +1,7 @@
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import Field, model_validator
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,7 +22,9 @@ class Settings(BaseSettings):
     enable_aws_location: bool = False
     aws_profile: str = ""
     expected_aws_account_id: str = ""
-    routing_provider: Literal["aws", "osrm"] = "aws"
+    routing_provider: Literal["aws", "osrm", "google"] = "aws"
+    google_routes_secret_arn: str = ""
+    google_routes_api_key: SecretStr = SecretStr("")
     osrm_base_url: str = ""
     location_daily_limit: int = Field(default=100, ge=1, le=1000)
     location_hourly_limit: int = Field(default=30, ge=1, le=100)

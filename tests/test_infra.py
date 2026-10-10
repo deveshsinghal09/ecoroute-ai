@@ -20,6 +20,7 @@ def templates(tmp_path_factory):
     core = CoreStack(app, "Core", data=data, asset_path=asset, env=env,
                      callback_urls=["https://example.org/callback"],
                      frontend_origins=["https://example.org"],
+                     google_routes_secret_arn="arn:aws:secretsmanager:ap-south-1:123456789012:secret:ecoroute/google-AbCdEf",
                      provider_secret_arn="arn:aws:secretsmanager:ap-south-1:123456789012:secret:ecoroute/demo-AbCdEf")
     optional = IotStack(app, "IoT", env=env, data=data, asset_path=asset)
     return {name: Template.from_stack(stack).to_json() for name, stack in (
@@ -161,3 +162,13 @@ def test_location_is_explicit_and_scoped(tmp_path, templates):
                if f["Properties"]["Handler"] == "ecoroute.handlers.api.handler")
     assert api["Environment"]["Variables"]["ENABLE_AWS_LOCATION"] == "true"
     assert api["Timeout"] < 30
+
+def test_google_secret_is_reference_only(templates):
+    functions = resources(templates["core"], "AWS::Lambda::Function")
+    envs = [f["Properties"].get("Environment", {}).get("Variables", {}) for f in functions]
+    google = next(e for e in envs if e.get("ROUTING_PROVIDER") == "google")
+    assert google["GOOGLE_ROUTES_SECRET_ARN"].endswith("google-AbCdEf")
+    assert "GOOGLE_ROUTES_API_KEY" not in google
+    policies = json.dumps(resources(templates["core"], "AWS::IAM::Policy"))
+    assert "secretsmanager:GetSecretValue" in policies
+    assert google["GOOGLE_ROUTES_SECRET_ARN"] in policies
