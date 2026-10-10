@@ -18,7 +18,7 @@ type Props={data:WatchData;page:WatchPage;settings:WatchSettings;animate:boolean
 function Product({data,page,settings,animate,tilt,onNext,onHome,onFailure,onReady}:Props){
  const group=useRef<Group>(null);const display=useRef<MeshBasicMaterial>(null);const changed=useRef(0);const start=useRef<number|null>(null);const pulseFrame=useRef(0);const {invalidate,gl}=useThree();
  const pieces=useMemo(()=>({case:geometry(2.45,2.86,.49,.30),bezel:geometry(2.40,2.81,.47,.045),glass:geometry(2.27,2.65,.43,.045),screen:geometry(2.12,2.49,.35,.008),upper:geometry(1.48,1.76,.20,.12),lower:geometry(1.48,1.93,.28,.12,true),keeper:geometry(1.62,.22,.05,.08)}),[]);
- const texture=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=512;canvas.height=600;const texture=new CanvasTexture(canvas);texture.colorSpace=SRGBColorSpace;return texture;},[]);
+ const texture=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=1200;const texture=new CanvasTexture(canvas);texture.colorSpace=SRGBColorSpace;texture.anisotropy=8;return texture;},[]);
  // ShapeGeometry UVs are world coordinates; normalize them for the screen texture.
  useMemo(()=>{const uv=pieces.screen.getAttribute('uv'),pos=pieces.screen.getAttribute('position');for(let i=0;i<uv.count;i++){uv.setXY(i,(pos.getX(i)+1.06)/2.12,(pos.getY(i)+1.245)/2.49);}uv.needsUpdate=true;},[pieces]);
  useEffect(()=>{changed.current=performance.now();const paint=()=>{paintScreen(texture.image as HTMLCanvasElement,page,data,settings,new Date());texture.needsUpdate=true;invalidate();};paint();const timer=setInterval(paint,15000);return()=>clearInterval(timer);},[texture,page,data,settings,invalidate]);
@@ -29,17 +29,18 @@ function Product({data,page,settings,animate,tilt,onNext,onHome,onFailure,onRead
   if(!group.current)return;start.current??=clock.elapsedTime;const t=clock.elapsedTime-start.current;
   if(animate&&page==='Heart'&&clock.elapsedTime-pulseFrame.current>.12){pulseFrame.current=clock.elapsedTime;paintScreen(texture.image as HTMLCanvasElement,page,data,settings,new Date());texture.needsUpdate=true;}
   const g=group.current;const ease=animate?1-Math.exp(-delta*5):1;
-  g.rotation.x=MathUtils.lerp(g.rotation.x,tilt.y*.20-.035,ease);
-  g.rotation.y=MathUtils.lerp(g.rotation.y,tilt.x*.32-.12,ease);
-  g.rotation.z=MathUtils.lerp(g.rotation.z,-.065,ease);
+  g.rotation.x=MathUtils.lerp(g.rotation.x,tilt.y*.08,ease);
+  g.rotation.y=MathUtils.lerp(g.rotation.y,tilt.x*.14-.035,ease);
+  g.rotation.z=MathUtils.lerp(g.rotation.z,-.02,ease);
   g.position.y=animate?Math.sin(t*.8)*.055:0;
   g.scale.setScalar(animate?Math.min(1,.93+t*.15):1);
  });
  return <group ref={group}>
-  <mesh geometry={pieces.upper} position={[0,2.26,-.045]}><meshStandardMaterial color="#172127" roughness={.8}/></mesh>
-  <mesh geometry={pieces.lower} position={[0,-2.34,-.045]}><meshStandardMaterial color="#172127" roughness={.8}/></mesh>
-  {[-1,1].flatMap(sign=>Array.from({length:8},(_,i)=><mesh key={`${sign}-${i}`} position={[0,sign*(1.64+i*.17),.105]}><boxGeometry args={[1.3,.017,.02]}/><meshStandardMaterial color="#33505a" roughness={.85}/></mesh>))}
-  <mesh geometry={pieces.keeper} position={[0,2.77,.105]}><meshStandardMaterial color="#0e2028" roughness={.55}/></mesh>
+  <mesh geometry={pieces.upper} position={[0,2.90,-.045]}><meshStandardMaterial color="#172127" roughness={.8}/></mesh>
+  <mesh geometry={pieces.lower} position={[0,-2.97,-.045]}><meshStandardMaterial color="#172127" roughness={.8}/></mesh>
+  {[-1,1].flatMap(sign=>Array.from({length:8},(_,i)=><mesh key={`${sign}-${i}`} position={[0,sign*(2.22+i*.17),.105]}><boxGeometry args={[1.3,.017,.02]}/><meshStandardMaterial color="#33505a" roughness={.85}/></mesh>))}
+  <mesh geometry={pieces.keeper} position={[0,3.39,.105]}><meshStandardMaterial color="#0e2028" roughness={.55}/></mesh>
+  <group scale={1.45}>
   <mesh geometry={pieces.case} position={[0,0,-.07]}><meshStandardMaterial color="#313d44" metalness={.86} roughness={.29}/></mesh>
   <mesh geometry={pieces.bezel} position={[0,0,.265]}><meshStandardMaterial color="#a3b9c4" metalness={.9} roughness={.23}/></mesh>
   <mesh geometry={pieces.glass} position={[0,0,.326]}><meshPhysicalMaterial color="#02080f" metalness={.15} roughness={.15} clearcoat={1} clearcoatRoughness={.07}/></mesh>
@@ -53,13 +54,13 @@ function Product({data,page,settings,animate,tilt,onNext,onHome,onFailure,onRead
   </group>
   <mesh position={[1.27,-.5,.1]}><boxGeometry args={[.09,.42,.13]}/><meshStandardMaterial color="#354d59" metalness={.8} roughness={.3}/></mesh>
   <mesh position={[0,-1.32,.388]}><boxGeometry args={[.26,.026,.017]}/><meshBasicMaterial color={settings.accent}/></mesh>
- </group>;
+ </group></group>;
 }
 
 export default function WatchScene(props:Props){
- return <Canvas orthographic camera={{position:[0,0,12],zoom:60,near:.1,far:40}} dpr={[1,1.5]} frameloop={props.animate?'always':'demand'} gl={{antialias:true,alpha:true,powerPreference:'low-power'}} style={{touchAction:'pan-y'}}>
+ return <Canvas orthographic camera={{position:[0,0,12],zoom:60,near:.1,far:40}} dpr={[1,2]} frameloop={props.animate?'always':'demand'} gl={{antialias:true,alpha:true,powerPreference:'low-power'}} style={{touchAction:'pan-y'}}>
   <ambientLight intensity={1.5}/><directionalLight position={[-4,5,8]} intensity={4} color="#d4faff"/><directionalLight position={[4,-2,5]} intensity={2.5} color="#779eff"/><pointLight position={[0,4,3]} intensity={8} color="#ffffff"/>
   <Fit/><Product {...props}/>
  </Canvas>;
 }
-function Fit(){const {camera,size,invalidate}=useThree();useEffect(()=>{if('zoom' in camera){camera.zoom=Math.min(size.height/7.35,size.width/3.6);camera.updateProjectionMatrix();invalidate();}},[camera,size,invalidate]);return null;}
+function Fit(){const {camera,size,invalidate}=useThree();useEffect(()=>{if('zoom' in camera){camera.zoom=Math.min(size.height/8.6,size.width/4.9);camera.updateProjectionMatrix();invalidate();}},[camera,size,invalidate]);return null;}
