@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import aws_cdk as cdk
 import pytest
@@ -13,6 +14,12 @@ from infra.stacks import CoreStack, DataStack
 IMAGE = "123456789012.dkr.ecr.ap-south-1.amazonaws.com/backend@sha256:" + "a" * 64
 SECRET = "arn:aws:secretsmanager:ap-south-1:123456789012:secret:writer-AbCdEf"
 CERT = "arn:aws:acm:ap-south-1:123456789012:certificate/example"
+
+
+def assert_complete_assembly(app):
+    assembly = app.synth()
+    manifest = json.loads((Path(assembly.directory) / "manifest.json").read_text())
+    assert not manifest.get("missing")
 
 
 @pytest.fixture(scope="module")
@@ -33,12 +40,12 @@ def templates(tmp_path_factory):
             api_gateway_origin="https://example.execute-api.ap-south-1.amazonaws.com")
         compute = ComputeStack(app, "Compute", core=core, options=options, env=env)
         results[runtime] = Template.from_stack(compute).to_json()
-        app.synth()
+        assert_complete_assembly(app)
     for hosting in ("cloudfront", "amplify"):
         app = cdk.App(outdir=str(work / hosting))
         stack = HostingStack(app, "Hosting", options=DeploymentOptions(hosting=hosting))
         results[hosting] = Template.from_stack(stack).to_json()
-        app.synth()
+        assert_complete_assembly(app)
     for engine in ("rds", "aurora"):
         app = cdk.App(outdir=str(work / engine))
         env = cdk.Environment(account="123456789012", region="ap-south-1")
@@ -46,7 +53,7 @@ def templates(tmp_path_factory):
         stack = AnalyticsStack(app, "Analytics", data=data, options=DeploymentOptions(analytics=engine,
             sql_writer_secret_arn=SECRET, sql_image_uri=IMAGE), asset_path=str(asset), env=env)
         results[engine] = Template.from_stack(stack).to_json()
-        app.synth()
+        assert_complete_assembly(app)
     return results
 
 
@@ -111,4 +118,4 @@ def test_http_runtime_handoff_preserves_paths_jwt_and_scopes(tmp_path):
         props = route["Properties"]
         if "proxy+" in props["RouteKey"]:
             assert props["AuthorizationType"] == "JWT" and props["AuthorizationScopes"]
-    app.synth()
+    assert_complete_assembly(app)
