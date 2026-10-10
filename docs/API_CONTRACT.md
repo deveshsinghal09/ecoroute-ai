@@ -1,5 +1,13 @@
 # API contract — backend foundation and environmental datasets
 
+Service-profile update (2026-10-10): the 42 existing business API operations and their schemas
+are unchanged. Alternative FastAPI runtimes retain the same Cognito/ownership validation.
+Gateway HTTP proxy handoff explicitly forwards `$request.path` and preserves read/write scopes.
+Lightsail only forwards authenticated `/api/v1/*` requests to the existing Gateway and adds
+its own infrastructure `/healthz`; it does not add public personal-data APIs. SQL analytics is
+an internal anonymous report sink, not a new client-facing endpoint. Hosting needs the real
+API URL/public Cognito configuration baked into the existing build and exact CORS/callbacks.
+
 The newly authorized frontend consumes this existing contract; no endpoint was weakened or
 renamed. Source: frontend/src/api.ts (PKCE/authenticated REST), frontend/src/data.ts (real historical
 response), frontend/src/App.tsx (route/quality/wearable/alerts/ML/explanation clients). Historical

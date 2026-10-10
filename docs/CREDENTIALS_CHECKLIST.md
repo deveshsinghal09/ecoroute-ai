@@ -1,5 +1,23 @@
 # Credentials and configuration checklist
 
+## Optional hosting/compute/SQL setup — 2026-10-10
+
+User deferred credentials; no authenticated AWS verification or deployment this update.
+Configure names only in ignored deployment JSON and retain secrets in CLI providers/Secrets
+Manager. [Complete setup table](MULTISERVICE_INTEGRATION.md#credential-and-prerequisite-setup-configure-later)
+lists purpose, sensitivity, Console steps, IAM, storage, verification and charges for:
+ECOROUTE_DEPLOY_CONFIG, image_uri, sql_image_uri, regional_certificate_arn, backend_origin,
+eks_version, eks_operator_arn, eks_admin_cidrs, existing_apprunner_customer,
+api_gateway_origin, domain_name, hosted_zone_id, hosted_zone_name,
+cloudfront_certificate_arn, sql_writer_secret_arn and supported postgres_version.
+Hosting also needs deployed FrontendBucket/DistributionId or AmplifyAppId and existing
+public VITE API/Cognito configuration. No secret AWS key is required in these files.
+RDS needs the official public CA bundle built into its SQL Lambda image and a private admin
+session to initialize schema/restricted user; Aurora supports approved Data API initialization.
+EKS needs operator apply and HTTPS ingress; App Runner is closed to new customers.
+Default Lambda does not need these optional identifiers. All live access, quota, credit,
+IAM/bootstrap and publication checks remain pending manual configuration and approval.
+
 Frontend configuration (public identifiers only): VITE_API_BASE_URL, VITE_COGNITO_DOMAIN,
 VITE_COGNITO_CLIENT_ID, VITE_COGNITO_REDIRECT_URI in frontend/.env.local. These are exposed in
 the browser; NEVER store provider keys, AWS keys, private certificates or tokens in VITE_ values.

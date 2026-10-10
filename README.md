@@ -1,5 +1,23 @@
 # EcoRoute AI
 
+## Selectable AWS service integrations
+
+The existing API/data/ML/workflow services now have optional ECS/Fargate, EC2, EKS,
+existing-customer App Runner and Lightsail proxy profiles; CloudFront/Route 53 or Amplify
+hosting; and an RDS/Aurora aggregate route-report pipeline. The default remains serverless.
+No AWS resources are deployed or enabled by selecting the safe example configuration.
+[Integration, credentials, costs and cleanup](docs/MULTISERVICE_INTEGRATION.md) explains
+the exact dependencies and remaining deployment prerequisites. Start with the offline plan:
+
+```powershell
+.venv\Scripts\python.exe scripts/service_plan.py
+.venv\Scripts\python.exe scripts/manage_cloud.py plan
+```
+
+Configure credentials later using the approved CLI profile and Secrets Manager. Deployment,
+paid training, hosting publication and continuous schedules require a separate cost review
+and approval. Do not put AWS/provider secrets in browser VITE variables.
+
 ## Interactive city dashboard
 
 The requested React/TypeScript + Three.js frontend is now in [frontend/](frontend/README.md).

@@ -1,5 +1,19 @@
 # AWS service decisions and IAM boundaries
 
+## Additional profiles — 2026-10-10
+
+All requested services have existing integration code or new optional profiles; none was
+provisioned in this update. New ComputeStack supports the same FastAPI backend on ECS/Fargate,
+EC2, EKS with Pod Identity or existing-customer App Runner. Lightsail is an authenticated HTTPS
+proxy to Core API Gateway, with no embedded AWS keys. HostingStack serves the existing build
+via private S3/CloudFront OAC and optional existing-zone Route 53 aliases, or manual Amplify.
+AnalyticsStack processes existing aggregate route reports using SQS/DLQ/Lambda into RDS or
+Aurora with separate restricted writer secrets. IAM, region/engine/quota checks, deployment
+boundaries, remaining operator steps and recurring cost estimates are documented in
+[MULTISERVICE_INTEGRATION.md](MULTISERVICE_INTEGRATION.md). Lambda remains the default;
+schedules, training and real notifications stay disabled. Earlier no-idle-compute decisions
+below describe the default profile; optional paid alternatives do not supersede that default.
+
 Frontend integration adds no AWS service/resource or hosting deployment. Existing HTTP API and
 Lambda receive optional exact-origin CORS configuration through frontend_origins; existing Cognito
 PKCE public-client flow is reused. No IAM credentials belong in the frontend. Account costs are

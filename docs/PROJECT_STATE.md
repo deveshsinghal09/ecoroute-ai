@@ -1,6 +1,65 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
-## Google Routes and Journeys map integration — 2026-10-10 IST
+## AWS service profiles integrated â€” 2026-10-10 IST
+
+User requested all services in the supplied list and deferred credentials. Reused existing
+FastAPI/authentication, pollution, route, ML, wearable and advisory workflows. No frontend
+changes, authenticated AWS actions, provider calls, hosting uploads or paid provisioning were
+performed. Live resource status has not been rechecked; nothing was deployed by this update.
+
+Added selectable ECS/Fargate, EC2, EKS/Pod Identity and eligible-existing-customer App Runner
+runtimes for the SAME backend, with optional HTTPS Gateway handoff preserving JWT scopes/path.
+Lightsail is a credential-free bearer-token proxy to existing Gateway. Added private S3/OAC
+CloudFront and optional Route 53 aliases, or manual Amplify hosting of the existing Vite build.
+Added RDS/Aurora route analytics: existing anonymous S3 reports -> encrypted SQS/DLQ -> typed
+validation Lambda -> restricted SQL writer. Local SQLite executes this contract; personal fields,
+invalid/nonfinite data, stale reports and Google results are rejected. No NAT, real-time ML
+endpoint or automatic continuous schedule is introduced; paid alternatives are opt-in.
+
+Files created: infra/{profiles,compute,hosting,analytics}.py; config/deployment.example.json;
+src/ecoroute/{analytics,edge}.py; sql/route_analytics.sql; docker/analytics.Dockerfile and scoped
+dockerignore/dependency constraints; scripts/{service_plan,render_eks,publish_frontend}.py;
+tests/{test_service_profiles,test_optional_infra}.py; docs/MULTISERVICE_INTEGRATION.md.
+Updated .env.example, infra/{app,stacks}.py, scripts/manage_cloud.py, README and the five maintained
+state/architecture/service/credential/API-contract documents. Business API still has 42 operations.
+Repaired legacy Windows-encoded punctuation in this state file while preserving its existing text.
+
+Actual commands/results:
+
+* `.venv/Scripts/pytest.exe -q --tb=short`: **208 passed, 1 skipped**, 3 deprecation warnings.
+  Skip is the explicit opt-in ML Docker test. Docker daemon separately checked and unavailable.
+  Tests include existing auth/ownership/contracts plus SQL handoff, idempotency, retries,
+  outages, signed-URL/input redaction, hardened Kubernetes output and custom-domain TLS/DNS.
+* Ruff (`check src infra scripts tests`) and Git whitespace/obvious-secret checks passed.
+* `python scripts/build_lambda.py`: Linux asset rebuilt, **183.1 MiB**, source refreshed.
+* `npm run synth` (`cdk synth --no-lookups`): default passed. Combined ECS/Fargate + CloudFront
+  + Aurora passed using explicit fictitious identifiers. Nine individual optional profile
+  assemblies and HTTPS handoff/custom-domain branches synthesized in tests with **no missing
+  context**. Initial combined CLI run exposed an AZ lookup; fixed with deploy-time Fn::GetAZs,
+  and tests now reject incomplete assemblies. Initial CDK binding errors were fixed; no final
+  test failures. CloudFront custom-certificate TLS policy is tested; default cert policy is AWS-managed.
+* `python scripts/security_review.py`: default templates passed structural review, no live IAM proof.
+* `python scripts/service_plan.py`, `python scripts/manage_cloud.py plan`: offline plans only.
+  SQL CPython 3.11/Linux wheels actually downloaded/resolved; constraints saved in docker/analytics.lock.
+* Local backend health and frontend both returned **HTTP 200** on ports 8000/5173.
+
+Remaining blockers: credentials/access/quotas/credits not revalidated; no approved deployment.
+App Runner is closed to new customers. EKS needs operator application apply, HTTPS ingress/
+controller and container log collector. SQL needs actual restricted writer secret/user, schema
+initialization and regional engine orderability; RDS also needs private admin access and a built
+TLS-verified SQL image. Docker daemon is unavailable, so SQL container/database execution and
+hosting publish paths remain unverified live. No new genuine model training or watch bridge
+is claimed; earlier scientific/data/hardware limits remain in force.
+
+Next: use MULTISERVICE_INTEGRATION.md's full prerequisite table to configure the approved
+temporary CLI identity, default API/Cognito/provider identifiers and only selected optional
+profile inputs. Review actual regional pricing/template/permissions before requesting deployment.
+Default remains Lambda; $100 credits are not a hard cap. Do not enable all idle alternatives
+together. Deployment/retaining teardown/publish commands and retained-resource costs are in
+the guide. Separate meaningful code, test/security and documentation commits use the three
+user-authorized contributor names; GitHub attribution still depends on account-verified emails.
+
+## Google Routes and Journeys map integration â€” 2026-10-10 IST
 
 Added Google Routes v2/Places text-search backend adapter, mode mapping for DRIVE/WALK/BICYCLE,
 field masks, typed road geometry validation, quotas, redacted failure codes, and request-only
@@ -13,7 +72,7 @@ Missing: GOOGLE_ROUTES_API_KEY (or GOOGLE_ROUTES_SECRET_ARN), VITE_GOOGLE_MAPS_A
 existing Cognito setup, enabled Google APIs/billing and date-matched pollution data.
 See GOOGLE_MAPS_SETUP.md for exact configuration. No live key/provider verification claimed.
 
-## Full-length rail alignment correction — 2026-10-10 IST
+## Full-length rail alignment correction â€” 2026-10-10 IST
 
 User reported continued rail drift. Replaced rigid sprite rotation with 40 clipped image slices
 per train, each anchored by its visible wheel baseline to a smooth traced rail curve. Reflections
@@ -23,7 +82,7 @@ Actual validation: build passed, 6 unit tests and 9 browser tests passed; inspec
 screenshot. Added all-slice/all-loop rail-contact arithmetic test. Artwork remains decorative
 2.5D, not real train tracking. No AWS resources changed.
 
-## Train alignment and 100% viewport fit — 2026-10-10 IST
+## Train alignment and 100% viewport fit â€” 2026-10-10 IST
 
 Replaced independent train trajectories with a traced backdrop rail centerline, tangent alignment,
 and a shared 68-second period with half-loop spacing. Sprite contact offset is accounted for.
@@ -32,7 +91,7 @@ removed effective fixed scene minimum heights. Mobile retains natural document s
 Verified production build, 5 unit tests and 9 browser tests. Viewport-fit assertions pass at
 1366x768, 1280x720 and 1536x864 with planner open and closed at default 100% zoom. No AWS changes.
 
-## Unified animated city — 2026-10-10 IST
+## Unified animated city â€” 2026-10-10 IST
 
 User requested one detailed scene with moving trains and removal of the old 3D UI. Removed
 City.tsx, the orbit switch and Three.js dependencies. The city is now an SVG-composited 2.5D
@@ -43,7 +102,7 @@ Real route geometry and backend APIs remain separate under Route view. No cloud 
 Production build and 8 browser tests passed, including actual transform movement/pause assertions.
 Previous separate-mode descriptions below are historical and superseded by this entry.
 
-## Reference-matched cinematic opening — 2026-10-10 IST
+## Reference-matched cinematic opening â€” 2026-10-10 IST
 
 After the user rejected the procedural city's resemblance, generated a detailed architectural
 city artwork with the built-in image generation tool using the supplied screenshot as reference.
@@ -60,7 +119,7 @@ before passing tests. No new dependencies, authenticated AWS actions, resources 
 Existing live service setup requirements are unchanged. Local production preview runs at
 http://127.0.0.1:5173; start the full backend/dev pair with npm run dev after stopping that preview.
 
-## City visual refinement — 2026-10-10 IST
+## City visual refinement â€” 2026-10-10 IST
 
 User requested stronger contrast, clouds and finer building/train details. Added a camera-centered
 procedural cloud sky (fixes far-plane clipping), revised light/material balance, floor bands,

@@ -59,6 +59,9 @@ evidence AWS grants access. Lightsail needs a public ECR digest-pinned proxy ima
 
 CloudFront custom-domain inputs: `domain_name`, `hosted_zone_id`, `hosted_zone_name`,
 `cloudfront_certificate_arn` in **us-east-1**. Without these, use the distribution hostname.
+The default CloudFront certificate has an AWS-controlled TLS policy; the custom-domain
+branch explicitly enforces TLSv1.2_2021. Do not claim a configurable TLS 1.2 minimum on the
+default certificate. HTTPS redirect/private OAC origin remains enabled in either branch.
 SQL inputs: `sql_writer_secret_arn`, supported `postgres_version` (template default 16.6).
 RDS additionally requires `sql_image_uri` built with psycopg and the official CA trust bundle.
 Use current regional engine availability checks below before approving that version.
@@ -108,6 +111,25 @@ require Resource=*. Also check ALB count, ENIs, public IPv4, RDS instance class/
 Aurora Serverless v2 and Data API region/engine compatibility, Amplify app count, Route 53 zone,
 CloudFront distributions, Lambda reserved concurrency and existing SageMaker training quotas.
 Do not increase quotas, enable subscriptions or bootstrap automatically.
+
+VPC stacks override synth-time AZ lookup with deployment-time `Fn::GetAZs`/`Fn::Select` for
+two zones. No cached account AZ list or live EC2 lookup is needed to synthesize. Before
+deployment verify the account has at least two usable zones (and check Fn::GetAZs/default
+subnet behavior): `aws ec2 describe-availability-zones --filters Name=state,Values=available
+--profile dev-admin --region ap-south-1`, requiring ec2:DescribeAvailabilityZones.
+Offline combined-profile checks use an explicitly fictitious account/image/secret ARN;
+these placeholders are not provisioned resources or verified configuration.
+
+RDS schema setup needs an approved private administration path. For example, use a temporary
+SSM-managed admin host in DatabaseVpc plus the necessary SSM interface endpoints, or an
+existing authorized private connection. Those host/endpoints have additional charges and
+are not created here. Allow database port 5432 only from that host/security group. In a
+TLS-verified psql session create `ecoroute_writer` with LOGIN, NOSUPERUSER, NOCREATEDB and
+NOCREATEROLE; set its locally generated password using interactive `\password`, not literal
+shell/SQL history, then run the migration. Store the same password in the restricted writer
+secret. Verify its grants, replay DLQ reports if any, and remove temporary administration
+resources. Aurora's approved Data API admin path is an alternative, using the separate admin
+secret only for initialization. Neither admin path belongs to the public FastAPI runtime.
 
 Runtime roles reuse only Core's scoped API actions, including exact optional provider secrets,
 Location provider ARNs, Bedrock model, SMS topics and ML inference ARN. Separate task execution,

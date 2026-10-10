@@ -1,5 +1,38 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Selectable service integration — 2026-10-10
+
+The Lambda default remains unchanged. Optional ComputeStack deploys the same FastAPI image
+using Core Cognito, data environment and API permissions on ECS/Fargate, EC2, EKS or eligible
+App Runner. Gateway can hand off to a verified HTTPS origin while retaining read/write JWT
+scopes and forwarding the request path. EKS uses Pod Identity; its app apply/HTTPS ingress
+are explicit operator prerequisites. Lightsail is a credential-free HTTPS proxy to Gateway.
+HostingStack serves the existing Vite build through private S3/OAC CloudFront with optional
+Route 53 aliases, or manual Amplify hosting. No frontend/navigation changes are made here.
+
+Optional AnalyticsStack consumes the route engine's existing anonymous S3 reports through
+its own encrypted SQS/DLQ and validation Lambda into either RDS PostgreSQL (isolated VPC,
+TLS verify-full, secret endpoint, no NAT) or Aurora PostgreSQL Data API (bounded 0.5–1 ACU).
+It never replaces owned DynamoDB records, stores health data or archives Google responses.
+Writer secret/user is separate from generated DB admin; schema initialization is an operator
+step. New ECS/EC2/SQL alarms reuse Core's unsubscribed operational SNS topic.
+See MULTISERVICE_INTEGRATION.md for costs and the full configure/deploy/verify sequence.
+All resources in this update are defined locally, not deployed or live-verified.
+
+```mermaid
+flowchart LR
+  UI[Existing React build] --> Host[CloudFront or Amplify]
+  Host --> Gateway[API Gateway and Cognito JWT]
+  Proxy[Optional Lightsail HTTPS proxy] --> Gateway
+  Gateway --> API[Same FastAPI on Lambda or selected compute]
+  API --> Data[Existing DynamoDB and private S3]
+  API --> ML[Existing optional inference workflow]
+  API --> Reports[Anonymous S3 route reports]
+  Reports --> Q[Optional analytics SQS and DLQ]
+  Q --> Writer[Validated SQL Lambda]
+  Writer --> SQL[RDS or Aurora]
+```
+
 Frontend addition authorized after Phase7: React/TypeScript static SPA + lazy Three.js scene.
 Historical mode imports an actual public-landmark response. Live mode uses memory-only Cognito
 access token after PKCE and calls the existing REST API; it never falls back to recorded data.
