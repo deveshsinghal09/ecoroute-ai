@@ -22,7 +22,7 @@ test('live mode clears preview and cannot silently authenticate',async({page})=>
   await page.getByRole('button',{name:'Close dialog'}).click();
   await page.getByRole('button',{name:'Open journey planner'}).click();
   await expect(page.locator('.route-option')).toHaveCount(0);
-  await page.getByLabel('Allow this route to be stored in my account.').check();
+  await page.getByLabel('Allow processing my locations and route. Google routes are not saved.').check();
   await page.getByRole('button',{name:'Compare routes',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('Sign in with Cognito');
   expect(await page.evaluate(()=>Object.keys(localStorage))).toEqual([]);
@@ -103,7 +103,7 @@ test('travel mode controls explain prerequisites without reusing driving results
  await expect(page.locator('.route-option')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Connect routing'})).toBeVisible();
  await page.getByRole('button',{name:'Cycle',exact:true}).click();
- await expect(page.getByText('Cycling requires a bicycle routing provider. It is not configured yet.')).toBeVisible();
+ await expect(page.getByText('Cycling requires Google routing in Live services; availability depends on local coverage.')).toBeVisible();
  await expect(page.locator('.route-option')).toHaveCount(0);
  await page.getByRole('button',{name:'Drive',exact:true}).click();
  await expect(page.locator('.route-option')).toHaveCount(2);
