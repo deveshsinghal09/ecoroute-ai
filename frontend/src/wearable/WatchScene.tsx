@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useRef} from 'react';
 import {Canvas,useFrame,useThree} from '@react-three/fiber';
-import {CanvasTexture,ExtrudeGeometry,Group,Path,Shape,SRGBColorSpace,MathUtils,MeshBasicMaterial} from 'three';
+import {CanvasTexture,ShapeGeometry,LinearFilter,ExtrudeGeometry,Group,Path,Shape,SRGBColorSpace,MathUtils,MeshBasicMaterial} from 'three';
 import {paintScreen} from './watchScreen';
 import type {WatchData,WatchPage,WatchSettings} from './watchData';
 
@@ -17,8 +17,8 @@ type Props={data:WatchData;page:WatchPage;settings:WatchSettings;animate:boolean
 
 function Product({data,page,settings,animate,tilt,onNext,onHome,onFailure,onReady}:Props){
  const group=useRef<Group>(null);const display=useRef<MeshBasicMaterial>(null);const changed=useRef(0);const start=useRef<number|null>(null);const pulseFrame=useRef(0);const {invalidate,gl}=useThree();
- const pieces=useMemo(()=>({case:geometry(2.45,2.86,.49,.30),bezel:geometry(2.40,2.81,.47,.045),glass:geometry(2.27,2.65,.43,.045),screen:geometry(2.12,2.49,.35,.008),upper:geometry(1.48,1.76,.20,.12),lower:geometry(1.48,1.93,.28,.12,true),keeper:geometry(1.62,.22,.05,.08)}),[]);
- const texture=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=1200;const texture=new CanvasTexture(canvas);texture.colorSpace=SRGBColorSpace;texture.anisotropy=8;return texture;},[]);
+ const pieces=useMemo(()=>({case:geometry(2.45,2.86,.49,.30),bezel:geometry(2.40,2.81,.47,.045),glass:geometry(2.27,2.65,.43,.045),screen:new ShapeGeometry(outline(2.12,2.49,.35),24),upper:geometry(1.48,1.76,.20,.12),lower:geometry(1.48,1.93,.28,.12,true),keeper:geometry(1.62,.22,.05,.08)}),[]);
+ const texture=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=1200;const texture=new CanvasTexture(canvas);texture.colorSpace=SRGBColorSpace;texture.anisotropy=8;texture.generateMipmaps=false;texture.minFilter=LinearFilter;texture.magFilter=LinearFilter;return texture;},[]);
  // ShapeGeometry UVs are world coordinates; normalize them for the screen texture.
  useMemo(()=>{const uv=pieces.screen.getAttribute('uv'),pos=pieces.screen.getAttribute('position');for(let i=0;i<uv.count;i++){uv.setXY(i,(pos.getX(i)+1.06)/2.12,(pos.getY(i)+1.245)/2.49);}uv.needsUpdate=true;},[pieces]);
  useEffect(()=>{changed.current=performance.now();const paint=()=>{paintScreen(texture.image as HTMLCanvasElement,page,data,settings,new Date());texture.needsUpdate=true;invalidate();};paint();const timer=setInterval(paint,15000);return()=>clearInterval(timer);},[texture,page,data,settings,invalidate]);
@@ -58,7 +58,7 @@ function Product({data,page,settings,animate,tilt,onNext,onHome,onFailure,onRead
 }
 
 export default function WatchScene(props:Props){
- return <Canvas orthographic camera={{position:[0,0,12],zoom:60,near:.1,far:40}} dpr={[1,2]} frameloop={props.animate?'always':'demand'} gl={{antialias:true,alpha:true,powerPreference:'low-power'}} style={{touchAction:'pan-y'}}>
+ return <Canvas orthographic camera={{position:[0,0,12],zoom:60,near:.1,far:40}} dpr={2} frameloop={props.animate?'always':'demand'} gl={{antialias:true,alpha:true,powerPreference:'low-power'}} style={{touchAction:'pan-y'}}>
   <ambientLight intensity={1.5}/><directionalLight position={[-4,5,8]} intensity={4} color="#d4faff"/><directionalLight position={[4,-2,5]} intensity={2.5} color="#779eff"/><pointLight position={[0,4,3]} intensity={8} color="#ffffff"/>
   <Fit/><Product {...props}/>
  </Canvas>;

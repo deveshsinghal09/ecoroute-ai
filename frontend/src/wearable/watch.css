@@ -17,3 +17,21 @@
 @media(max-width:740px){.detail-panel.wearable-panel{width:auto;max-width:none;top:auto;max-height:none;padding:15px}.eco-watch-viewport{height:490px}.eco-watch{padding:18px 15px}.eco-watch-title h3{font-size:26px}}
 @media(prefers-reduced-motion:reduce){.eco-watch *{animation:none!important;transition:none!important}}
 @keyframes eco-watch-enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Wearable-only porcelain/orange surface, aligned with the city dashboard. */
+.city-stage .detail-panel.wearable-panel{background:#f4f3ef;color:#25292b;border:1px solid #fff;box-shadow:0 18px 55px #24323c35,inset 0 0 0 1px #d9d6cf;backdrop-filter:none;scrollbar-color:#bcbbb5 #f4f3ef}
+.wearable-panel .eco-watch{background:#faf9f6;color:#25292b;border:1px solid #d8d6d0;border-top:3px solid #ee702e;box-shadow:0 7px 22px #4037280b}
+.wearable-panel .panel-heading h2,.wearable-panel>h3,.eco-watch-title h3{color:#25292b}
+.eco-watch-title h3 span{color:#c34e18}.eco-watch-title>svg{color:#a44921}
+.wearable-panel .overline,.wearable-panel .panel-description,.wearable-panel .note,.wearable-panel .field-label,.eco-watch-title p,.eco-watch-eyebrow,.eco-watch-drag,.eco-watch-navigation small,.eco-watch-disclaimer,.eco-watch-loading{color:#5c6465}
+.wearable-panel .panel-icon{color:#d2551b;background:#f9e5d9;border:1px solid #edc6af}
+.eco-watch-demo,.wearable-panel .small-badge{color:#995125;border-color:#e2c6b6;background:#fff0e6}
+.eco-watch-orbit{background:radial-gradient(ellipse,#d9d5cd88 0%,#eee9e166 38%,transparent 70%)}
+.eco-watch button{color:#51595a}.eco-watch button:hover{background:#f6e4d8;color:#ae461b}.eco-watch-navigation button{border-color:#d7d4cc;background:#fff}
+.eco-watch-tabs{padding:5px;background:#eeede8;border-radius:13px}.eco-watch-tabs button[aria-pressed=true]{background:#fff;border-color:#e6ad8b;color:#bd4a16;box-shadow:0 2px 5px #5e402012}
+.eco-watch-readout{color:#343b3d}.eco-watch-actions{border-color:#ddd9d1}
+.eco-watch-settings label{color:#394346}.eco-watch-settings select,.wearable-panel .field-label input{background:#fff;border:1px solid #c7c8c3;color:#25292b}
+.eco-watch-settings input[type=range],.eco-watch-toggle input{accent-color:#e66b2d}.eco-watch button:focus-visible,.eco-watch select:focus-visible,.eco-watch input:focus-visible{outline-color:#d75c20}
+.wearable-panel .field-label input::placeholder{color:#697477}.wearable-panel .data-result{background:#eeede8;color:#26383e}
+.wearable-panel .primary-button:disabled{opacity:1;background:#f1d2bf;color:#775f51}
+.eco-watch-fallback p{color:#5c6465}

@@ -11,7 +11,7 @@ function FallbackWatch(){return <div className="eco-watch-fallback"><svg viewBox
 
 export default function SmartwatchShowcase({data=watchDemo}:{data?:WatchData}){
  const [page,setPage]=useState(0),[failed,setFailed]=useState(false),[ready,setReady]=useState(false);
- const [settings,setSettings]=useState<WatchSettings>({accent:'#58ddeb',brightness:100,motion:true,previewAlerts:true});
+ const [settings,setSettings]=useState<WatchSettings>({accent:'#ff914d',brightness:100,motion:true,previewAlerts:true});
  const [reduced,setReduced]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
  const [visible,setVisible]=useState(true),[active,setActive]=useState(!document.hidden);
  const [tilt,setTilt]=useState({x:0,y:0});const host=useRef<HTMLDivElement>(null);const swipe=useRef<{x:number;y:number}|null>(null);
@@ -35,7 +35,7 @@ export default function SmartwatchShowcase({data=watchDemo}:{data?:WatchData}){
   <div className="eco-watch-tabs" role="group" aria-label="Watch screens">{watchPages.map((name,i)=>{const Icon=icons[i];return <button key={name} title={name} aria-label={`Watch ${name}`} aria-pressed={page===i} onClick={()=>setPage(i)}><Icon size={17}/></button>;})}</div>
   <p className="eco-watch-readout" aria-live="polite">{pageSummary(watchPages[page],data)}</p>
   {watchPages[page]==='Settings'&&<div className="eco-watch-settings">
-   <label>Screen theme<select value={settings.accent} onChange={e=>setSettings(s=>({...s,accent:e.target.value}))}><option value="#58ddeb">Glacier · cyan</option><option value="#b0ef75">Volt · green</option></select></label>
+   <label>Screen theme<select value={settings.accent} onChange={e=>setSettings(s=>({...s,accent:e.target.value}))}><option value="#ff914d">Transit · orange</option><option value="#58ddeb">Glacier · cyan</option><option value="#b0ef75">Volt · green</option></select></label>
    <label>Brightness · {settings.brightness}%<input aria-label="Watch brightness" type="range" min="35" max="100" value={settings.brightness} onChange={e=>setSettings(s=>({...s,brightness:Number(e.target.value)}))}/></label>
    <label className="eco-watch-toggle"><span>Preview notification cards</span><input type="checkbox" checked={settings.previewAlerts} onChange={e=>setSettings(s=>({...s,previewAlerts:e.target.checked}))}/></label>
   </div>}
