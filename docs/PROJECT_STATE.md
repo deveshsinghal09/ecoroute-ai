@@ -593,3 +593,5 @@ build and five watch browser tests passed. Existing lazy bundle warning unchange
 Wearable palette refinement: pale sky-blue outer panel and navigation, warm ivory inner showcase, light-orange border on all four sides and selected controls. No placeholder readings restored. Production build and five watch browser tests passed; desktop screenshot reviewed.
 
 Wearable styling: darkened outer sky blue to #d3e7f1 and hid the sidebar scrollbar without disabling wheel/touch scrolling. Updated palette assertion.
+
+Shared sidebar sizing: City overview, Air quality, Journeys, Insights and Wearable now share responsive width/height. All panel scrollbars hidden while wheel/touch scrolling remains enabled. Map area reserves the expanded panel width. Production build and 11 dashboard tests passed, including cross-tab dimension/scrollbar checks.
