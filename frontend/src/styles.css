@@ -72,3 +72,16 @@
 @media(min-width:741px) and (max-height:850px){.city-stage{--detail-top:66px;--detail-height:calc(100% - 78px)}}
 @media(min-width:741px) and (max-width:960px){.city-stage{--detail-width:370px}}
 @media(max-width:740px){.city-stage .detail-panel,.city-stage .detail-panel.wearable-panel{width:auto;max-width:none;top:auto;height:680px;max-height:80dvh;padding:15px;overflow-y:auto}}
+
+/* Matching warm-orange treatment for the remaining dashboard detail panels. */
+.city-stage .detail-panel:not(.wearable-panel){background:#fff5eb;border:2px solid #efbc96;box-shadow:0 18px 55px #24323c25;backdrop-filter:none;color:#25333c}
+.detail-panel:not(.wearable-panel) .panel-icon{background:#ffe9d8;border-color:#efc3a4;color:#b65023}
+.detail-panel:not(.wearable-panel) .location-fields,.detail-panel:not(.wearable-panel) .route-option,.detail-panel:not(.wearable-panel) .field-label input,.detail-panel:not(.wearable-panel) .field-label select{background:#fffdf9;border-color:#e5cdbb}
+.detail-panel:not(.wearable-panel) .travel-modes{background:#f6e3d3}
+.detail-panel:not(.wearable-panel) .travel-modes .chosen,.detail-panel:not(.wearable-panel) .route-option.chosen{background:#ffe5d0;border-color:#df986a;color:#753817}
+.detail-panel:not(.wearable-panel) .small-badge{background:#fff0e3;border-color:#e5bd9f;color:#82502e}
+.detail-panel:not(.wearable-panel) .secondary-button{background:#ffead9;border-color:#e9b78f;color:#803e1c}
+.detail-panel:not(.wearable-panel) .fact-list>div{border-color:#e8d1bf}
+.detail-panel:not(.wearable-panel) .explanation{background:#fffaf4;border:1px solid #ecd1ba;border-radius:12px;padding:16px}
+.detail-panel:not(.wearable-panel) .data-result{background:#f9e9dc}
+.detail-panel:not(.wearable-panel) .field-divider{background:#e7ceba}

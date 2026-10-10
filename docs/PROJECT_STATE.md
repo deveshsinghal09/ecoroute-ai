@@ -595,3 +595,5 @@ Wearable palette refinement: pale sky-blue outer panel and navigation, warm ivor
 Wearable styling: darkened outer sky blue to #d3e7f1 and hid the sidebar scrollbar without disabling wheel/touch scrolling. Updated palette assertion.
 
 Shared sidebar sizing: City overview, Air quality, Journeys, Insights and Wearable now share responsive width/height. All panel scrollbars hidden while wheel/touch scrolling remains enabled. Map area reserves the expanded panel width. Production build and 11 dashboard tests passed, including cross-tab dimension/scrollbar checks.
+
+Dashboard palette consistency: City overview, Air quality, Journeys and Insights now use light-orange surrounds, full peach borders, warm-white fields/cards and pale-orange selected controls. Wearable palette retained. Equal panel dimensions and hidden scrollbars preserved. Production build passed; existing lazy Three.js chunk warning unchanged.
