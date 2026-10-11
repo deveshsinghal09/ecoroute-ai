@@ -1,5 +1,14 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Selected-route metric presentation - 2026-10-11
+
+JourneyMetrics renders only selected Route props; it holds no cached pollution state. Selecting
+cards/map paths clears explanations/service results. PM2.5 concentration remains exposure divided
+by duration hours; exposure and coverage are distinct. Same-cell flag explains matching average
+concentrations while duration/exposure change. No artificial route-specific measurements or new
+backend dataflow. Desktop/mobile instrument layout retains existing dashboard styling.
+
+
 Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
 retry messages served and browser comparison returned2routes with full forecast coverage.
 

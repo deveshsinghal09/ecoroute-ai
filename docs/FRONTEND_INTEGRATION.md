@@ -1,5 +1,11 @@
 # Frontend integration — EcoRoute AI backend
 
+Selected-route instruments: bind all figures to the clicked route_id. Show route duration/distance,
+mean PM2.5 concentration, total concentration-time exposure and completeness separately. When
+spatial_differentiation=not_resolved_same_model_cell, matching concentrations are expected; do not
+introduce invented variation. Clear previously generated explanations when selection changes.
+
+
 The React/Three.js frontend lives in frontend/; local UI: http://127.0.0.1:5173.
 Backend local base URL: http://127.0.0.1:8000. See frontend/README.md for PKCE and live-mode setup.
 AWS base URL: https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com (Core runtime verified).

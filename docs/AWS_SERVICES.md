@@ -1,5 +1,13 @@
 # AWS service decisions and IAM boundaries
 
+## Selected-route frontend state - 2026-10-11
+
+Only React sidebar state/presentation changed; existing API Gateway/Lambda/curated forecast route
+response is reused. No AWS stack, IAM, schedule, SMS or training change. Local tests use recorded
+road fixtures/artificial UI metrics, with no real provider invocation. Amplify source pushed;
+publication verification pending. Matching coarse forecasts are preserved rather than invented.
+
+
 Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
 retry messages served and browser comparison returned2routes with full forecast coverage.
 

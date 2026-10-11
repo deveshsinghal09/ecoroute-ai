@@ -1,5 +1,14 @@
 # API contract — backend foundation and environmental datasets
 
+## Frontend selected-route metric binding - 2026-10-11
+
+No endpoint/schema change. Sidebar binds to selected Route duration_s/distance_m,
+estimated_pm25_exposure_ug_h_m3 and pm25_coverage_fraction. Mean PM2.5 ug/m3 equals full exposure
+ug*h/m3 divided by duration hours; missing full exposure yields unavailable concentration. Route
+number denotes response order, not a new persisted ID. Same-cell flag explains equal concentrations;
+coverage is a completeness measure, not an AQI/health score. Selection clears old explanation text.
+
+
 Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
 retry messages served and browser comparison returned2routes with full forecast coverage.
 

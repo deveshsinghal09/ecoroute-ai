@@ -1,5 +1,27 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Selected-route sidebar correction - 2026-10-11
+
+User saw identical PM2.5/coverage after selecting an alternative. Existing state already derived
+those values from the selected route; same-cell forecasts legitimately produced matching mean
+concentrations/100%coverage. Added JourneyMetrics component: visible route number/time/distance,
+route-weighted concentration, main concentration-time exposure and secondary coverage. Explicit
+same-cell note appears only when response flags not_resolved_same_model_cell. No invented spatial
+variation, observations or live forecasts. Missing exposure stays unavailable and real zero stays0.
+Central selection callback handles cards/map/keyboard, updates derived metrics and clears stale
+explanations/service results. Stable callback avoids unnecessary map overlay recreation.
+
+Created frontend/src/JourneyMetrics.tsx, journey-metrics.css and JourneyMetrics.test.tsx;
+modified App.tsx and dashboard.spec.ts. Preserved silver/charcoal/orange style and viewport layout.
+Used Impeccable clarify/craft guidance; detector0findings. Commands: frontend Vitest52passed,
+production build/pass, dashboard browser13passed, map browser9passed, diff/pass. Initial browser
+JSON import needed type:json attribute; corrected run passed. Inspected mobile screenshot; existing
+Three chunk warning remains. No backend/CDK/IAM/service change or new provider calls for fixtures.
+Code committed/pushed; Amplify publication still requires live verification. Maintained five docs
+and frontend integration semantics. Real cloud comparison must still confirm alternative selection
+when newly served bundle is available. No backend test/synth repeated for frontend-only change.
+
+
 ## Routing allowance correction - 2026-10-11
 
 Reproduced live429/location_request_budget_exhausted. Old cloud allowance100daily/30hourly counts

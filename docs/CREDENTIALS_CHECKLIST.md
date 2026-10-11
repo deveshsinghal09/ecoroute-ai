@@ -1,5 +1,13 @@
 # Credentials and configuration checklist
 
+## Selected-route UI - 2026-10-11
+
+No new credential/IAM setting required. Sidebar change consumes existing route response and clears
+old summaries on selection. Same-cell forecasts may share concentrations. Missing geographic data
+remains unavailable; provider coverage/refresh prerequisites are unchanged. Publication is through
+existing Amplify branch; committed UI changes require served-bundle verification before claiming live.
+
+
 Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
 retry messages served and browser comparison returned2routes with full forecast coverage.
 
