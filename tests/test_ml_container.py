@@ -42,10 +42,15 @@ def test_sagemaker_train_and_serve_container(tmp_path):
     dataset = write_dataset(parts, manifest, tmp_path / "datasets")
     output = tmp_path / "models"
     output.mkdir()
+    # Linux bind-mounted artifacts must belong to the host test runner. The
+    # container's default root user otherwise creates intentionally private files
+    # that pytest cannot read or update. Windows uses Docker Desktop ACL mapping.
+    run_user=["--user",f"{os.getuid()}:{os.getgid()}"] if os.name=="posix" else []
     subprocess.run(
         [
             "docker",
             "run",
+            *run_user,
             "--rm",
             "--network",
             "none",
@@ -63,7 +68,7 @@ def test_sagemaker_train_and_serve_container(tmp_path):
     assert len(manifests) == 1 and not json.loads(manifests[0].read_text())["verified"]
     # Serving must refuse a synthetic artifact, including one that beats a synthetic baseline.
     refused = subprocess.run(
-        ["docker", "run", "--rm", "--network", "none", "-v", f"{output}:/opt/ml/model:ro", "ecoroute-ml:ci", "serve"],
+        ["docker", "run", *run_user, "--rm", "--network", "none", "-v", f"{output}:/opt/ml/model:ro", "ecoroute-ml:ci", "serve"],
         capture_output=True, text=True, timeout=30,
     )
     assert refused.returncode != 0 and "no_verified_station_model" in refused.stderr
@@ -76,6 +81,7 @@ def test_sagemaker_train_and_serve_container(tmp_path):
         [
             "docker",
             "run",
+            *run_user,
             "-d",
             "--rm",
             "-p",
