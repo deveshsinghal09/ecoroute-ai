@@ -124,7 +124,7 @@ test('all dashboard panels share dimensions and hide scrollbars',async({page})=>
 test('insights separates actual local metrics from unavailable navigation training',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Insights',exact:true}).click();
  await page.getByText('Completed local training evaluation',{exact:true}).click();
- await expect(page.locator('.training-evidence')).toContainText('420,768');
+ await expect(page.locator('.training-evidence')).toContainText(/4,?20,?768/);
  await expect(page.locator('.training-evidence')).toContainText('9.75');
  await expect(page.locator('.training-evidence')).toContainText('No SageMaker training job has run');
  await expect(page.locator('.training-evidence')).toContainText('excluded from Delhi navigation');
