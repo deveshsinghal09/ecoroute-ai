@@ -1,5 +1,7 @@
 # EcoRoute AI project state — Phases 1–7
 
+Public frontend verified: https://main.d3txif33djiy59.amplifyapp.com/ returns200 and JavaScript asset200. Bundle contains localhost API fallback and no Mumbai execute-api domain; not proof of working backend. Prepared exact hosted origin/callback in ignored work/aws-deploy.context.json. Amplify environment/rebuild pending actual backend output.
+
 ## Frontend reported deployed; stale bootstrap upload detected � 2026-10-11
 
 User reports Amplify frontend deployment; public URL requested for verification. Amplify ListApps denied to CLI, so hosting status not independently verified. CDKToolkit UPDATE_COMPLETE, but GetTemplate proves account-level mapping statement still only GetEventSourceMapping, missing Update/Delete. Core remains DELETE_FAILED; no further cleanup attempted. Generated distinctly named ignored work/EcoRouteBootstrap-mapping-lifecycle.json from current reviewed generator to prevent stale upload. Console update of Compute policy remains required. Backend API base URL still unavailable; production frontend needs VITE_API_BASE_URL and exact backend CORS/Cognito callback settings once known. No secrets shared/uploaded, no new resources or tests run this turn.
