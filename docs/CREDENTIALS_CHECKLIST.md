@@ -580,3 +580,7 @@ approval-gated. The role is created by CDK, not a requirement to start Studio/no
 launcher needs job-specific SageMaker actions and role-specific iam:PassRole with PassedToService
 sagemaker.amazonaws.com; training role needs scoped S3 data/artifact access, ECR pulls/token,
 training logs. Latest local preparation found zero eligible samples, so no paid training is ready.
+
+## Route-control audit — 12 October 2026
+No new credentials or IAM permissions are needed for the local scoring/UI corrections. Existing Google server routing key, openrouteservice key, route-air and weather enablement, and approved station inference prerequisites still apply. The latest public cloud check stopped at location_daily_budget_exhausted (429); this is an allowance blocker, not proof that keys are invalid. Do not bypass/reset the counter to claim success. After reset use scripts/check_route_controls.py --live with the public API base URL. Station model verification remains protected and needs an authenticated session; no token was requested or used in this audit.
+- Deployment follow-up: dev-admin/devesh_eco identity and expected Mumbai account verified. Existing CDK bootstrap roles successfully deployed the code-only Core update. No missing deployment credentials or new permissions were encountered.

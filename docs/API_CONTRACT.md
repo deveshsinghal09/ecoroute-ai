@@ -422,3 +422,7 @@ Only server-owned route facts are passed, without geometry, user/health/place/pr
 API and Cognito ownership/scopes remain unchanged. Guest Google request-only Insights does not
 invoke this saved-route API and remains deterministic. See AWS_READINESS_AND_GEMINI.md.
 No deployed API URL, successful Gemini call or trained-model result is claimed.
+
+## Route scoring semantics — 12 October 2026 (local update)
+Balanced only requires availability for factors with nonzero weights. Zero pollution weight permits time/weather/terrain ranking while PM2.5 exposure remains null when unsupported. Lowest exposure still requires complete exposure. max_detour_percent is a time limit relative to the fastest provider candidate, not a distance limit. Excluded alternatives remain marked within_detour_limit=false. Request schemas, units and protected scopes are unchanged.
+- Deployment follow-up: zero-weight scoring behavior is now deployed to the existing cloud API; schemas and auth scopes remain unchanged. Full live route scoring must be rechecked after the existing allowance reset.

@@ -554,3 +554,7 @@ and Lambda inference; neither deployment nor a role implies trained data/models.
 eligible sample count is zero. CloudFront serves the existing frontend through private S3/OAC;
 other runtimes/SQL/Amplify stay alternatives. No new deployment or paid job was performed.
 See [current AWS runbook](AWS_READINESS_AND_GEMINI.md).
+
+## Route-control audit — 12 October 2026
+The route engine now supports scoring when pollution weight is zero without inventing missing pollution. Only enabled weighted factors are required; Lowest exposure still needs complete coverage. Local frontend departure defaults to submission-time Leave now, with optional scheduling, objective-compatible weights and stale-result notices. Drive/Walk use Google; Cycle uses openrouteservice. Fresh live testing was blocked by the existing daily allowance. See ROUTE_CONTROL_AUDIT.md; these corrections are local, not deployed.
+- Deployment follow-up: EcoRouteCore scoring update is now verified UPDATE_COMPLETE. The reviewed diff changed only six shared Lambda code assets; frontend publication follows through Amplify. Fresh road-route verification remains allowance-blocked.

@@ -470,3 +470,7 @@ service called server-side, not an AWS service and not a SageMaker substitute. S
 reference, sanitized facts, approved text validation, request caps and fallback are integrated.
 No key/model invocation was verified. Google guest Insights remains deterministic. IAM ECR token
 retrieval requires Resource:* with a Mumbai condition; separate image access is repository-scoped.
+
+## Route-control audit — 12 October 2026
+No resources provisioned or AWS authenticated actions performed. One public API Gateway/Lambda route check returned 429 for the existing daily request allowance; no further mode/provider calls were attempted. Existing S3/DynamoDB forecast data and request-time Open-Meteo/weather adapters remain the source path; route weights affect deterministic ranking, not pollutant values. Local scoring and UI fixes require publication before they affect the deployed API. Existing cost limits were preserved.
+- Deployment follow-up: existing EcoRouteCore stack updated successfully; six Lambda code assets only. API health/access protection/CORS verified. No new services, IAM changes or additional recurring service classes introduced.

@@ -206,3 +206,7 @@ provider payloads/model metrics use flexible objects without pretending their co
 | POST /api/v1/schools/compare-routes | ecoroute/write | SchoolRequest; no parameters | inline object; pointer paths/~1api~1v1~1schools~1compare-routes/post/responses | configuration-dependent |
 | GET /api/v1/schools/forecast | ecoroute/read | none; school_id, forecast_date | inline object; pointer paths/~1api~1v1~1schools~1forecast/get/responses | configuration-dependent |
 | GET /api/v1/workflows/status | ecoroute/read | none; no parameters | inline object; pointer paths/~1api~1v1~1workflows~1status/get/responses | configuration-dependent |
+
+## Planner behavior — 12 October 2026 (local update)
+Leave now resolves departure_at at submission; optional Plan a departure preserves UTC conversion and the 48-hour API window. Priority sliders apply only to Balanced; pure objectives omit unused weather/climbing costs. Changed inputs mark returned routes as needing comparison again. within_detour_limit=false alternatives display an extra-time warning; max_detour_percent refers to time. Weather and climbing status describes the last returned comparison, not newly edited settings. No endpoint or authentication schema changed.
+- Deployment follow-up: backend update verified; frontend controls are being published via the existing Amplify main branch. Endpoint and public Cognito/map build configuration are unchanged.
