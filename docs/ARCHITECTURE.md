@@ -1,5 +1,15 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Outside-Delhi verification follow-up - 2026-10-11
+
+User confirmed the deployed Drive comparison now works. Real Mumbai Gateway of India->Marine
+Drive preview returned HTTP200/twoGoogle routes (6119m/1191s and4191m/1227s). PM2.5 coverage0,
+exposure null/confidence unavailable, correctly reflecting missing collected Mumbai data. Routing
+is not Delhi-restricted; pollution-aware ranking needs area/time-matched collection and refresh.
+Safe frontend error-message changes are committed/pushed; latest public bundle inspection did
+not yet contain them, so no Amplify deployment completion is claimed. No new AWS/IAM changes.
+
+
 ## Routing failure diagnostics - 2026-10-11
 
 Amplify guest Drive flow is independently verified through the actual form and cloud API. Frontend
