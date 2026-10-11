@@ -1,5 +1,14 @@
 # Credentials and configuration checklist
 
+Current prerequisite (2026-10-11): user-created budget is reported USD50/month; CLI read remains
+denied. An authorized IAM/CloudFormation Console operator must install the prepared scoped
+bootstrap in credited account112920804206, Mumbai. See [AWS_CONSOLE_BOOTSTRAP.md](AWS_CONSOLE_BOOTSTRAP.md)
+for exact actions and costs. This replaces the unspecified execution-policy prerequisite with
+an account-specific reviewed template, but installation has not occurred. No new secret value
+is needed for this step. Generated non-secret workload_boundary_arn is mandatory for the custom
+bootstrap; keep it in the ignored deployment context. Provider secrets must be under ecoroute/
+and separately granted by exact ARN. Paid training/quota/data/device prerequisites remain pending.
+
 Latest live status (2026-10-11): EcoRouteReadiness attachment and diagnostic reads are verified.
 All selected EcoRoute stacks/CDKToolkit are confirmed absent; resource creation remains denied.
 Mumbai SageMaker ml.m5.large training-job quota L-611FA074 is0 (request1 before paid training).

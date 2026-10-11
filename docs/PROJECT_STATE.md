@@ -1,5 +1,58 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Budget created; scoped Console bootstrap prepared — 2026-10-11
+
+User confirms creation of EcoRoute-Gross-Usage; last Console review shows USD50/month,
+actual50/80/100% and forecast100% email alerts, zero actions. CLI DescribeBudget still denies
+read, so filters, persisted thresholds and delivery are not independently verified. User's
+Free plan/119.88-credit Console evidence and original USD100 ceiling remain recorded. Prior
+bounded USD5–20/month deployment approval persists; no new approval request was made.
+
+Re-ran aws_readiness.py: verified dev-admin/devesh_eco, account112920804206/ap-south-1;
+bootstrap/five selected stacks absent, resource creation still implicitly denied, Lambda10
+unreserved, exact SageMaker training quota0. No resource/training/notification created by us.
+Budget is user-created; no deployed backend URL exists. Prepared a one-time Console upload
+for an authorized operator rather than requesting broad developer AdministratorAccess.
+
+New scripts/prepare_aws_bootstrap.py transforms the locked CDK CLI2.1145.0 template offline:
+project/account/region rules, six named managed policies, five bootstrap roles, private SSE-S3
+asset bucket/ECR/version parameter, constrained lookup/deploy roles and workload boundary.
+CFN execution cannot change its own/human policies or the boundary, and requires that exact
+boundary on EcoRoute application roles. Direct developer grants cover four CDK roles and
+metadata/exact-budget reads. No new customer KMS key, app service, endpoint, SMS or training.
+Generated ignored work/EcoRouteBootstrap.console.json, policy/context/simulation
+reports; account-specific context is work/aws-deploy.context.json. docs/AWS_CONSOLE_BOOTSTRAP.md
+provides exact Console upload/permissions/costs/cleanup steps. Console IAM operator access is
+the remaining prerequisite; current CLI cannot self-grant it.
+
+Modified infra/app.py to apply the optional exact-account boundary across all selected stacks;
+manage_cloud.py forwards/validates the boundary and guards bootstrap status/context before
+app mutation. Added requirements-bootstrap.txt (isolated PyYAML6.0.3/cfn-lint1.57.2 tooling),
+tests/test_bootstrap_permissions.py and maintained five core docs/cost/runbook links. Unrelated
+ongoing Health Connect/backend/frontend changes were preserved and are not part of this update.
+
+Actual verification: focused pytest30passed before wrapper guard addition; final targeted
+bootstrap/readiness run14passed, one existing deprecation warning. A subsequent combined infra
+rerun failed during jsii import with MemoryError; the 8GB laptop had about143MB free. This is
+reported as a failed rerun, not new passing infra evidence; no unrelated processes were stopped.
+Earlier infrastructure tests and synthesis remain actual passing evidence. Ruff passed;
+five-stack offline CDK synth passed with12 bounded application roles;
+structural security review zero findings. Eight real IAM simulations with additional proposed
+policies/controlled contexts matched expected decisions (project creates allowed, unrelated
+resources/unbounded roles/paid training denied); simulations grant nothing. All new action names
+checked against official AWS catalog. Fixed two API-name-vs-IAM-action mismatches and mapping
+creation Resource* requirement using official docs. Initial lint had unreachable-option/legacy
+ACL warnings; specialized final template has zero lint warnings/errors. AWS ValidateTemplate
+returned AccessDenied: live server validation/deployment remains pending. Tooling install stays
+in ignored work/bootstrap-tools; it does not change application/Lambda dependencies.
+
+Remaining: authorized operator uploads to CloudFormation CDKToolkit in Mumbai, actual
+CREATE_COMPLETE/roles/budget/version verification, current asset/config/Cognito/CORS/provider
+secret review, then previously approved app deployment and real flow checks. Free-plan feature
+eligibility is not established by IAM simulation; stop restricted integrations without upgrading.
+SageMaker quota1, sufficient measured history, Docker/image and separate paid-job approval still
+needed. No model accuracy, live watch compatibility or notification delivery is claimed.
+
 ## Diagnostic policy attachment verified — 2026-10-11
 
 User completed the Console attachment. Live aws_readiness.py now confirms EcoRouteReadiness

@@ -1,5 +1,14 @@
 # AWS service decisions and IAM boundaries
 
+Current setup (2026-10-11): user reports creating the USD50/month budget. No application service
+or bootstrap was deployed by us. [Scoped Console bootstrap](AWS_CONSOLE_BOOTSTRAP.md) defines one
+private asset S3 bucket/ECR repository, five CDK roles, six managed policies and SSM version.
+No customer KMS key, paid training, endpoint, SMS or active schedule is included. App stack roles
+receive a project/account/Mumbai workload boundary when its exact ARN is supplied. Execution
+policy exceptions for generated IDs/global/OAC APIs are documented; no wildcard actions appear
+in the new managed policies. Final offline checks/IAM simulations pass; current actual grants
+still deny resource creation. Budget creation is user-confirmed, not CLI-verified.
+
 Latest live assessment (2026-10-11): the attached diagnostic policy now enables metadata reads;
 CDKToolkit and all five selected project stacks are absent. No project resource was deployed.
 SageMaker ml.m5.large training quota is0; no job/endpoint/warm pool was launched. Budget reads

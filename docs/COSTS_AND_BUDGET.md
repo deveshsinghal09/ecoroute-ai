@@ -1,5 +1,13 @@
 # Cost estimate and AWS Budget proposal
 
+User confirms budget creation (2026-10-11): last review USD50/month, name EcoRoute-Gross-Usage,
+actual50/80/100% and forecast100%, no automated actions. CLI verification is still denied;
+excluded Credit/Refund filter and persisted alert/delivery settings are not independently checked.
+This supersedes earlier USD10 proposal as the selected warning amount; it does not increase the
+approved USD5–20/month deployment scope or USD100 overall ceiling. Prepared bootstrap is private
+S3/ECR/SSM and scoped IAM, no CMK/compute/training/SMS; storage/requests after upload are included
+in the planning allowance. It remains undeployed. See [Console setup](AWS_CONSOLE_BOOTSTRAP.md).
+
 Latest evidence (2026-10-11): user supplied Console text showing Free plan, USD119.88 remaining
 credits and displayed plan end Dec12,2026/64 days. Individual credit expiry/eligibility is not
 verified by that home widget. Budget alerts remain unconfirmed; CLI DescribeBudget is denied.

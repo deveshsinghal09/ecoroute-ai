@@ -1,5 +1,14 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Scoped bootstrap (2026-10-11): [AWS_CONSOLE_BOOTSTRAP.md](AWS_CONSOLE_BOOTSTRAP.md) connects an
+authorized Console operator to the existing CDK app through constrained publishing/deployment
+roles, four execution policies and an enforced application-role permissions boundary. All12
+roles in the selected five-stack synthesis carry that exact-account boundary. Developer may
+assume publishing/deploy/limited-lookup roles, not the CloudFormation execution role directly.
+Runtime identities retain narrower per-resource CDK policies; the boundary is only their maximum.
+Current bootstrap/app resources remain absent; user reports budget creation only. No new API or
+frontend feature is introduced by this infrastructure preparation.
+
 Deployment assessment update (2026-10-11): EcoRouteReadiness is attached; metadata reads confirm
 the selected serverless Data/Core/ML/IoT/Hosting stacks and bootstrap are absent. Architecture
 definitions are unchanged. No service was provisioned by verification. SageMaker training-job

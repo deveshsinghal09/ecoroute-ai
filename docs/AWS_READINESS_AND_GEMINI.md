@@ -1,5 +1,13 @@
 # AWS readiness, Gemini and SageMaker — 2026-10-11
 
+Latest action: user confirms the USD50 monthly EcoRoute-Gross-Usage budget was created.
+CLI read remains denied; persisted filter/alert delivery is unverified. Provisioning permissions
+and bootstrap still block deployment. The completed [Console bootstrap setup](AWS_CONSOLE_BOOTSTRAP.md)
+now supplies a tested account-specific upload file, constrained execution policies and mandatory
+application-role boundary. It supersedes earlier instructions to supply an unspecified reviewed
+execution-policy ARN. Budget10 remains an earlier proposal, not the user's actual chosen amount.
+No app/role/bootstrap was deployed by this preparation, and existing approval is retained.
+
 ## Attachment verified — supersedes the diagnostic-denial snapshot below
 
 The CLI now verifies EcoRouteReadiness attached to devesh_eco. Its reads and IAM simulation

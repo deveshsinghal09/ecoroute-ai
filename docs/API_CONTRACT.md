@@ -1,5 +1,10 @@
 # API contract — backend foundation and environmental datasets
 
+AWS preparation (2026-10-11): budget creation is user-confirmed; bootstrap/backend remain
+undeployed. New scoped deployment IAM and optional workload boundary introduce no REST operation
+in this change. Cognito ownership/consent checks remain required on private deployed APIs.
+There is no cloud backend URL to configure yet; follow AWS_CONSOLE_BOOTSTRAP.md before deployment.
+
 AWS assessment update (2026-10-11): IAM diagnostic attachment/read access is verified; no AWS
 backend URL exists because bootstrap/project stacks are absent. Existing endpoint schemas,
 Cognito ownership/consent protections and local functionality are unchanged. A metadata-read
