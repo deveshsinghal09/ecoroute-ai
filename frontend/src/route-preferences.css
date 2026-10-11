@@ -11,4 +11,12 @@
 .route-preferences-body select{width:100%;margin-top:6px;border:1px solid #ba8159;border-radius:7px;padding:8px;background:#fff;color:#283137}
 .route-preferences-body :focus-visible{outline:2px solid #234d61;outline-offset:3px}
 .route-factor-summary{font-size:11px;line-height:1.5;color:#35464d;margin:8px 0}
+.training-evidence{font-size:12px;line-height:1.5;color:#283137;margin:14px 0}
+.training-evidence summary{cursor:pointer;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.training-evidence p{margin:8px 0}
+.training-evidence table{border-collapse:collapse;width:100%;font-size:11px;font-variant-numeric:tabular-nums}
+.training-evidence caption{text-align:left;margin-bottom:6px}
+.training-evidence th,.training-evidence td{padding:6px 2px;border-bottom:1px solid #d9b79c;text-align:right}
+.training-evidence th:first-child{text-align:left}
+.training-evidence a{color:#96370e;text-underline-offset:3px}
 @media(max-width:740px){.route-preferences-body{max-height:55dvh}}
