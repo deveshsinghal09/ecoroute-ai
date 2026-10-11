@@ -33,4 +33,19 @@ describe('API connection and guest authorization', () => {
     await expect(api.request('/wearables/latest')).rejects.toThrow('Sign in with Cognito');
     expect(fetch).not.toHaveBeenCalled();
   });
+  it('requires authentication for phone reads and confines the local key to bridge endpoints', async () => {
+    await expect(api.requestHealthConnect('/wearables/health-connect/summary')).rejects.toThrow('pairing key');
+    await expect(api.requestHealthConnect('/wearables/latest','SYNTHETIC_PAIR_KEY')).rejects.toThrow('Invalid Health Connect');
+    expect(fetch).not.toHaveBeenCalled();
+    await api.requestHealthConnect('/wearables/health-connect/summary?consent=true','SYNTHETIC_PAIR_KEY');
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/health-connect/summary?consent=true'),expect.objectContaining({method:'GET',cache:'no-store',credentials:'omit',headers:{Authorization:'Bearer SYNTHETIC_PAIR_KEY'}}));
+    expect(api.signedIn()).toBe(false);
+    await expect(api.request('/wearables/latest')).rejects.toThrow('Sign in with Cognito');
+  });
+  it('shows only safe bridge errors, never provider text or credentials', async () => {
+    vi.mocked(fetch).mockResolvedValue({ok:false,status:504,json:async()=>({error:{code:'health_connect_timeout',detail:'PRIVATE_MARKER'}})} as Response);
+    await expect(api.requestHealthConnect('/wearables/health-connect/summary','SYNTHETIC_PAIR_KEY')).rejects.toThrow('phone took too long');
+    vi.mocked(fetch).mockResolvedValue({ok:false,status:502,json:async()=>({error:{code:'PRIVATE_MARKER'}})} as Response);
+    await expect(api.requestHealthConnect('/wearables/health-connect/summary','SYNTHETIC_PAIR_KEY')).rejects.toThrow('request failed');
+  });
 });

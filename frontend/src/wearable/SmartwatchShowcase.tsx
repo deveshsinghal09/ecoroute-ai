@@ -20,8 +20,9 @@ export default function SmartwatchShowcase({data:provided}:{data?:WatchData}){
  const freshHeart=Boolean(incoming?.heartRateAt&&clock-Date.parse(incoming.heartRateAt)<60000&&clock-Date.parse(incoming.heartRateAt)>=-5000);
  const freshBattery=Boolean(incoming?.batteryAt&&clock-Date.parse(incoming.batteryAt)<300000);
  const currentSteps=incoming?.reportedAt?.slice(0,10)===new Date(clock).toISOString().slice(0,10);
- const data=incoming?{...incoming,heartRate:freshHeart?incoming.heartRate:undefined,battery:freshBattery?incoming.battery:undefined,steps:currentSteps?incoming.steps:undefined}:undefined;
- const status=connection==='connecting'?'CONNECTING':incoming?.source==='backend'?'RECORDED READING':freshHeart?'READING RECEIVED':connection==='connected'||incoming?'WAITING FOR READING':'NOT CONNECTED';
+ const fromHealthConnect=incoming?.source==='health_connect';
+ const data=incoming?{...incoming,heartRate:fromHealthConnect||freshHeart?incoming.heartRate:undefined,battery:freshBattery?incoming.battery:undefined,steps:fromHealthConnect||currentSteps?incoming.steps:undefined}:undefined;
+ const status=connection==='connecting'?'CONNECTING':fromHealthConnect?'HEALTH CONNECT RECORDS':incoming?.source==='backend'?'RECORDED READING':freshHeart?'READING RECEIVED':connection==='connected'||incoming?'WAITING FOR READING':'NOT CONNECTED';
  const [page,setPage]=useState(0),[failed,setFailed]=useState(false),[ready,setReady]=useState(false);
  const [settings,setSettings]=useState<WatchSettings>({accent:'#ff914d',brightness:100,motion:true,previewAlerts:true});
  const [reduced,setReduced]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -38,8 +39,8 @@ export default function SmartwatchShowcase({data:provided}:{data?:WatchData}){
    <label><input type="checkbox" checked={consent} onChange={e=>{setConsent(e.target.checked);if(!e.target.checked)bluetooth.disconnect();}}/>Allow this browser to read my watch over Bluetooth</label>
    <div><button disabled={!consent||connection!=='disconnected'} onClick={()=>void bluetooth.connect()}>Connect Bluetooth</button><button disabled={connection==='disconnected'} onClick={()=>{bluetooth.disconnect();setConnectionError('');}}>Disconnect & clear</button></div>
    <p>Standard heart-rate sensors only. No health readings are uploaded or saved by this connection.</p>
-   {incoming?.heartRateAt&&<p>{incoming.source==='backend'?'Last heart-rate observation reported':'Last heart-rate packet received'}: {new Date(incoming.heartRateAt).toLocaleTimeString()}{!freshHeart?' · stale; no current reading':''}</p>}
-   {incoming?.reportedAt&&<p>Backend record reported: {new Date(incoming.reportedAt).toLocaleString()}. Read latest measurement to refresh.</p>}
+   {incoming?.heartRateAt&&<p>{fromHealthConnect||incoming.source==='backend'?'Last heart-rate observation reported':'Last heart-rate packet received'}: {new Date(incoming.heartRateAt).toLocaleString()}{!freshHeart?fromHealthConnect?' · older recorded observation':' · stale; no current reading':''}</p>}
+   {incoming?.reportedAt&&<p>{fromHealthConnect?'Health Connect fetched':'Backend record reported'}: {new Date(incoming.reportedAt).toLocaleString()}. {fromHealthConnect?`Selected day: ${incoming.selectedDate}. Values are recorded measurements, not continuous watch sensing.`:'Read latest measurement to refresh.'}</p>}
    {connection==='connected'&&!incoming?.heartRateAt&&<p role="status">Connected. Waiting for the watch to report a heart-rate reading.</p>}
    {connectionError&&<p role="status">{connectionError}</p>}
   </div>

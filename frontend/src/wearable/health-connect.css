@@ -1,0 +1,19 @@
+.health-connect-panel{color:#25333c;padding:4px 0 22px;margin-bottom:22px;border-bottom:1px solid #a4c2d1;font-size:12px;line-height:1.55}
+.health-connect-panel header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.health-connect-panel h3{font-size:21px;line-height:1.2;margin:0 0 5px;font-weight:650;letter-spacing:-.02em}
+.health-connect-panel header p{margin:0;color:#405662}.health-connect-panel header>span{font-size:11px;padding:4px 8px;background:#fff0e3;border:1px solid #dbb18c;border-radius:8px;color:#763d20;flex-shrink:0}
+.health-connect-panel label{display:block;font-size:12px;font-weight:600}.health-connect-panel label small{font-weight:400}
+.health-connect-panel input:not([type=checkbox]),.health-connect-panel select{display:block;width:100%;min-width:0;min-height:39px;font:inherit;color:#25333c;background:#fffcf8;border:1px solid #adc2cb;border-radius:8px;padding:8px;margin-top:5px}
+.health-connect-panel input:focus-visible,.health-connect-panel select:focus-visible,.health-connect-panel button:focus-visible{outline:2px solid #a7441d;outline-offset:3px}
+.health-connect-pair{margin-bottom:15px}.health-connect-pair p{font-size:11px;margin:6px 0;color:#405662}
+.health-connect-panel .health-connect-consent{display:flex;align-items:flex-start;gap:8px;font-weight:500;margin:12px 0}.health-connect-consent input{margin-top:4px;accent-color:#b55023;flex-shrink:0}
+.health-connect-controls{display:flex;gap:12px}.health-connect-controls>label{flex:1;min-width:0}
+.health-connect-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}.health-connect-actions button{display:flex;align-items:center;gap:6px;min-height:40px;background:#ffe8d6;color:#6a3019;border:1px solid #c88e66;padding:8px 12px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.health-connect-actions button:hover:not(:disabled){background:#ffdbbe}.health-connect-actions button:disabled{background:#e5e4df;color:#576570;border-color:#b5c4cb;cursor:default}
+.health-connect-zone,.health-connect-updated{font-size:11px;color:#405662;margin:10px 0}
+.health-connect-panel .health-connect-error{background:#ffefdf;color:#793c20;padding:10px;border-radius:8px;border:1px solid #d7a784}
+.health-connect-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px;margin:14px 0 0;padding:4px 13px;background:#fffaf4;border:1px solid #d4bba7;border-radius:12px}
+.health-connect-metrics>div{padding:12px 0;border-bottom:1px solid #dfd3c8;min-width:0}.health-connect-metrics>div:nth-last-child(-n+2){border-bottom:0}
+.health-connect-metrics dt{font-weight:600;font-size:12px;color:#425664}.health-connect-metrics dd{margin:5px 0 4px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.health-connect-metrics .has-reading{font-size:23px;line-height:1.2;font-weight:650;letter-spacing:-.02em;color:#25333c}.health-connect-metrics dd small{display:block;font-size:11px;font-weight:500;letter-spacing:0;margin-top:4px;color:#425664}.health-connect-metrics .no-reading{font-size:12px;color:#536471}.health-connect-metrics p,.health-connect-metrics time{font-size:10px;line-height:1.5;color:#526474;overflow-wrap:anywhere;margin:4px 0}.health-connect-metrics p:empty{display:none}
+.health-connect-privacy{display:flex;align-items:flex-start;gap:7px;color:#405662;font-size:11px;margin:12px 0 0}.health-connect-privacy svg{flex-shrink:0;margin-top:2px}
+@media(max-width:420px){.health-connect-metrics{column-gap:12px;padding:4px 10px}.health-connect-metrics .has-reading{font-size:20px}.health-connect-panel header>span{font-size:10px}.health-connect-actions button{font-size:11px}}

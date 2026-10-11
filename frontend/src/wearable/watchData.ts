@@ -1,6 +1,6 @@
 export type HeartSample = {at:string;bpm:number};
 export type WatchData = {health?:number;heartRate?:number;steps?:number;calories?:number;sleep?:number;sleepDuration?:string;oxygen?:number;battery?:number;activity?:number;hydration?:number;
- source?:'bluetooth'|'backend';reportedAt?:string;heartRateAt?:string;batteryAt?:string;heartSamples?:HeartSample[]};
+ source?:'bluetooth'|'backend'|'health_connect';reportedAt?:string;selectedDate?:string;heartRateAt?:string;batteryAt?:string;heartSamples?:HeartSample[]};
 export const watchPages = ['Home','Heart','Activity','Sleep','Wellness','Notifications','Settings'] as const;
 export type WatchPage = typeof watchPages[number];
 export type WatchSettings = {accent:string;brightness:number;motion:boolean;previewAlerts:boolean};

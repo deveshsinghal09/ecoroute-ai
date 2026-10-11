@@ -32,7 +32,7 @@ export function paintScreen(canvas:HTMLCanvasElement,page:WatchPage,d:WatchData|
   text(now.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'}).toUpperCase(),32,157,27,'#d2e3ec');
   ring(256,280,88,undefined,a);ring(256,280,69,undefined,'#a5ee80',5);
   text(reading(d.heartRate),256,290,67,'#f4ffff','center');text('BPM',256,321,26,'#d2e3ec','center',124);
-  [[`♥ ${reading(d.heartRate,' BPM')}`,'HEART'],[reading(d.steps),'STEPS'],[reading(d.calories,' kcal'),'ENERGY'],[reading(d.sleep,' / 100'),'SLEEP']].forEach(([value,label],i)=>{const x=26+(i%2)*237,y=390+Math.floor(i/2)*75;card(x,y,223,67);text(value,x+15,y+31,34,i===0?'#ff93b5':'#eef8ff','left',193);text(label,x+15,y+57,26,'#c4d9e4','left',193);});
+  [[`♥ ${reading(d.heartRate,' BPM')}`,'HEART'],[reading(d.steps),'STEPS'],[reading(d.calories,' kcal'),'ENERGY'],[d.source==='health_connect'?(d.sleepDuration||'—'):reading(d.sleep,' / 100'),'SLEEP']].forEach(([value,label],i)=>{const x=26+(i%2)*237,y=390+Math.floor(i/2)*75;card(x,y,223,67);text(value,x+15,y+31,34,i===0?'#ff93b5':'#eef8ff','left',193);text(label,x+15,y+57,26,'#c4d9e4','left',193);});
   text(`SpO2 ${reading(d.oxygen,'%')}`,30,575,18,a);text('RECEIVED DATA',480,575,25,'#9aafb9','right',240);
  }else if(page==='Heart'){
   title('Heart rate');text('♥',256,186,64,'#ff7da6','center');text(reading(d.heartRate),256,287,110,'#fff','center');text('BEATS / MINUTE',256,325,20,'#a8b4c1','center');
