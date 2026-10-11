@@ -75,7 +75,9 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
     const authError = () => {setReady(false); setError('Google Maps could not authorize this website. Check Maps JavaScript API, billing and website restrictions.');};
     window.addEventListener('google-map-auth-error', authError);
     if (!mapsKey) {
-      setError('Add VITE_GOOGLE_MAPS_API_KEY to frontend/.env.local and restart the development server.');
+      setError(location.hostname==='localhost'||location.hostname==='127.0.0.1'
+        ? 'Configure VITE_GOOGLE_MAPS_API_KEY in frontend/.env.local, then restart the app.'
+        : 'Configure VITE_GOOGLE_MAPS_API_KEY in Amplify environment variables, then redeploy this branch. Use a browser key restricted to this website.');
       return () => window.removeEventListener('google-map-auth-error', authError);
     }
     loadMaps().then(() => {

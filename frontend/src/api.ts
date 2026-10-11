@@ -73,7 +73,9 @@ async function send<T>(path:string,body:unknown,token:string|undefined,cognito:b
 }
 const encode = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 export async function signIn() {
-  if(!config.domain || !config.client) throw new Error('Cognito is not configured yet. Set the public Cognito domain and client ID in frontend/.env.local.');
+  if(!config.domain || !config.client) throw new Error(location.hostname==='localhost'||location.hostname==='127.0.0.1'
+    ? 'Sign-in setup is incomplete. Configure VITE_COGNITO_DOMAIN and VITE_COGNITO_CLIENT_ID in frontend/.env.local, then restart the app.'
+    : 'Sign-in setup is incomplete for this deployment. Configure VITE_COGNITO_DOMAIN and VITE_COGNITO_CLIENT_ID in Amplify environment variables, then redeploy this branch.');
   const domain = new URL(config.domain);
   if(domain.protocol !== 'https:') throw new Error('Cognito must use HTTPS.');
   const verifier = encode(crypto.getRandomValues(new Uint8Array(32))), state = encode(crypto.getRandomValues(new Uint8Array(24)));
