@@ -68,6 +68,18 @@ def test_frontend_cors_is_exact_and_not_credentialed(templates):
     assert "OPTIONS" in api["CorsConfiguration"]["AllowMethods"]
 
 
+def test_public_routes_have_no_jwt_scopes_and_private_routes_stay_protected(templates):
+    routes = resources(templates["core"], "AWS::ApiGatewayV2::Route")
+    for route in routes:
+        props = route["Properties"]
+        if props["AuthorizationType"] == "NONE":
+            assert not props.get("AuthorizationScopes")
+            assert not props.get("AuthorizerId")
+        else:
+            assert props["AuthorizationType"] == "JWT"
+            assert props["AuthorizationScopes"]
+
+
 @pytest.mark.parametrize("origin", ["*", "https://*.example.org", "http://example.org", "https://example.org/path"])
 def test_frontend_cors_rejects_unsafe_origins(origin):
     app = cdk.App()

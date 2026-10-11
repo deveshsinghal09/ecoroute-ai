@@ -328,11 +328,11 @@ class CoreStack(Stack):
             integration = integrations.HttpLambdaIntegration("FastApi", self.api_function)
         for path in ("/api/v1/health", "/healthz", "/docs", "/openapi.json"):
             api.add_routes(path=path, methods=[apigw.HttpMethod.GET], integration=integration,
-                           authorizer=apigw.HttpNoneAuthorizer())
+                           authorizer=apigw.HttpNoneAuthorizer(), authorization_scopes=[])
         # Ready is protected in AWS to avoid public paid dependency probes.
         if enable_guest_routes:
             api.add_routes(path="/api/v1/routes/preview", methods=[apigw.HttpMethod.POST], integration=integration,
-                           authorizer=apigw.HttpNoneAuthorizer())
+                           authorizer=apigw.HttpNoneAuthorizer(), authorization_scopes=[])
         api.add_routes(path="/api/v1/{proxy+}", methods=[apigw.HttpMethod.GET], integration=integration,
                        authorization_scopes=["ecoroute/read"])
         api.add_routes(path="/api/v1/{proxy+}", methods=[apigw.HttpMethod.POST, apigw.HttpMethod.PUT, apigw.HttpMethod.DELETE],
