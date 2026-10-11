@@ -520,3 +520,23 @@ def test_local_concurrent_request_budget_is_atomic(tmp_path):
 
     with ThreadPoolExecutor(max_workers=8) as pool:
         assert sum(pool.map(reserve, range(20))) == 5
+
+
+@pytest.mark.parametrize("minute,expected", [(22, 48.2), (29, 48.2), (30, 48.2), (31, 45.8), (36, 45.8)])
+def test_current_hour_model_covers_near_future_without_half_hour_gap(minute, expected):
+    hour = datetime(2026, 10, 11, 17, tzinfo=UTC)
+    collected = hour + timedelta(minutes=13)
+    current = synthetic_rows(hour, 48.2)[0]
+    current.update(kind="modeled", collected_at=collected.isoformat())
+    following = {**current, "kind": "forecast", "value": 45.8,
+                 "reported_at": (hour + timedelta(hours=1)).isoformat(), "record_id": "next-hour"}
+    index = PollutionIndex([current, following], as_of=hour + timedelta(minutes=18))
+    result = index.sample([77.2, 28.8], hour + timedelta(minutes=minute))
+    assert result["value_ug_m3"] == expected
+    assert result["status"] == ("modeled" if minute <= 30 else "forecast")
+    # Without the next hourly value, do not extend the current value beyond 30 minutes.
+    alone = PollutionIndex([current], as_of=index.as_of)
+    assert alone.sample([77.2, 28.8], hour + timedelta(minutes=31))["value_ug_m3"] is None
+    observed = {**current, "source": "openaq", "kind": "observed"}
+    assert PollutionIndex([observed], as_of=index.as_of).sample(
+        [77.2, 28.8], hour + timedelta(minutes=minute))["value_ug_m3"] is None

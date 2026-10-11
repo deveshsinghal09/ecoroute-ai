@@ -53,7 +53,10 @@ class PollutionIndex:
                     or self.as_of - collected > timedelta(hours=24)
                 ):
                     continue
-                if when > self.as_of and row["kind"] != "forecast":
+                # The provider labels the current hourly model value "modeled" once
+                # its valid time passes. It still supports nearest-hour sampling
+                # within the same 30-minute tolerance; it is never an observation.
+                if row["kind"] not in {"forecast", "modeled"}:
                     continue
                 rank = (1, delta, -collected.timestamp(), separation)
             else:
