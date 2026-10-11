@@ -1,5 +1,9 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Mapping cleanup correction — 2026-10-11
+
+Core rollback recovery blocked on Lambda mapping deletion; regional deployment-role correction prepared. No live Core runtime verified.
+
 Latest: logging provisioning progressed; workflow name now explicit within IAM project scope.
 Core rollback failed on mapping read authorization. No operational Core runtime verified.
 

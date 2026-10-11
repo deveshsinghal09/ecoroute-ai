@@ -1,5 +1,9 @@
 # API contract — backend foundation and environmental datasets
 
+## Mapping cleanup correction — 2026-10-11
+
+Core DELETE_FAILED, no AWS API URL. Mapping permission correction introduces no HTTP schema change.
+
 Latest Core ROLLBACK_FAILED; AWS URL unavailable. Workflow naming fix/API mapping read policy
 correction introduce no HTTP schema changes. Live health/authentication tests still blocked.
 

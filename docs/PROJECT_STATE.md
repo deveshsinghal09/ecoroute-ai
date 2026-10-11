@@ -1,5 +1,9 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Mapping cleanup correction — 2026-10-11
+
+Latest: CDKToolkit UPDATE_COMPLETE/GetEventSourceMapping installed verified. Core cleanup requested after saving work/core-rollback-failed-inventory.json; DELETE_FAILED on lambda:DeleteEventSourceMapping Resource*. Added Get/Update/DeleteEventSourceMapping regional account-level grants to CFN execution policy only. These can manage mappings across Mumbai; not claimed project-ARN restricted and not given to runtime/human roles. Creation remains function-constrained. Console template regenerated;19targeted tests, Ruff and cfn-lint pass. Data/ML/IoT unchanged; retained pools untouched; no API URL. Next Console update is required because CLI cannot change execution policy. No further cloud retry until installed.
+
 ## Logging fixed; workflow name corrected; rollback read permission — 2026-10-11
 
 Bootstrap logging update verified installed/UPDATE_COMPLETE. Approved Core retry recovered

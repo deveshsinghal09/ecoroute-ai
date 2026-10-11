@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+## Mapping cleanup correction — 2026-10-11
+
+Current prerequisite: Console bootstrap update for complete Lambda mapping lifecycle actions, restricted to Mumbai execution role. Metadata read installed; deletion still denied. No new secret required.
+
 Latest required Console update: lambda:GetEventSourceMapping regional metadata read for
 Core rollback recovery. Logging fix installed; no secrets needed. See bootstrap guide.
 

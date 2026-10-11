@@ -1,5 +1,9 @@
 # AWS service decisions and IAM boundaries
 
+## Mapping cleanup correction — 2026-10-11
+
+Core DELETE_FAILED on mapping deletion. Regional execution-role mapping lifecycle permission prepared, not installed. Data/ML/disabled IoT unchanged.
+
 Latest: Core ROLLBACK_FAILED due mapping metadata-read denial. Prepared regional
 lambda:GetEventSourceMapping Resource* permission; workflow project naming fixed. No live API.
 

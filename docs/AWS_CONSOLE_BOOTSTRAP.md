@@ -1,5 +1,9 @@
 # EcoRoute one-time Console setup — 2026-10-11
 
+## Mapping cleanup correction — 2026-10-11
+
+Current file extends the mapping Resource* exception to Get/Update/DeleteEventSourceMapping with Mumbai condition. Update CDKToolkit; expect Modify EcoRouteExecuteCompute only. Current Core DELETE_FAILED; agent will retry cleanup after policy update. This permits regional mapping management, not runtime access. Do not force-delete protected pools or other stacks.
+
 Latest: logging fix installed; Core rollback failed reading Lambda event mapping. Current file
 adds lambda:GetEventSourceMapping on Resource* with Mumbai condition to Compute execution
 policy only. Update CDKToolkit with current file; expect Modify EcoRouteExecuteCompute only.
