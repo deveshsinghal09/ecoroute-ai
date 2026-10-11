@@ -1,0 +1,40 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "arn:aws:lambda:ap-south-1:112920804206:function:EcoRouteCore-Collector9EBA7CF5-3QqSZI3RLYxS"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:Query"
+      ],
+      "Resource": "arn:aws:dynamodb:ap-south-1:112920804206:table/EcoRouteData-environmentA2E95CAF-18GSQK8N0H0Q",
+      "Condition": {
+        "ForAllValues:StringLike": {
+          "dynamodb:LeadingKeys": [
+            "QUALITY#open_meteo",
+            "QUALITY#openaq",
+            "FILES#open_meteo",
+            "FILES#openaq",
+            "STATIONS#openaq"
+          ]
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:FilterLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:logs:ap-south-1:112920804206:log-group:EcoRouteCore-IngestionLogs0F5F4F92-rdbBceA8vobf:*",
+        "arn:aws:logs:ap-south-1:112920804206:log-group:EcoRouteCore-WorkerLogsC1193B08-hbhQEJDem4io:*"
+      ]
+    }
+  ]
+}
