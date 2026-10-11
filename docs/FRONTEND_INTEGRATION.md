@@ -1,5 +1,15 @@
 # Frontend integration — EcoRoute AI backend
 
+## Live integration verified - 2026-10-11
+
+Gateway of India to Marine Drive was verified on the public Amplify frontend: real Google road
+routes, Open-Meteo forecast coverage and Gemini explanation through the AWS API. Insights uses
+gemini_arranged_approved_text only when returned statement IDs pass validation; provider status
+is placed above long explanation text. Google routes are request-only. Explain refreshes routes
+and may change traffic-based durations. Use a future departure; missing coverage is still null.
+Gemini allowance is globally 100/hour and 100/day; never publish the backend Gemini key.
+
+
 ## Missing coverage and request-only LLM integration - 2026-10-11
 
 A dash means unavailable, not zero. Air-quality sidebar is derived from selected full-route
@@ -7,7 +17,7 @@ exposure/route duration; incomplete PM2.5 coverage means full exposure and mean 
 Compare/preview include_explanation=true is an explicit billable request, never automatic polling.
 Explain refreshes genuine server routes and returns comparison.explanation; no client-provided
 pollution metric, place name or route geometry is sent to the LLM. Render returned mode/fallback
-reason; Gemini_arranged_approved_text confirms validated Gemini use, not model-created measurements.
+reason; gemini_arranged_approved_text confirms validated Gemini use, not model-created measurements.
 Do not put GEMINI_API_KEY in Amplify VITE variables. Preserve source attribution/coarse-grid warning.
 
 

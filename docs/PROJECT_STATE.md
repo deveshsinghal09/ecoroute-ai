@@ -1,5 +1,51 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Final live Mumbai and Gemini verification - 2026-10-11
+
+**Backend and Amplify frontend deployed and verified with real route, forecast and Gemini requests.**
+
+- EcoRouteCore is UPDATE_COMPLETE in ap-south-1/account 112920804206, verified independently
+  with CloudFormation DescribeStacks/GetTemplate. Final shared Lambda asset:
+  8aa77860f21ceb6947eb52f252270617c7d6c1f75cad32eece80f2a8e0b931c1.zip.
+- Live Google Drive preview: Gateway of India -> Marine Drive, departure
+  2026-10-11T17:01:17Z (22:31 IST). Routes: 4191 m / 1042 s and 6119 m / 1192 s.
+  Open-Meteo CAMS forecast PM2.5: 48.2 ug/m3 for both; exposure: 13.951222 and
+  15.959556 ug*h/m3. Coverage effectively 100%; low confidence. Segment sums and
+  concentration * duration / 3600 verified. These are coarse modeled forecasts, not sensors.
+- The actual AWS response returned gemini_arranged_approved_text, no fallback, 660 prompt
+  tokens + 27 output tokens = 687 total. Supporting metrics matched routes; ranking unchanged.
+  The deployed Amplify browser separately displayed real PM2.5/exposure and the Gemini label.
+  Its fresh traffic durations were 1046 s / 1190 s, giving 14.004778 / 15.932778 ug*h/m3.
+  Explain refreshes provider routes, so traffic-dependent duration can change between calls.
+- Secret format mismatch was confirmed by the user: GEMINI_API_KEY JSON field. Reader now
+  supports that field, gemini_api_key, api_key or plaintext, rejects ambiguous/invalid formats,
+  and never returns values. The configured model is gemini-3.5-flash-lite. Cloud allowance
+  verified at 100/hour AND 100/day globally. Provider quotas and charges remain independent.
+- Real resources updated: existing Core Lambda code and configuration only. No new IAM,
+  services, real-time ML endpoint, training, SMS or enabled schedules. Mumbai request-time
+  forecasts are transient, not persisted raw/curated pipeline objects. Long routes, expired
+  forecasts, provider outages or exhausted allowances can still return unavailable coverage.
+- Files added this follow-up: routing/forecast.py, test_route_forecast.py, routeInsight.ts and
+  its unit test. Updated routes/schema/config/grounded Gemini transport, infra/stacks.py, App.tsx,
+  styles.css, browser tests, OpenAPI and maintained architecture/service/credential/API guides.
+- Commands: pytest targeted modules, Ruff, Vite/TypeScript build, Vitest single-worker,
+  Playwright dashboard/maps, CDK synth/diff and approved Core deployments,
+  work/verify_mumbai_insights.py, independent CloudFormation verification and git commit/push.
+  Final targeted backend: 60 passed. Earlier full backend: 342 passed / 1 Docker skip;
+  frontend unit: 53 passed; dashboard: 13 passed; Maps: 10 passed; added long-explanation
+  badge visibility assertion at 1280x720 passed. Production build and Ruff passed.
+  No unresolved test failure; prior RAM/disk failures were resolved sequentially/manual cleanup.
+- Evidence (ignored work/): mumbai-insights-live.json, mumbai-core-deployment-verification.json,
+  mumbai-gemini-live.jpg, gemini-secret-compat-synth.log. No keys/tokens/signatures printed.
+- Latest Amplify CSS was fetched and confirmed published; browser inspection verified the Gemini
+  label lies inside the visible panel at 1280x720. Final screenshot shows 48.2 ug/m3,
+  13.86 ug*h/m3 and the Gemini label. Air quality tab also shows 48.2 / 100% / low confidence.
+- Remaining: local model config
+  change if needed; broader geographic coverage/live Cognito/hardware/approved ML work retain
+  their earlier verification limits. Refresh website, choose a future departure, compare,
+  open Insights and click Explain this comparison. Both current integrations need no new key.
+
+
 ## Verified Mumbai forecast / Gemini compatibility follow-up - 2026-10-11
 
 Core initial update independently verified UPDATE_COMPLETE via CloudFormation/GetTemplate.

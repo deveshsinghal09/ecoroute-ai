@@ -1,17 +1,30 @@
 # Credentials and configuration checklist
 
+## Gemini configuration verified - 2026-10-11
 
-Current explanation model: gemini-3.5-flash-lite (verified local provider200/STOP; cloud update pending).
-Signature metadata is discarded; only approved statement IDs are accepted. Cloud Gemini allowance
-is100/hour AND100/day globally, not per user; actual Google project/model quotas remain independent.
-See PROJECT_STATE.md for live Mumbai exposure arithmetic and deployment evidence.
+The existing ecoroute/gemini secret uses field GEMINI_API_KEY; the deployed reader accepts it.
+No secret edit or additional IAM grant is required. CLI secret-value retrieval was denied;
+actual Lambda-to-Gemini success verifies the runtime reference and permissions. Keep the key
+in Secrets Manager, never in VITE variables or chat. Local execution can use the ignored root
+.env GEMINI_API_KEY and GEMINI_MODEL_ID=gemini-3.5-flash-lite. The local model setting was not
+changed automatically. Cloud settings are managed by CDK; verify with explicit Insights Explain.
+If provider quotas are reached, review Google AI Studio quota/billing; the app allowance cannot
+increase provider quotas and AWS credits do not pay Google API charges.
+
+
+
+Current explanation model: gemini-3.5-flash-lite (verified live through the deployed AWS API).
+Secrets Manager JSON accepts api_key, GEMINI_API_KEY or gemini_api_key (exactly one), or plaintext.
+Signature metadata is discarded; only approved statement IDs are accepted. The cloud Gemini
+allowance is 100/hour AND 100/day globally. Google project/model quotas remain independent.
+See PROJECT_STATE.md for the live Mumbai forecast, exposure arithmetic and deployment evidence.
 
 
 ## Mumbai forecast / Insights configuration - 2026-10-11
 
 No new credentials: public noncommercial OpenMeteo CAMS needs no key; uses existing Lambda egress
 and scoped DynamoDB UpdateItem counters. Existing GEMINI_SECRET_ARN and GEMINI_MODEL_ID remain
-server-only. Gemini reader accepts plaintext or JSON api_key. Cloud ENABLE_ROUTE_AIR=true for
+server-only. Gemini reader accepts plaintext or JSON api_key/GEMINI_API_KEY/gemini_api_key. Cloud ENABLE_ROUTE_AIR=true for
 Google configuration; local live tests require explicit ENABLE_ROUTE_AIR=true. Cloud Gemini
 GEMINI_HOURLY_LIMIT=100/GEMINI_DAILY_LIMIT=100 requested by user; this does not increase Google's
 actual project quota or use AWS credits. CLI dev-admin non-root identity verified; GetFunctionConfiguration

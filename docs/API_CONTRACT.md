@@ -1,10 +1,11 @@
 # API contract — backend foundation and environmental datasets
 
 
-Current explanation model: gemini-3.5-flash-lite (verified local provider200/STOP; cloud update pending).
-Signature metadata is discarded; only approved statement IDs are accepted. Cloud Gemini allowance
-is100/hour AND100/day globally, not per user; actual Google project/model quotas remain independent.
-See PROJECT_STATE.md for live Mumbai exposure arithmetic and deployment evidence.
+Current explanation model: gemini-3.5-flash-lite (verified live through the deployed AWS API).
+Secrets Manager JSON accepts api_key, GEMINI_API_KEY or gemini_api_key (exactly one), or plaintext.
+Signature metadata is discarded; only approved statement IDs are accepted. The cloud Gemini
+allowance is 100/hour AND 100/day globally. Google project/model quotas remain independent.
+See PROJECT_STATE.md for the live Mumbai forecast, exposure arithmetic and deployment evidence.
 
 
 ## Optional inline grounded explanation - 2026-10-11
