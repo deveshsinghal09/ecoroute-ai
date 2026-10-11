@@ -1,5 +1,87 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Large-data training, route-factor integration and live verification - 2026-10-11
+
+Core UPDATE_COMPLETE verified. Existing public backend remains
+https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com; health/OpenAPI200; JWT-protected ML status
+and prediction-route endpoint401 without token. No auth bypass, user creation or positive live
+Cognito login claimed. Amplify frontend200/JS200 verified with both new route preferences and
+local training-evidence UI present in the served bundle. Final copy/test-localization fix follows
+that bundle verification; no completed Amplify build for that last small copy change claimed.
+
+REAL local experiment: official UCI Beijing CC BY4.0 archive,420,768 hourly input rows/12stations,
+8,739 missing/invalid PM2.5 rows. Chronological splits245,633/81,546/81,979 with boundary purge.
+Random Forest selected by validation MAE. Test MAE9.75243/RMSE18.71309 versus persistence
+MAE10.09034/RMSE19.56450. HistGradientBoosting MAE9.87563/RMSE19.47162. Full station metrics,
+dates/hashes/dependency versions committed in examples/ml/uci-beijing-training-report.json.
+Serialized selected model independently re-evaluated. Provider-issued historical forecast baseline
+unavailable. Publication delays are unknown: retrospective hour-availability assumption. Coordinates
+and humidity remain missing. NOT a Delhi/street-level model or a SageMaker training success;
+verified=false and navigation promotion is blocked independently by trainer, selector and publisher.
+100,000 synthetic test rows also prepared (58,810/19,634/19,589 split samples); explicitly generated,
+not calibrated observations, not used for reported real-model metrics, not trained/promoted live.
+
+Existing operational curated data audit:389rows,5measured PM2.5 rows,1station,0eligible training
+samples. Do not backdate collection times or relabel forecasts to pass this gate. SageMaker
+read-only preflight: account112920804206/nonroot dev-admin/Mumbai verified; ml.m5.large training
+quota0; iam:GetRole denied; Docker Linux engine unavailable; actual ECR digest missing. No job,
+endpoint, paid hyperparameter tuning, SMS or enabled schedule launched. Operator and workflow
+boundary IAM proposals prepared, NOT attached/deployed. Optional workflow now preserves existing
+training-role logical ID and uses EcoRoute-* machine name; those optional ML changes are local-only.
+Official Mumbai training price retrieved:0.121USD/hour;15min runtime arithmetic0.03025USD plus
+billable startup/storage/logs/taxes. Approval and account/service eligibility still required.
+
+Backend enhancements: mode-validated road avoidance, driving traffic vs historical baseline,
+ORS modeled cycling ascent/descent, bounded/cached midpoint weather, weighted normalized scores,
+maximum detour, missing-data fallback, protected full-geometry /routes/predict. Frontend exposes
+preferences and only lets signed-in users select verified station forecasts. No route-network ML
+claim. New real live public India Gate->Connaught Place probes: driving2routes(first2830m632s,
+historical baseline443s); walking3routes(first2824m2428s); cycling2routes(first3430.1m781.1s,
+modeled ascent86.5m/descent86.7m). Google/ORS genuine geometry preserved; weather forecast available
+with source/grid/time/units. All PM2.5 full exposures null/coverage0, so no cleaner route claimed.
+No Google route geometry persisted in the diagnostic report. Atomic weather limits100/day30/hour,
+max3cells/comparison; no continuous workflow. Data stack unchanged; Core6Lambda code updates and
+weather opt-in environment only; no IAM widening/new paid service in that deployment.
+
+Files created: ml/benchmark_data.py, ml/policy.py, routing/weather.py;
+scripts/prepare_training_data.py and check_sagemaker_ready.py; tests/test_training_data.py and
+ test_route_factors.py; frontend RoutePreferences.tsx/.test.ts/route-preferences.css,
+TrainingEvidence.tsx; training report, LARGE_DATA_TRAINING.md, ROUTE_FACTORS.md; scoped
+config/iam-sagemaker-training-operator.json and iam-sagemaker-workflow-boundary-additions.json.
+Modified: existing preprocessing/training/inference/workflow/API/contracts/config/routing providers/
+scorer; CDK Core/ML/app; App/data and relevant browser/container tests; README/five maintained docs,
+OpenAPI, frontend integration index and Postman export. Raw archive/Parquet/model binaries and
+sanitized live/readiness reports remain in ignored work/. Unrelated bedrock-messages.json and
+root test-results/ preserved untracked. Separate meaningful commits use all supplied author names.
+
+Commands: scripts/train.py --prepare-only (expected insufficient-data exit); prepare_training_data.py
+--download; train.py --prepared-dir ... --output work/ml/experiments/models; evaluate.py; synthetic
+prepare --records100000; read-only check_sagemaker_ready.py (blocked); official AWS public PriceList
+and provider-doc requests; real weather/public route probes; scripts/export_api.py; build_lambda.py
+(183.7MiB Linux asset); reviewed CDK synth/diff/deploy EcoRouteCore with existing ignored context;
+security_review.py; pytest -q; Ruff; frontend Vitest/build; Playwright map/dashboard/watch suites;
+source screenshots inspected; UI detector(no findings), diff check and git pushes.
+
+Final results:327backend tests passed,1Docker-dependent test skipped;44frontend unit tests passed;
+24dashboard/watch browser cases passed in final full run;8existing map cases +1new preference case
+passed in runs; CDK synth and structural review passed(no live IAM proof); Ruff/build/diff passed.
+Initial failures repaired: provenance_json flag reading, missing new OpenAPI response contract,
+endpoint count46->47, Windows Unicode file-read mistake(restored original source bytes before
+reapplying), isolated unconfigured phone/Cognito tests, locale-specific number assertion, optional
+ML duplicate-output/linter issue. Final fixes verified. Existing Three.js large-chunk/deprecated-clock
+warnings remain; deliberate denied-WebGL fallback test output is expected. Preflight quota/role/image
+blockers are real, not tests that succeeded. Some initial path searches named nonexistent files;
+correct files were read, without replacing prior completed work.
+
+Remaining: quota>=1 and authorized operator grants, running Docker/pinned image/input upload,
+separately approved paid training, sufficient verified Delhi historical/available station data,
+reviewed boundary extension and optional inference worker deployment. Large foreign/synthetic data
+cannot satisfy Delhi readiness. No new provider air-ingestion/SNS/IoT/Bedrock hardware verification.
+Exact Console/CLI steps, IAM proposals, costs and cleanup: LARGE_DATA_TRAINING.md. Route semantics:
+ROUTE_FACTORS.md. Existing Amplify/Cognito browser settings still apply; no SageMaker/private provider
+key belongs in Amplify. Model training remains local experimental, inference unavailable live.
+
+
 ## Cognito registration and hosted Maps - 2026-10-11
 
 Live browser reproduced deployed sign-in redirect correctly with configured domain/client. Google map missing browser VITE key evidenced by fallback/UI message. Enabled opt-in CDK enable_self_signup with verification-email CODE; Core UPDATE_COMPLETE, hosted login now visibly has Sign up, opens email/password form. No user/password entered or verification mail sent; signup completion/login untested. PKCE/JWT/private scopes unchanged. Frontend errors now explain Amplify vs local setup; build passed (existing large watch chunk warning),42frontend tests/32backendinfra tests/Ruff passed. Browser Maps key must be configured by user in Amplify, enable Maps JavaScript API/referrer restrictions/billing; server secret not substituted. docs/ARCHITECTURE.md restored after prior script encoding failure accidentally emptied it; original bytes preserved and new note appended. No pipeline/SMS/training tests in this turn. Separate commits pushed; Amplify frontend copy update awaiting build.
