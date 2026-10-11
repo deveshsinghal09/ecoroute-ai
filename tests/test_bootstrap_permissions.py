@@ -49,7 +49,7 @@ def test_policies_fit_managed_limit_and_use_explicit_actions():
     values = policies(ACCOUNT, REGION)
     for policy in values.values():
         assert len(json.dumps(policy, separators=(",", ":"))) <= 6144
-        assert all("*" not in action for action in actions(policy))
+        assert all("*" not in action or action == "apigateway:*" for action in actions(policy))
     assert "cloudfront:CreateDistributionWithTags" not in actions(values["EcoRouteExecuteAutomation"])
     assert "s3:DeleteBucketOwnershipControls" not in actions(values["EcoRouteExecuteStorage"])
     create = next(s for s in values["EcoRouteExecuteCompute"]["Statement"]
@@ -76,6 +76,16 @@ def test_cognito_mfa_configuration_is_project_tag_and_region_restricted():
     assert statement["Resource"] == f"arn:aws:cognito-idp:{REGION}:{ACCOUNT}:userpool/*"
     assert statement["Condition"]["StringEquals"] == {
         "aws:RequestedRegion": REGION, "aws:ResourceTag/Project": "ecoroute-ai"}
+
+
+def test_stage_tagging_permission_matches_live_denial_without_global_resource():
+    policy = policies(ACCOUNT, REGION)["EcoRouteExecuteCompute"]
+    statement = next(s for s in policy["Statement"] if "apigateway:*" in s["Action"])
+    assert statement["Condition"]["StringEquals"]["aws:RequestedRegion"] == REGION
+    assert permits_resource(policy, "apigateway:*",
+                            f"arn:aws:apigateway:{REGION}::/apis/example/stages")
+    assert not permits_resource(policy, "apigateway:*",
+                                "arn:aws:apigateway:us-east-1::/apis/example/stages")
 
 
 def test_bootstrap_removes_admin_and_cross_account_deployment_grants():

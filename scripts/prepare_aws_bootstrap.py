@@ -129,6 +129,10 @@ def policies(account, region):
         allow("apigateway:GET apigateway:POST apigateway:PATCH apigateway:PUT apigateway:DELETE",
               [f"arn:aws:apigateway:{region}::/apis", f"arn:aws:apigateway:{region}::/apis/*",
                f"arn:aws:apigateway:{region}::/tags/*"], regional),
+        # AWS's live stage handler requests TagResource, absent from its published
+        # action catalog. Limit this compatibility grant to stage resources only.
+        allow("apigateway:*", [f"arn:aws:apigateway:{region}::/apis/*/stages",
+                                  f"arn:aws:apigateway:{region}::/apis/*/stages/*"], regional),
     ])
     automation = document([
         allow("cloudwatch:PutMetricAlarm cloudwatch:DeleteAlarms cloudwatch:DescribeAlarms "
