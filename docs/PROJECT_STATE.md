@@ -1,5 +1,21 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Amplify Compare routes error investigation - 2026-10-11
+
+User reported generic503 on deployed Drive comparison. Independently verified cloud preview200
+with coordinates and typed public Delhi places; actual Amplify browser form returned3Google road
+routes,100%PM2.5 coverage,70.1ug/m3 forecast and exposure metrics. No claim that the user's
+specific failure is reproduced/fixed: exact endpoints/auth state still requested. API/access log
+inspection and Amplify job listing are IAM-denied; existing ingestion reads are unaffected.
+
+Frontend api.ts now maps known Google/provider/secret/storage/allowance errors to actionable
+safe messages and appends only validated32hex request references for5xx. Unknown provider text,
+codes, keys and malformed references remain suppressed. Added error-redaction/diagnostic tests.
+All48frontend tests and production build pass; existing Three chunk warning remains. No backend,
+IAM/CDK/service/schedule change. Successful browser screenshot saved only in ignored work/.
+Public hosting build must be verified before claiming the new messages are deployed.
+
+
 ## Verified pollution pipeline and live route exposure - 2026-10-11
 
 Customer-managed diagnostic permissions now effective for dev-admin/devesh_eco, non-root

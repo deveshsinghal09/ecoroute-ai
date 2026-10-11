@@ -1,5 +1,14 @@
 # AWS service decisions and IAM boundaries
 
+## Deployed routing investigation - 2026-10-11
+
+Public API Gateway/Lambda and actual Amplify browser Drive compare returned valid Google routes
+with full curated forecast coverage. Specific user503 remains unconfirmed; API/access log and
+Amplify job reads denied. Frontend diagnostic messages improved locally with48tests/build pass;
+no backend deployment/new service/continuous workflow/IAM change. Existing approved bounded
+Google/API requests used; no SMS, model training or private wearable access.
+
+
 ## Verified environmental AWS chain - 2026-10-11
 
 Existing Data notification alone updated/UPDATE_COMPLETE. Collector Lambda, private encrypted

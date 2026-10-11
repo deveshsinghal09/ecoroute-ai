@@ -1,5 +1,13 @@
 # API contract — backend foundation and environmental datasets
 
+## Safe client errors - 2026-10-11
+
+HTTP error schema is unchanged: error.code/error.request_id. Client maps recognized routing
+provider/secret/storage/allowance codes to safe explanatory text. For5xx only,32lowercasehex
+request IDs may be shown as references. Arbitrary codes/details/reference strings are never
+rendered. Actual Amplify guest Drive returned routes/forecast exposure; specific user503 pending.
+
+
 ## Live exposure verification - 2026-10-11
 
 No schema/auth change. /routes/preview verified HTTP200 for Delhi Drive/Walk/Cycle with

@@ -1,5 +1,13 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Routing failure diagnostics - 2026-10-11
+
+Amplify guest Drive flow is independently verified through the actual form and cloud API. Frontend
+maps allowlisted dependency error codes and validated request references to diagnostic messages;
+untrusted provider bodies stay hidden. User-specific503 cause remains unconfirmed. No dataflow,
+authentication, resource or infrastructure change. Positive Cognito routing remains unverified.
+
+
 ## Verified S3-to-route data path - 2026-10-11
 
 Deployed Data notification uses raw/ to avoid special-character filter encoding. Cleaner still

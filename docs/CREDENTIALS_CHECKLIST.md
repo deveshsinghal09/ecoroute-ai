@@ -1,5 +1,13 @@
 # Credentials and configuration checklist
 
+## Compare routes diagnostics - 2026-10-11
+
+Cloud API and actual Amplify guest Drive work with existing secret references; no credential
+change is justified by the generic message alone. dev-admin currently lacks FilterLogEvents for
+API/access log groups and Amplify ListJobs. Do not broaden IAM merely to repeat a passing route.
+If failure persists, obtain safe request reference plus public endpoints/auth state; never JWT/key.
+
+
 ## Effective ingestion diagnostics - 2026-10-11
 
 EcoRouteIngestionDiagnostics reads succeeded through dev-admin/devesh_eco, account112920804206,
