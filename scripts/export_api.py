@@ -7,6 +7,33 @@ from ecoroute.main import create_app
 
 GUIDE = """# Frontend integration — EcoRoute AI backend
 
+## Live integration verified - 2026-10-11
+
+Gateway of India to Marine Drive was verified on the public Amplify frontend: real Google road
+routes, Open-Meteo forecast coverage and Gemini explanation through the AWS API. Insights uses
+gemini_arranged_approved_text only when returned statement IDs pass validation; provider status
+is placed above long explanation text. Google routes are request-only. Explain refreshes routes
+and may change traffic-based durations. Use a future departure; missing coverage is still null.
+Gemini allowance is globally 100/hour and 100/day; never publish the backend Gemini key.
+
+
+## Missing coverage and request-only LLM integration - 2026-10-11
+
+A dash means unavailable, not zero. Air-quality sidebar is derived from selected full-route
+exposure/route duration; incomplete PM2.5 coverage means full exposure and mean are null.
+Compare/preview include_explanation=true is an explicit billable request, never automatic polling.
+Explain refreshes genuine server routes and returns comparison.explanation; no client-provided
+pollution metric, place name or route geometry is sent to the LLM. Render returned mode/fallback
+reason; gemini_arranged_approved_text confirms validated Gemini use, not model-created measurements.
+Do not put GEMINI_API_KEY in Amplify VITE variables. Preserve source attribution/coarse-grid warning.
+
+
+Selected-route instruments: bind all figures to the clicked route_id. Show route duration/distance,
+mean PM2.5 concentration, total concentration-time exposure and completeness separately. When
+spatial_differentiation=not_resolved_same_model_cell, matching concentrations are expected; do not
+introduce invented variation. Clear previously generated explanations when selection changes.
+
+
 The React/Three.js frontend lives in frontend/; local UI: http://127.0.0.1:5173.
 Backend local base URL: http://127.0.0.1:8000. See frontend/README.md for PKCE and live-mode setup.
 AWS base URL: https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com (Core runtime verified).

@@ -142,12 +142,11 @@ test('all dashboard panels share dimensions and hide scrollbars',async({page})=>
 });
 
 
-test('insights separates actual local metrics from unavailable navigation training',async({page})=>{
+test('insights focuses on selected route explanations without training controls',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Insights',exact:true}).click();
- await page.getByText('Completed local training evaluation',{exact:true}).click();
- await expect(page.locator('.training-evidence')).toContainText(/4,?20,?768/);
- await expect(page.locator('.training-evidence')).toContainText('9.75');
- await expect(page.locator('.training-evidence')).toContainText('No SageMaker training job has run');
- await expect(page.locator('.training-evidence')).toContainText('excluded from Delhi navigation');
- await page.screenshot({path:'../work/training-evidence-desktop.png'});
+ await expect(page.getByText('Completed local training evaluation',{exact:true})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Check forecasting model',exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Explain this comparison'}).click();
+ await expect(page.locator('.explanation')).toContainText('Deterministic summary');
+ await expect(page.locator('.explanation')).toContainText('Estimated PM2.5 exposure');
 });

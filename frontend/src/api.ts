@@ -1,7 +1,7 @@
 export const config = {
   base: (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, ''),
   domain: import.meta.env.VITE_COGNITO_DOMAIN || '', client: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
-  redirect: import.meta.env.VITE_COGNITO_REDIRECT_URI || window.location.origin + '/',
+  redirect: import.meta.env.VITE_COGNITO_REDIRECT_URI || (typeof window === 'undefined' ? '' : window.location.origin + '/'),
 };
 let accessToken = '';
 let expiresAt = 0;

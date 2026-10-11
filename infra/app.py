@@ -10,7 +10,7 @@ from hosting import HostingStack
 from profiles import DeploymentOptions, context_list
 from concurrency import UnreservedLambda
 
-app = cdk.App(outdir="cdk.out")
+app = cdk.App(outdir=os.environ.get("CDK_OUTDIR", "cdk.out"))
 options = DeploymentOptions.load(os.environ.get("ECOROUTE_DEPLOY_CONFIG"))
 region = os.environ.get("ECOROUTE_DEPLOY_REGION", "ap-south-1")
 env = cdk.Environment(region=region, account=os.environ.get("EXPECTED_AWS_ACCOUNT_ID"))
