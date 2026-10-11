@@ -1,5 +1,18 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Sidebar card balance and gauge overflow repair - 2026-10-12
+
+Brand and concentration cards receive remaining height; exposure card now sizes to its content.
+Restored brand tagline at laptop heights. Concentration dial uses square dimensions, enlarged
+rings, tabular numerals and separate line boxes with sufficient leading for the unit. Font size
+responds to formatted number length; no readings truncated or invented. Shortened redundant
+exposure label while retaining units, estimate label, coverage and coarse-grid warning.
+Six browser checks passed: four viewport sizes, empty readings, and test-only long numeric value;
+actual text ranges fit inside dial and number/unit do not intersect.55 frontend unit tests and
+production build passed. Design detector no findings; screenshot sidebar-balanced.png reviewed.
+No APIs, routing colors, credentials or AWS backend changed. Publishing via connected Amplify main.
+
+
 ## CI public registry fallback - 2026-10-12
 
 After successful code runs38170666203 and38170765806, docs run38171082700 failed because

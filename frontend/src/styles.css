@@ -151,3 +151,43 @@
  .instrument-rail .brand-panel,.instrument-rail .selected-route-air,.instrument-rail .selected-route-exposure{padding:10px}
 }
 @media(min-width:741px) and (max-height:700px){.instrument-rail{gap:4px}}
+
+/* Balanced sidebar: the exposure card sizes to content, not leftover height. */
+.instrument-rail .selected-route-air .air-ring{width:var(--dial-size,120px);height:var(--dial-size,120px);max-width:100%;margin:6px auto;flex-shrink:0}
+.instrument-rail .selected-route-air .air-ring>div{gap:4px}
+.instrument-rail .selected-route-air .air-ring strong{max-width:90%;white-space:nowrap;line-height:1.4;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.instrument-rail .selected-route-air .air-ring span{display:block;line-height:1.4;font-size:12px;white-space:nowrap}
+@media(min-width:741px){
+ .instrument-rail{grid-template-rows:minmax(min-content,.75fr) minmax(min-content,1.6fr) min-content auto;gap:8px}
+ .instrument-rail .brand-panel,.instrument-rail .selected-route-air,.instrument-rail .selected-route-exposure{min-height:0;padding:14px}
+ .instrument-rail .brand-panel{display:flex;flex-direction:column;justify-content:center}
+ .instrument-rail .brand-panel .rail-title{display:block;font-size:16px;line-height:1.25;margin:8px 0}
+ .instrument-rail .brand-panel .rail-small{margin-top:0}
+ .instrument-rail .selected-route-air{display:flex;flex-direction:column;justify-content:center;--dial-size:clamp(100px,15vh,132px)}
+ .instrument-rail .selected-route-air .selected-route-context{margin-top:6px}
+ .instrument-rail .selected-route-air .shared-forecast-note{margin-top:7px}
+ .instrument-rail .selected-route-exposure{display:flex;flex-direction:column;justify-content:center}
+ .instrument-rail .selected-route-exposure .instrument-label{font-size:15px;line-height:1.25;letter-spacing:-.02em}
+ .instrument-rail .selected-route-exposure>strong{margin-top:6px;font-size:34px;line-height:1.1}
+ .instrument-rail .selected-route-exposure .exposure-unit{line-height:1.2;margin:2px 0 2px}
+ .instrument-rail .selected-route-exposure p{margin:0 0 4px}
+ .instrument-rail .selected-route-exposure .selected-coverage-row{margin-top:4px}
+ .instrument-rail .selected-route-exposure .coverage-track{flex-shrink:0;margin:4px 0 5px}
+}
+@media(min-width:741px) and (max-height:780px){
+ .instrument-rail{gap:6px}
+ .instrument-rail .brand-panel,.instrument-rail .selected-route-air,.instrument-rail .selected-route-exposure{padding:12px}
+ .instrument-rail .brand-panel .location{margin-top:8px}
+ .instrument-rail .brand-panel .rail-title{font-size:15px;margin:6px 0}
+ .instrument-rail .selected-route-exposure>strong{font-size:32px}
+}
+@media(min-width:741px) and (max-height:700px){
+ .instrument-rail{gap:4px;grid-template-rows:minmax(min-content,.75fr) minmax(min-content,1.5fr) min-content auto}
+ .instrument-rail .brand-panel,.instrument-rail .selected-route-air,.instrument-rail .selected-route-exposure{padding:10px}
+ .instrument-rail .brand-panel .rail-title{font-size:14px;line-height:1.2;margin:4px 0}
+ .instrument-rail .selected-route-air{--dial-size:84px}
+ .instrument-rail .selected-route-air .air-ring{margin:5px auto}
+ .instrument-rail .selected-route-exposure>strong{font-size:30px}
+ .instrument-rail .selected-route-exposure .selected-coverage-row{font-size:11px}
+ .instrument-rail .selected-route-exposure .selected-coverage-row strong{font-size:15px}
+}
