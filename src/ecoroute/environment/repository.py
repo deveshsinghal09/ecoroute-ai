@@ -17,7 +17,7 @@ from ecoroute.environment.schema import digest
 
 
 class BudgetExceeded(Exception):
-    def __init__(self, message, *, window=None, retry_after=None):
+    def __init__(self, message="provider_request_budget_exhausted", *, window=None, retry_after=None):
         super().__init__(message)
         self.window, self.retry_after = window, retry_after
 
