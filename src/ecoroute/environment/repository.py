@@ -137,8 +137,15 @@ class AwsRepository:
         return None
 
     def query(self, pk, start="", end="~", limit=100):
-        response = self.dynamo.query(TableName=self.table, KeyConditionExpression="pk = :pk AND sk BETWEEN :a AND :b",
-            ExpressionAttributeValues={":pk": {"S": pk}, ":a": {"S": start}, ":b": {"S": end}},
+        # DynamoDB rejects empty strings used in sort-key conditions. Keep the upper
+        # bound for local/AWS parity, but omit the lower bound when none was supplied.
+        condition = "pk = :pk AND sk <= :b"
+        values = {":pk": {"S": pk}, ":b": {"S": end}}
+        if start:
+            condition = "pk = :pk AND sk BETWEEN :a AND :b"
+            values[":a"] = {"S": start}
+        response = self.dynamo.query(TableName=self.table, KeyConditionExpression=condition,
+            ExpressionAttributeValues=values,
             ScanIndexForward=False, Limit=limit, ConsistentRead=True)
         return [json.loads(i["payload"]["S"]) for i in response.get("Items", [])
                 if int(i["expires_at"]["N"]) > time.time()], bool(response.get("LastEvaluatedKey"))

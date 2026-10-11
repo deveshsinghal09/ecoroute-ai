@@ -106,6 +106,15 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
         return error(request, 409, "idempotency_conflict")
 
     async def dependency_error(request, exc):
+        details = {"event": "dependency_error", "request_id": request.state.request_id,
+                   "exception_type": type(exc).__name__}
+        if isinstance(exc, ClientError):
+            # Log SDK operation/error codes only, never exception messages or payloads.
+            for key, value in (("aws_operation", exc.operation_name),
+                               ("aws_error_code", exc.response.get("Error", {}).get("Code"))):
+                if isinstance(value, str) and len(value) <= 128 and value.isascii() and value.isalnum():
+                    details[key] = value
+        logger.error(json.dumps(details))
         return error(request, 503, "storage_unavailable")
     for exception in (BotoCoreError, ClientError, Unavailable):
         app.add_exception_handler(exception, dependency_error)

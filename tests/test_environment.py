@@ -218,6 +218,41 @@ def test_aws_metadata_ttl_budget_and_encrypted_upload():
         stub.assert_no_pending_responses()
 
 
+@pytest.mark.parametrize("partition,start,end,condition", [
+    ("QUALITY#open_meteo", "", "~", "pk = :pk AND sk <= :b"),
+    ("STATIONS#openaq", "", "~", "pk = :pk AND sk <= :b"),
+    ("FILES#open_meteo", "2026-10-10", "2026-10-11~", "pk = :pk AND sk BETWEEN :a AND :b"),
+    ("QUALITY#open_meteo", "", "2026-10-11~", "pk = :pk AND sk <= :b"),
+])
+def test_aws_query_never_sends_empty_sort_key_bounds(secured, partition, start, end, condition):
+    import boto3
+    from botocore.stub import Stubber
+    from ecoroute.environment.repository import AwsRepository
+    dynamo = boto3.client("dynamodb", region_name="ap-south-1",
+                         aws_access_key_id="test", aws_secret_access_key="test")
+    repo = AwsRepository(None, dynamo, "unused-bucket", "environment")
+    values = {":pk": {"S": partition}, ":b": {"S": end}}
+    if start:
+        values[":a"] = {"S": start}
+    payload = {"source": "open_meteo", "records": 192, "status": "cleaned"}
+    kwargs = {"TableName": "environment", "KeyConditionExpression": condition,
+              "ExpressionAttributeValues": values, "ScanIndexForward": False,
+              "Limit": 10, "ConsistentRead": True}
+    with Stubber(dynamo) as stub:
+        stub.add_response("query", {"Items": [{"pk": {"S": partition}, "sk": {"S": "2026-10-11"},
+            "expires_at": {"N": str(int(datetime.now(UTC).timestamp()) + 3600)},
+            "payload": {"S": json.dumps(payload)}}], "LastEvaluatedKey": {
+                "pk": {"S": partition}, "sk": {"S": "2026-10-11"}}}, kwargs)
+        if partition == "QUALITY#open_meteo" and not start and end == "~":
+            secured.app.dependency_overrides[repository] = lambda: repo
+            result = secured.client.get("/api/v1/data/quality", headers={"Authorization": "Bearer " + secured.token()})
+            assert result.status_code == 200
+            assert result.json()["reports"] == [payload] and result.json()["truncated"] is True
+        else:
+            assert repo.query(partition, start, end, limit=10) == ([payload], True)
+        stub.assert_no_pending_responses()
+
+
 def test_collector_failure_does_not_expose_credentials(monkeypatch):
     from ecoroute.handlers import ingestion
     monkeypatch.setattr(ingestion, "repository", lambda: object())
@@ -227,6 +262,21 @@ def test_collector_failure_does_not_expose_credentials(monkeypatch):
     with pytest.raises(RuntimeError) as raised:
         ingestion.collect({"source": "openaq", "request": {}}, None)
     assert "private-token" not in str(raised.value)
+
+
+def test_dataset_dependency_error_logs_operation_without_sensitive_message(secured, caplog):
+    from botocore.exceptions import ClientError
+    class FailedRepository:
+        def query(self, *args, **kwargs):
+            raise ClientError({"Error": {"Code": "ValidationException", "Message": "PRIVATE_ERROR_MARKER"}}, "Query")
+    secured.app.dependency_overrides[repository] = lambda: FailedRepository()
+    with caplog.at_level("ERROR", logger="ecoroute"):
+        result = secured.client.get("/api/v1/data/quality", headers={"Authorization": "Bearer " + secured.token()})
+    assert result.status_code == 503 and result.json()["error"]["code"] == "storage_unavailable"
+    event = next(json.loads(r.message) for r in caplog.records if '"event": "dependency_error"' in r.message)
+    assert event["aws_operation"] == "Query" and event["aws_error_code"] == "ValidationException"
+    assert event["request_id"] == result.headers["x-request-id"]
+    assert "PRIVATE_ERROR_MARKER" not in caplog.text + result.text
 
 
 def test_http_gateway_v2_event(secured):
