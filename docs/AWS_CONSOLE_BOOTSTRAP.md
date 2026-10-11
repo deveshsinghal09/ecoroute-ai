@@ -1,5 +1,17 @@
 # EcoRoute one-time Console setup — 2026-10-11
 
+## Latest correction: API Gateway stage handler
+
+Cognito fix is installed. Core now fails at API Gateway stage tagging despite documented
+HTTP IAM actions being present. Current file adds apigateway:* ONLY for Mumbai stage collection
+and stage paths (/apis/*/stages, /apis/*/stages/*), conditioned on Mumbai. This compatibility
+exception covers the live handler's TagResource requirement missing from published action
+catalog; no wildcard across every API resource/service. Optional-tag removal failed in a real
+retry and was reverted. Template lint passes; deployment not yet verified.
+Update existing CDKToolkit with current file, expect Modify EcoRouteExecuteCompute only,
+retain settings, acknowledge named IAM and wait UPDATE_COMPLETE. CLI cannot change policy.
+
+
 ## Current correction after partial deployment
 
 Data/ML deployed after the SSM fix. Core failed on Cognito SetUserPoolMfaConfig. Current

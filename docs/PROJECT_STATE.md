@@ -1,5 +1,29 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Cognito fix verified; API Gateway stage authorization blocker — 2026-10-11
+
+CDKToolkit UPDATE_COMPLETE and SetUserPoolMfaConfig installed verified with GetTemplate.
+Recovered Core failed-stack record after inspecting all entries (deleted or retained user
+pool only), preserving retained pools. First retry progressed past Cognito but failed Stage
+with apigateway:TagResource denied on /apis/5jpk1qcpw1/stages. Attempted stage tag removal;
+18infra tests passed but a second live retry still denied same action on /apis/29kqtapwla/stages.
+Reverted ineffective tag-removal implementation/tests. Both cloud attempts failed; no working
+API URL. AWS rollback continues independently after local wait stopped. Recovery inventories
+work/core-recovery-inventory.json and work/core-stage-recovery.json preserve prior pool IDs.
+Retained pools were not read for users/deleted; Data/ML/IoT remain reused.
+
+Published API Gateway V2 IAM catalog maps tagging to HTTP actions already granted; live
+handler instead requests a non-catalog TagResource action. Explicit action/prefix trials
+triggered cfn-lint W3037; neither trial policy was deployed. Prepared compatibility exception
+apigateway:* only on Mumbai /apis/*/stages and /apis/*/stages/*, with RequestedRegion condition.
+Existing HTTP actions already cover documented stage lifecycle; no global API/domain wildcard
+added. Exact API IDs can replace these paths after successful deployment. Exception is broader
+than explicit action lists and must remain documented; no AdministratorAccess requested.
+Regenerated work/EcoRouteBootstrap.console.json; Console Modify EcoRouteExecuteCompute required.
+Final lint zero warnings/errors;17bootstrap/readiness tests passed. Earlier18infra run applied
+to unsuccessful workaround, not final cloud proof. No training/SMS/schedules started.
+
+
 ## Support case pending; full backend verification — 2026-10-11
 
 User reports CloudFront Support case created; no Support outcome independently verified.

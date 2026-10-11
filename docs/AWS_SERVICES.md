@@ -1,5 +1,10 @@
 # AWS service decisions and IAM boundaries
 
+Latest: Cognito configuration progresses; Core stage creation fails apigateway:TagResource.
+Prepared Mumbai stage-only compatibility permission; explicit documented HTTP actions were
+already present. Not installed yet; no working API. See PROJECT_STATE.md for failed retries.
+
+
 Latest follow-up: EcoRouteIoT CREATE_COMPLETE with explicit ecoroute_wearable_measurements
 rule; deployed template confirms disabled. No hardware or MQTT event tested. Data/ML remain
 deployed; Core/Hosting rolled back. Latest Cognito bootstrap policy correction not installed.

@@ -1,5 +1,9 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Latest cloud retry: Cognito MFA permission fixed; API Gateway stage handler tagging denied.
+Prepared scoped bootstrap policy correction; runtime not deployed/verified. No API changes.
+
+
 Follow-up: IoT stack now CREATE_COMPLETE, rule disabled in deployed template; no certificates,
 devices or live telemetry tested. Core still blocked by pending Cognito policy update.
 

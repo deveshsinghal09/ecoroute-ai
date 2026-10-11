@@ -1,5 +1,10 @@
 # Credentials and configuration checklist
 
+Latest: Cognito MFA permission installed; next required Console update grants compatibility
+API Gateway stage-scoped actions in Mumbai. See AWS_CONSOLE_BOOTSTRAP.md for exact scope.
+Core API remains unavailable; CloudFront Support pending. No extra secret needed for this fix.
+
+
 Follow-up verification: IoT provisioned with disabled rule, no enrolled device. Direct
 GetTopicRule denied to developer; deployed CloudFormation template verified instead. Current
 CDKToolkit template still lacks latest Cognito MFA action fix; Console update remains required.

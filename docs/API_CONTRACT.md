@@ -1,5 +1,9 @@
 # API contract — backend foundation and environmental datasets
 
+Latest Core retries failed stage tagging authorization after Cognito fix; no AWS base URL
+verified. Schemas unchanged; local API remains the available runtime.
+
+
 Follow-up: disabled IoT stack deployed; this creates no HTTP endpoint or public health access.
 Core rollback remains complete; AWS API base URL still unavailable. Existing schemas unchanged.
 
