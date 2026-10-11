@@ -85,3 +85,6 @@
 .detail-panel:not(.wearable-panel) .explanation{background:#fffaf4;border:1px solid #ecd1ba;border-radius:12px;padding:16px}
 .detail-panel:not(.wearable-panel) .data-result{background:#f9e9dc}
 .detail-panel:not(.wearable-panel) .field-divider{background:#e7ceba}
+
+/* Keep the verified provider status visible before long explanation text. */
+.explanation > small:first-child{margin:0 0 8px;font-size:10px;font-weight:600}
