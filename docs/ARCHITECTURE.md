@@ -1,5 +1,13 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Deployment evidence 2026-10-11: environmental storage/queues and ML role/artifact/ECR preparation
+are deployed. Core runtime is not verified (Cognito configuration denial/rollback); CloudFront
+blocked by AWS account verification. Definitions do not imply working ingestion/authentication.
+See PROJECT_STATE.md for resource statuses and the next scoped bootstrap policy correction.
+IoT rule creation also denied; explicit project-scoped name added for retry. No live wearable
+pipeline is verified. No provider keys or health records were uploaded during provisioning.
+
+
 ## Private local Health Connect extension — 2026-10-11
 
 Existing Wearable sidebar -> authenticated loopback FastAPI phone-bridge GETs -> fixed-target

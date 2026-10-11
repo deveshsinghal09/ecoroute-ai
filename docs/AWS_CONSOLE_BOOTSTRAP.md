@@ -1,5 +1,19 @@
 # EcoRoute one-time Console setup — 2026-10-11
 
+## Current correction after partial deployment
+
+Data/ML deployed after the SSM fix. Core failed on Cognito SetUserPoolMfaConfig. Current
+regenerated file adds GetUserPoolMfaConfig/SetUserPoolMfaConfig to EcoRouteExecuteCompute,
+restricted to Mumbai user pools tagged Project=ecoroute-ai. Update existing CDKToolkit by
+replacing its template with this file, retain parameters/options, review Modify
+EcoRouteExecuteCompute (no replacement), acknowledge IAM, submit and wait UPDATE_COMPLETE.
+Core failed-stack recovery must wait for rollback; do not independently recreate resources.
+
+CloudFront separately requires AWS account verification. Open AWS Support Center and create
+an account/billing case for CloudFront verification; include the exact error and request ID
+in PROJECT_STATE.md. No Support case was sent by the agent; no plan upgrade is authorized.
+
+
 ## Latest: update the completed bootstrap
 
 CDKToolkit CREATE_COMPLETE/version32 is now CLI-verified. The first app change set failed

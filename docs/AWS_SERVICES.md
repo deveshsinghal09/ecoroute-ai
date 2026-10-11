@@ -1,5 +1,13 @@
 # AWS service decisions and IAM boundaries
 
+Latest deployment (2026-10-11): Data and ML preparation stacks CREATE_COMPLETE; bootstrap
+UPDATE_COMPLETE. CloudFront creation blocked by account verification; Core rolling back after
+Cognito MFA configuration permission denial. No working API/frontend URL or training job.
+Current Console template fixes MFA permissions with project-tag constraints; see PROJECT_STATE.md.
+IoT attempt failed on CreateTopicRule; explicit project RuleName added, disabled and not yet
+verified by deployment. Failed stack resources are not counted as functioning services.
+
+
 ## Local Health Connect bridge — 2026-10-11
 
 This phone-data integration introduces no AWS service, IAM grant, resource or paid workload.

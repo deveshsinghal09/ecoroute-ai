@@ -1,5 +1,12 @@
 # Credentials and configuration checklist
 
+2026-10-11: bootstrap verified UPDATE_COMPLETE; scoped role assumption deploys Data/ML.
+Remaining deployment requirements: authorized Console update of EcoRouteExecuteCompute using
+regenerated bootstrap file (Cognito MFA configuration actions); AWS Support CloudFront account
+verification. Provider secrets remain local/not uploaded. No API URL or trained model verified.
+See AWS_CONSOLE_BOOTSTRAP.md; no access keys or private device keys should be shared in chat.
+
+
 ## Local phone records before AWS setup — 2026-10-11
 
 HEALTH_CONNECT_BASE_URL (private phone LAN IP/port) and HEALTH_CONNECT_OWNER_SUB are required;

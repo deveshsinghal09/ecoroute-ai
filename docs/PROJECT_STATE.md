@@ -1,5 +1,45 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Partial real deployment; Cognito and CloudFront blockers — 2026-10-11
+
+Independent IoT attempt failed at CreateTopicRule with generic AccessDenied; exact root cause
+is not proven by that message. No physical rule name was returned. Set an explicit
+ecoroute_wearable_measurements RuleName, covered by existing scoped ecoroute_* IAM pattern,
+and retained RuleDisabled=true. This is a definition fix pending cloud retry, not live IoT
+verification. Validator Lambda/queue/alarm creation was rolled back; no device keys/certificates
+or telemetry were transmitted. Local CDK wait was stopped; AWS rollback proceeds independently.
+Final Core status verified ROLLBACK_COMPLETE, IoT ROLLBACK_IN_PROGRESS, Hosting ROLLBACK_COMPLETE.
+Targeted IoT infrastructure regression1passed; bootstrap/readiness16passed; Ruff passed.
+Failed stack retry requires reviewing retained resources before deleting only failed stack
+metadata. Data/ML must be reused. No failed-stack deletion was performed in this turn.
+
+
+CLI verifies CDKToolkit UPDATE_COMPLETE. Approved deployment succeeded for EcoRouteData
+and EcoRouteML (CREATE_COMPLETE): seven DynamoDB tables, private environmental S3, two SQS
+queues, notification custom-resource Lambda; private ML S3, ECR repository and SageMaker role.
+No training job ran. Ignored work/deployment-status.json records resource lifecycle states;
+counts in failed stacks must not be interpreted as active resources.
+
+Hosting failed because AWS requires account verification for new CloudFront resources (403,
+request62aa205d-eda2-446d-9a23-ced4bdfb10d2); ROLLBACK_COMPLETE verified. Private hosting S3
+is retained by policy. User must contact AWS Support; no upgrade/alternate hosting or Support
+message sent by us. Continued Core/IoT subset independently, preserving deployed Data/ML.
+Core failed with explicit Cognito SetUserPoolMfaConfig denial; rollback continues after local
+wait stopped. No working API or frontend URL verified.
+
+Missing Cognito action was a gap in our scoped generator. Added GetUserPoolMfaConfig and
+SetUserPoolMfaConfig under existing Mumbai/account/Project-tag constraints. Authorized operator
+must update CDKToolkit using regenerated file (Modify EcoRouteExecuteCompute only). Existing
+SSM version-read fix remains. Tests16passed, Ruff/cfn-lint passed; five-stack synthesis and
+structural security review passed. IoT independent deployment is tracked separately below.
+
+Commands: approved manage_cloud.py deploy, pinned CDK Core/IoT and IoT subset deploys,
+DescribeStacks/DescribeStackEvents/list_stack_resources. Non-TTY retry could not answer CDK
+prompt; reran TTY and confirmed already-authorized changes. Separate-output attempt failed
+because app.py fixes cdk.out; no resource mutations from that attempt. No secrets uploaded,
+SMS, enabled schedules or paid jobs. No manual deletion of protected data performed.
+
+
 ## Bootstrap verified; first deployment blocked by version read — 2026-10-11
 
 User Console events and CLI DescribeStacks both verify CDKToolkit CREATE_COMPLETE in

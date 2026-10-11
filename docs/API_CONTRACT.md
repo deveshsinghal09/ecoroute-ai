@@ -1,5 +1,11 @@
 # API contract — backend foundation and environmental datasets
 
+Cloud status 2026-10-11: Data/ML preparation deployed, Core deployment failed on Cognito MFA
+configuration permission and is rolling back. No AWS API base URL has passed runtime tests;
+use existing local endpoints. CloudFront separately blocked by account verification. No API
+schema changes are introduced by this infrastructure correction. See PROJECT_STATE.md.
+
+
 ## Owner-only Health Connect GETs — 2026-10-11
 
 Added /api/v1/wearables/health-connect/status, /data and /summary. Bearer required; owner-bound
