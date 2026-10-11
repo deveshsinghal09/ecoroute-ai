@@ -11,6 +11,8 @@ from dotenv import dotenv_values
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = Config(connect_timeout=3, read_timeout=8, retries={"total_max_attempts": 1})
+# Verified against Service Quotas in Mumbai; warm-pool and endpoint quotas are different.
+SAGEMAKER_TRAINING_QUOTA = "L-611FA074"
 
 
 def check(name, operation, select):
@@ -19,6 +21,9 @@ def check(name, operation, select):
     except ClientError as error:
         code = error.response["Error"]["Code"]
         # Messages can contain account identities, destinations or user data. Keep only codes.
+        if name.startswith("stack:") and code == "ValidationError" and "does not exist" in (
+                error.response["Error"].get("Message", "")):
+            return {"check": name, "status": "not_found", "error_code": code}
         return {"check": name, "status": "unverified", "error_code": code}
     except BotoCoreError:
         return {"check": name, "status": "unverified", "error_code": "sdk_or_network_error"}
@@ -27,7 +32,13 @@ def check(name, operation, select):
 def quota_summary(value):
     return [{"name": q["QuotaName"], "code": q["QuotaCode"], "value": q["Value"],
              "adjustable": q.get("Adjustable", False)} for q in value.get("Quotas", [])
-            if "ml.m5.large" in q["QuotaName"] and "training" in q["QuotaName"].lower()]
+            if q["QuotaName"].lower() == "ml.m5.large for training job usage"]
+
+
+def training_quota(client):
+    value = client.get_service_quota(ServiceCode="sagemaker", QuotaCode=SAGEMAKER_TRAINING_QUOTA)
+    matching = quota_summary({"Quotas": [value["Quota"]]})
+    return {"matching": matching, "incomplete": False, "training_limit_identified": bool(matching)}
 
 
 def assess(session, account, region):
@@ -55,8 +66,7 @@ def assess(session, account, region):
     add("attached_user_policies", lambda: clients["iam"].list_attached_user_policies(UserName=user),
         lambda value: {"policy_names": [p["PolicyName"] for p in value["AttachedPolicies"]],
                        "truncated": value.get("IsTruncated", False)})
-    add("sagemaker_training_quota", lambda: clients["service-quotas"].list_service_quotas(ServiceCode="sagemaker", MaxResults=100),
-        lambda value: {"matching": quota_summary(value), "incomplete": bool(value.get("NextToken"))})
+    add("sagemaker_training_quota", lambda: training_quota(clients["service-quotas"]), lambda value: value)
     probes = (
         ("sagemaker", "list_training_jobs", {"MaxResults": 1}, "TrainingJobSummaries"),
         ("apigatewayv2", "get_apis", {"MaxResults": "1"}, "Items"),

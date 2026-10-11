@@ -1,5 +1,5 @@
 from botocore.exceptions import ClientError
-from scripts.aws_readiness import check, quota_summary
+from scripts.aws_readiness import check, quota_summary, training_quota
 
 
 def test_denial_never_prints_aws_error_message():
@@ -13,9 +13,38 @@ def test_sagemaker_quota_does_not_confuse_training_with_endpoint_limit():
     result = quota_summary({"Quotas": [
         {"QuotaName": "ml.m5.large for training job usage", "QuotaCode": "training", "Value": 0},
         {"QuotaName": "ml.m5.large for endpoint usage", "QuotaCode": "endpoint", "Value": 1},
+        {"QuotaName": "ml.m5.large for training warm pool usage", "QuotaCode": "warm", "Value": 8},
     ]})
     assert result == [{"name": "ml.m5.large for training job usage", "code": "training", "value": 0,
                        "adjustable": False}]
+
+
+def test_training_quota_uses_exact_quota_not_first_list_page():
+    class Client:
+        def get_service_quota(self, **kwargs):
+            assert kwargs == {"ServiceCode": "sagemaker", "QuotaCode": "L-611FA074"}
+            return {"Quota": {"QuotaName": "ml.m5.large for training job usage",
+                              "QuotaCode": "L-611FA074", "Value": 0, "Adjustable": True}}
+
+    result = training_quota(Client())
+    assert result["training_limit_identified"]
+    assert not result["incomplete"]
+    assert result["matching"][0]["value"] == 0
+
+
+def test_stack_absence_requires_specific_service_response():
+    def response(code, message):
+        def operation():
+            raise ClientError({"Error": {"Code": code, "Message": message}}, "DescribeStacks")
+        return operation
+
+    assert check("stack:EcoRouteData", response("ValidationError", "Stack does not exist"),
+                 lambda value: value)["status"] == "not_found"
+    for code, message in (("AccessDenied", "PRIVATE_MARKER"),
+                          ("ValidationError", "Other validation failure")):
+        result = check("stack:EcoRouteData", response(code, message), lambda value: value)
+        assert result["status"] == "unverified"
+        assert "PRIVATE_MARKER" not in str(result)
 
 
 def test_ecr_registry_token_exception_requires_exact_regional_condition():
