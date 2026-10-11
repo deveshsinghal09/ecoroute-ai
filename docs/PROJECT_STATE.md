@@ -1,5 +1,36 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Diagnostic policy attachment verified — 2026-10-11
+
+User completed the Console attachment. Live aws_readiness.py now confirms EcoRouteReadiness
+on dev-admin/devesh_eco in account112920804206/Mumbai. Previously denied regional metadata,
+project DescribeStacks, ECR, alarms and own-policy simulation now succeed. AWS explicitly
+reports CDKToolkit and all five selected EcoRoute stacks do not exist; the bootstrap version
+parameter is missing. All 15 tested provisioning actions still simulate implicitDeny. No
+resource, secret, notification, training job or deployment was created by this check.
+
+Bounded paginated SageMaker quota discovery found the exact ml.m5.large training-job quota
+on page11: L-611FA074, applied0, adjustable. A warm-pool quota discovered earlier is a different
+limit and is not used for the training decision. Fixed the diagnostic to query the exact
+training quota directly and to distinguish explicit stack absence from unknown/access denied.
+Budget DescribeBudget for EcoRoute-Gross-Usage returned AccessDeniedException; budget existence,
+alert configuration and credit eligibility remain unverified. User supplied Console text showing
+Free plan, USD119.88 remaining credits and displayed plan end Dec12,2026 (64 days displayed).
+This is user-provided Console evidence, not an independent credits-API check or confirmation of
+each credit's expiry. Budget activity is shown not started; no budget/alerts are confirmed.
+Supplied optional project-only budget read policy for an IAM operator; no plan upgrade performed.
+
+Created docs/iam/budget-read-policy.json and its ignored account-specific Console copy.
+Modified scripts/aws_readiness.py, tests/test_aws_readiness.py and the five maintained documents/
+current setup runbook. Commands: aws_readiness.py; bounded quota, stack and budget read probes;
+pytest tests/test_aws_readiness.py -q (7passed, one existing deprecation warning); focused Ruff
+(passed). Exact-quota diagnostic rerun verifies quota0 and policy attachment. No infrastructure
+or business API change; no CDK synth needed for this diagnostic-only change. Remaining: Console
+billing/budget confirmation, reviewed scoped bootstrap/deployer execution permissions, bootstrap
+and previously approved serverless deployment. Original USD100 spending ceiling is not increased
+just because the Console shows more credits. Quota1 is needed only before separately approved
+SageMaker training; missing measured training data and Docker daemon remain independent blockers.
+
 ## Guided AWS permission setup — 2026-10-11
 
 Rechecked scripts/aws_readiness.py: existing dev-admin/devesh_eco IAM identity works; diagnostic

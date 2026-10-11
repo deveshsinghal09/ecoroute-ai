@@ -1,5 +1,18 @@
 # Cost estimate and AWS Budget proposal
 
+Latest evidence (2026-10-11): user supplied Console text showing Free plan, USD119.88 remaining
+credits and displayed plan end Dec12,2026/64 days. Individual credit expiry/eligibility is not
+verified by that home widget. Budget alerts remain unconfirmed; CLI DescribeBudget is denied.
+No budget, plan upgrade, deployment or paid job was created by the assessment. Original USD100
+project spending ceiling stays unchanged. User already approved the bounded USD5–20/month
+serverless proposal after IAM/quota/billing checks, excluding training/SMS/idle compute; this
+approval does not authorize a plan upgrade. Use EcoRoute-Gross-Usage USD10 monthly gross usage
+with credits/refunds excluded and alerts50/80/100%, forecast100%. Later USD20 guidance is an
+alternative allowance, not a requirement to create a duplicate budget.
+Free-plan restrictions and expiry are separate from budget alerts, which do not stop resources.
+See [current setup evidence](AWS_READINESS_AND_GEMINI.md) and
+[AWS account-plan behavior](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-plans.html).
+
 2026-10-08. **No budget or resource created. User authorizes up to reported US$100 credits for the project; specific deployment approval remains required.**
 User reports a Free Tier hackathon account with **US$100 AWS credits**. This is the user-authorized overall credit ceiling, not a spending target or proof that a specific deployment was approved. Balance is not independently verified; expiry, eligible services and
 cash-spend tolerance are unknown. Do not assume AWS usage is free or credits cover all charges.

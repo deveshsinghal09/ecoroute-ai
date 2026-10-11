@@ -1,0 +1,11 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadProjectBudgetOnly",
+      "Effect": "Allow",
+      "Action": "budgets:ViewBudget",
+      "Resource": "arn:aws:budgets::ACCOUNT_ID:budget/EcoRoute-Gross-Usage"
+    }
+  ]
+}

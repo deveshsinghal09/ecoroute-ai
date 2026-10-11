@@ -1,5 +1,17 @@
 # Credentials and configuration checklist
 
+Latest live status (2026-10-11): EcoRouteReadiness attachment and diagnostic reads are verified.
+All selected EcoRoute stacks/CDKToolkit are confirmed absent; resource creation remains denied.
+Mumbai SageMaker ml.m5.large training-job quota L-611FA074 is0 (request1 before paid training).
+User-supplied Console text reports Free plan, USD119.88 remaining credits and displayed plan end
+Dec12,2026. Individual credit expiry/eligibility and budget alerts remain unverified: CLI budget
+read is denied, not proof of a missing budget. Optional exact-budget read grant is
+docs/iam/budget-read-policy.json. No upgrade/account-plan change was performed.
+See [current setup steps](AWS_READINESS_AND_GEMINI.md#attachment-verified--supersedes-the-diagnostic-denial-snapshot-below).
+No deployment, secret, training or notification was created. Previous approval persists within
+its stated scope after billing and scoped deployment-IAM checks. No credential values are needed
+in chat. Diagnostic reads do not need any new provider keys.
+
 ## Ordered Console and Windows CLI runbook — 2026-10-10
 
 [AWS_SETUP_FROM_ZERO.md](AWS_SETUP_FROM_ZERO.md) gives the current end-to-end setup order,

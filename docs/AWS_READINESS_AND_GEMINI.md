@@ -1,5 +1,69 @@
 # AWS readiness, Gemini and SageMaker — 2026-10-11
 
+## Attachment verified — supersedes the diagnostic-denial snapshot below
+
+The CLI now verifies EcoRouteReadiness attached to devesh_eco. Its reads and IAM simulation
+work. CDKToolkit and EcoRouteData/Core/ML/IoT/Hosting are confirmed absent, rather than unknown.
+Provisioning actions still simulate implicitDeny: this read-only policy did not grant deployment.
+No AWS resource or paid invocation was created. Existing deployment approval remains valid
+after its IAM/quota/billing gates pass; do not ask for the same approval again.
+
+The exact **ml.m5.large for training job usage** quota is L-611FA074, applied value **0** in
+Mumbai. It is adjustable. The first quota-list page omitted it; pagination found it on page11.
+The diagnostic now calls GetServiceQuota for this identifier and excludes endpoint/warm-pool
+quotas. Request1 before training through **Mumbai → Service Quotas → AWS services → Amazon
+SageMaker AI → ml.m5.large for training job usage → Request increase at account level → 1**.
+Use an authorized quota operator if denied; no FullAccess fallback or account upgrade is required
+by this guide. A request is not a training job; approval/plan eligibility must be checked separately.
+Training quota0 does not prevent preparation of S3/ECR/IAM resources. Do not create Studio,
+a notebook, a real-time endpoint or a warm pool to resolve this training quota.
+
+User-provided Console home text now shows **Free plan, USD119.88 credits remaining**, with a
+displayed plan end date Dec12,2026/64 days. This is Console evidence supplied by the user, not
+an independently queried credit ledger. Individual credit expiry/eligible services still need
+the Credits page; do not automatically raise the original USD100 project ceiling. The Console
+currently displays N. Virginia; select Mumbai for project resources. Billing/IAM are global.
+The budget credit activity shows not started, which does not independently prove no budget exists.
+No budget/alerts are confirmed, and no account-plan change is authorized or performed.
+
+**Immediate user action:** in Billing and Cost Management → Budgets, create or verify a monthly recurring cost
+budget named EcoRoute-Gross-Usage, proposed USD10 gross usage, excluding credits/refunds, with
+actual alerts50/80/100% and forecast100%. Enter the recipient privately in Console. Budget
+alerts are delayed and do not hard-cap spending. Confirm only whether this budget/alerts exist.
+The earlier USD20 guide is an alternative allowance, not a
+second budget that must be created.
+
+CLI DescribeBudget returned AccessDeniedException, so it did not establish budget absence.
+For optional CLI verification, an authorized IAM operator can create/attach
+[budget-read-policy.json](iam/budget-read-policy.json), replacing ACCOUNT_ID; an account-specific
+copy exists in ignored work/EcoRouteBudgetRead.console.json. This grants budgets:ViewBudget
+only on EcoRoute-Gross-Usage, with no permission to create/change budgets or billing settings.
+The operator needs policy create/attach authority; creating the budget separately needs
+budgets:ModifyBudget and appropriate Billing Console access. Do not apply a Mumbai regional
+condition to this global budget ARN.
+
+```powershell
+aws service-quotas get-service-quota --service-code sagemaker --quota-code L-611FA074 --profile dev-admin --region ap-south-1 --query 'Quota.{Name:QuotaName,Value:Value,Adjustable:Adjustable}'
+# Requires the optional exact-budget read grant; output includes no alert recipients.
+aws budgets describe-budget --account-id 112920804206 --budget-name EcoRoute-Gross-Usage --profile dev-admin --query 'Budget.{Name:BudgetName,Limit:BudgetLimit,Period:TimeUnit,CostTypes:CostTypes}'
+```
+
+Next deployment prerequisite remains a reviewed custom CloudFormation execution policy plus
+bootstrap/deployer permissions. None has been installed, and no ARN is yet available to supply
+to --cloudformation-execution-policies. Do not run plain CDK bootstrap with its default broad
+execution policy, and do not create independent Console copies of resources defined in CDK.
+
+Official references: [specific applied quota](https://docs.aws.amazon.com/servicequotas/2019-06-24/apireference/API_GetServiceQuota.html),
+[quota increase steps](https://docs.aws.amazon.com/servicequotas/latest/userguide/request-quota-increase.html),
+[CDK deployment security](https://docs.aws.amazon.com/cdk/v2/guide/best-practices-security.html),
+[AWS Budgets](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html).
+
+The [Free plan](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-plans.html)
+has restricted service/feature access and ends when credits are exhausted or the plan ends;
+it is separate from budget alert behavior. Do not upgrade or join Organizations as a workaround.
+If a selected service is plan-restricted, stop that integration and report it while completing
+supported serverless work. IAM policy attachment does not change Free-plan service eligibility.
+
 ## Immediate guided setup — latest check
 
 Gemini local configuration now validates: GEMINI_API_KEY is present, enable flag true,

@@ -1,5 +1,12 @@
 # AWS service decisions and IAM boundaries
 
+Latest live assessment (2026-10-11): the attached diagnostic policy now enables metadata reads;
+CDKToolkit and all five selected project stacks are absent. No project resource was deployed.
+SageMaker ml.m5.large training quota is0; no job/endpoint/warm pool was launched. Budget reads
+remain denied, and billing/credit gates are pending. Read-only verification incurs no compute
+provisioning charge and does not grant workload/deployment permissions. Optional exact-budget
+read policy and Console actions are in [AWS_READINESS_AND_GEMINI.md](AWS_READINESS_AND_GEMINI.md).
+
 ## Additional profiles — 2026-10-10
 
 All requested services have existing integration code or new optional profiles; none was

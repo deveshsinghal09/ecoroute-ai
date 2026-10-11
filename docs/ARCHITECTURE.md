@@ -1,5 +1,11 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Deployment assessment update (2026-10-11): EcoRouteReadiness is attached; metadata reads confirm
+the selected serverless Data/Core/ML/IoT/Hosting stacks and bootstrap are absent. Architecture
+definitions are unchanged. No service was provisioned by verification. SageMaker training-job
+quota0 blocks training, not defining its execution role; billing and reviewed deployment IAM
+remain separate prerequisite gates. This update changes only diagnostics/documentation/tests.
+
 ## Selectable service integration — 2026-10-10
 
 The Lambda default remains unchanged. Optional ComputeStack deploys the same FastAPI image

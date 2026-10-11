@@ -1,5 +1,11 @@
 # API contract — backend foundation and environmental datasets
 
+AWS assessment update (2026-10-11): IAM diagnostic attachment/read access is verified; no AWS
+backend URL exists because bootstrap/project stacks are absent. Existing endpoint schemas,
+Cognito ownership/consent protections and local functionality are unchanged. A metadata-read
+policy is not application authentication or deployment permission. No new live data/model is
+claimed by this diagnostic update.
+
 Service-profile update (2026-10-10): the 42 existing business API operations and their schemas
 are unchanged. Alternative FastAPI runtimes retain the same Cognito/ownership validation.
 Gateway HTTP proxy handoff explicitly forwards `$request.path` and preserves read/write scopes.
