@@ -85,6 +85,12 @@ existing curated pipeline has five measured PM2.5 rows and zero eligible hourly 
    `arn:aws:sagemaker:ap-south-1:112920804206:training-job/ecoroute-*`. Quota read uses
    `service-quotas:GetServiceQuota`; quota requests need `RequestServiceQuotaIncrease`. No
    AdministratorAccess, root access keys or endpoint-creation permissions required.
+   Prepared proposal: `config/iam-sagemaker-training-operator.json`. Console IAM → Policies → Create
+   policy → JSON → paste that file → review → name `EcoRouteTrainingOperator` → IAM Users →
+   `devesh_eco` → Add permissions → attach that policy. This has NOT been attached by the agent.
+   It permits paid training only for project-tagged Mumbai `ml.m5.large` jobs with network isolation
+   and runtime<=900s, exact dataset upload/image push and exact-role passing. Effective account/role
+   boundaries and service quotas still apply; attaching a policy is not approval to launch a job.
 4. Start Docker Desktop → Linux containers. Build and test the existing `Dockerfile.ml` locally.
    Log in to project ECR using your CLI profile, push a versioned tag, then query the real digest.
    Keep the resulting digest-pinned URI in ignored deployment context; it is a non-secret identifier.
@@ -101,6 +107,16 @@ existing curated pipeline has five measured PM2.5 rows and zero eligible hourly 
    Frontend → Route factors & forecasts → sign in → Check station forecast availability. Only approved
    one-hour station models are selectable. `/routes/predict` returns full genuine route geometry;
    predictions match within 1km/±30min, otherwise separately labeled provider data or unavailable.
+   Before enabling the optional workflow, an authorized operator must extend the existing
+   CloudFormation-managed `EcoRouteWorkloadBoundary` with the statements in
+   `config/iam-sagemaker-workflow-boundary-additions.json` (merge statements, never replace the whole
+   boundary). Current boundary lacks SageMaker job launch/PassRole and the training-sync EventBridge
+   rule grants. Review an Update CDKToolkit change set changing that boundary policy only. No
+   boundary/cloud IAM change was deployed in this turn. The workflow now uses the existing training
+   role's logical ID and an `EcoRoute-*` machine name, preserving scoped bootstrap compatibility.
+   [AWS condition-key reference](https://docs.aws.amazon.com/service-authorization/latest/reference/list_sagemaker.html)
+   supports instance, runtime and network-isolation conditions. Neither proposal grants endpoint
+   creation or hyperparameter tuning. Keep schedules disabled and approve individual jobs separately.
 
 Verification (no secret values printed):
 

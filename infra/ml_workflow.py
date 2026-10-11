@@ -14,21 +14,16 @@ from constructs import Construct
 
 
 class MlWorkflow(Construct):
-    def __init__(self, scope, name, *, bucket, data, asset_path, image_uri):
+    def __init__(self, scope, name, *, bucket, data, asset_path, image_uri, execution_role):
         super().__init__(scope, name)
         stack = scope
         match = re.fullmatch(
             r"([0-9]{12})\.dkr\.ecr\.([a-z0-9-]+)\.amazonaws\.com/([a-z0-9/_-]+)@sha256:[a-f0-9]{64}",
             image_uri,
         )
-        if not match or match[2] != stack.region:
-            raise ValueError("ML image must be a digest-pinned regional ECR image")
-        if __package__ == "infra":
-            from .ml_roles import training_role
-        else:
-            from ml_roles import training_role
-        repo_arn = f"arn:aws:ecr:{match[2]}:{match[1]}:repository/{match[3]}"
-        training = training_role(self, "TrainingRole", bucket, repo_arn)
+        if not match or match[2] != stack.region or match[1] != stack.account or match[3] != "ecoroute-ai-ml-training":
+            raise ValueError("ML image must be digest-pinned in the existing same-account regional project ECR repository")
+        training = execution_role
         log = logs.LogGroup(
             self,
             "WorkflowHandlerLogs",
@@ -64,7 +59,7 @@ class MlWorkflow(Construct):
         worker_role.add_to_policy(
             iam.PolicyStatement(actions=["sagemaker:DescribeTrainingJob"], resources=[jobs])
         )
-        machine_name = "ecoroute-pm25-training"
+        machine_name = "EcoRoute-" + stack.stack_name + "-Training"
         machine_arn = stack.format_arn(
             service="states",
             resource="stateMachine",
@@ -280,6 +275,5 @@ class MlWorkflow(Construct):
             threshold=1,
             evaluation_periods=1,
         )
-        CfnOutput(scope, "TrainingRoleArn", value=training.role_arn)
         CfnOutput(scope, "MlWorkflowArn", value=self.machine.attr_arn)
         CfnOutput(scope, "MlInferenceFunctionArn", value=self.inference.attr_arn)

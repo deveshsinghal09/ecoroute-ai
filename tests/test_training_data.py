@@ -4,6 +4,7 @@ import copy
 import io
 import json
 import zipfile
+from pathlib import Path
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -114,3 +115,32 @@ def test_synthetic_bounds_and_separate_dataset_identity():
         assert max(r["target_at"] for r in parts[first]) < min(
             r["issued_at"] for r in parts[second]
         )
+
+
+def test_training_permission_proposals_exclude_idle_endpoints_and_bound_compute():
+    for filename in (
+        "iam-sagemaker-training-operator.json",
+        "iam-sagemaker-workflow-boundary-additions.json",
+    ):
+        policy = json.loads((Path("config") / filename).read_text(encoding="utf-8"))
+        launch = next(
+            s for s in policy["Statement"] if s["Action"] == "sagemaker:CreateTrainingJob"
+        )
+        assert launch["Resource"].endswith("training-job/ecoroute-*")
+        assert launch["Condition"]["NumericLessThanEquals"]["sagemaker:MaxRuntimeInSeconds"] == 900
+        assert launch["Condition"]["ForAllValues:StringEquals"]["sagemaker:InstanceTypes"] == [
+            "ml.m5.large"
+        ]
+        for statement in policy["Statement"]:
+            actions = statement["Action"]
+            actions = [actions] if isinstance(actions, str) else actions
+            assert not any(
+                a
+                in {
+                    "*",
+                    "sagemaker:*",
+                    "sagemaker:CreateEndpoint",
+                    "sagemaker:CreateHyperParameterTuningJob",
+                }
+                for a in actions
+            )

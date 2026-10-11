@@ -77,6 +77,12 @@ class MlStack(Stack):
             image_scan_on_push=True, removal_policy=RemovalPolicy.RETAIN,
             lifecycle_rules=[ecr.LifecycleRule(max_image_count=5)])
         CfnOutput(self, "TrainingImageRepositoryUri", value=self.training_repository.repository_uri)
+        if __package__ == "infra":
+            from .ml_roles import training_role
+        else:
+            from ml_roles import training_role
+        role = training_role(self, "TrainingRole", self.bucket, self.training_repository.repository_arn)
+        CfnOutput(self, "TrainingRoleArn", value=role.role_arn)
         self.inference_arn = None
         if image_uri:
             if data is None or not asset_path:
@@ -85,15 +91,9 @@ class MlStack(Stack):
                 from .ml_workflow import MlWorkflow
             else:
                 from ml_workflow import MlWorkflow
-            workflow = MlWorkflow(self, "ML", bucket=self.bucket, data=data, asset_path=asset_path, image_uri=image_uri)
+            workflow = MlWorkflow(self, "ML", bucket=self.bucket, data=data, asset_path=asset_path, image_uri=image_uri, execution_role=role)
             self.inference_arn = workflow.inference.attr_arn
         else:
-            if __package__ == "infra":
-                from .ml_roles import training_role
-            else:
-                from ml_roles import training_role
-            role = training_role(self, "TrainingRole", self.bucket, self.training_repository.repository_arn)
-            CfnOutput(self, "TrainingRoleArn", value=role.role_arn)
             CfnOutput(self, "TrainingStatus", value="Execution role and ECR repository only; image, measured dataset, quota and paid-job approval still required")
 
 

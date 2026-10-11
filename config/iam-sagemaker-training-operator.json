@@ -1,0 +1,123 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "BoundedProjectTraining",
+      "Effect": "Allow",
+      "Action": "sagemaker:CreateTrainingJob",
+      "Resource": "arn:aws:sagemaker:ap-south-1:112920804206:training-job/ecoroute-*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "ap-south-1",
+          "aws:RequestTag/Project": "ecoroute-ai"
+        },
+        "ForAllValues:StringEquals": {
+          "sagemaker:InstanceTypes": [
+            "ml.m5.large"
+          ]
+        },
+        "NumericLessThanEquals": {
+          "sagemaker:MaxRuntimeInSeconds": 900
+        },
+        "Bool": {
+          "sagemaker:NetworkIsolation": "true"
+        }
+      }
+    },
+    {
+      "Sid": "ReadStopTagProjectJobs",
+      "Effect": "Allow",
+      "Action": [
+        "sagemaker:DescribeTrainingJob",
+        "sagemaker:StopTrainingJob",
+        "sagemaker:AddTags",
+        "sagemaker:ListTags"
+      ],
+      "Resource": "arn:aws:sagemaker:ap-south-1:112920804206:training-job/ecoroute-*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "ap-south-1"
+        }
+      }
+    },
+    {
+      "Sid": "PassExistingTrainingRoleOnly",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "arn:aws:iam::112920804206:role/EcoRouteML-TrainingRoleAA3C7BE5-VsLKeITwcvc0",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "sagemaker.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "InspectTrainingRole",
+      "Effect": "Allow",
+      "Action": "iam:GetRole",
+      "Resource": "arn:aws:iam::112920804206:role/EcoRouteML-TrainingRoleAA3C7BE5-VsLKeITwcvc0"
+    },
+    {
+      "Sid": "ReadTrainingQuota",
+      "Effect": "Allow",
+      "Action": "service-quotas:GetServiceQuota",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "ap-south-1"
+        }
+      }
+    },
+    {
+      "Sid": "DatasetUploadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::ecorouteml-mlartifacts1dd2d62f-yvrmeewrkgxo/datasets/*"
+    },
+    {
+      "Sid": "DatasetPrefixList",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::ecorouteml-mlartifacts1dd2d62f-yvrmeewrkgxo",
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "datasets/*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "RegionalRegistryLogin",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "ap-south-1"
+        }
+      }
+    },
+    {
+      "Sid": "ProjectImagePush",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload",
+        "ecr:PutImage",
+        "ecr:DescribeImages"
+      ],
+      "Resource": "arn:aws:ecr:ap-south-1:112920804206:repository/ecoroute-ai-ml-training",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "ap-south-1"
+        }
+      }
+    }
+  ]
+}

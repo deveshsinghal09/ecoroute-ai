@@ -272,7 +272,7 @@ def test_optional_ml_workflow_has_no_endpoint_no_enabled_schedule_and_scoped_rol
         env=env,
         data=data,
         asset_path=str(asset),
-        image_uri="123456789012.dkr.ecr.ap-south-1.amazonaws.com/ecoroute-ml@sha256:" + "a" * 64,
+        image_uri="123456789012.dkr.ecr.ap-south-1.amazonaws.com/ecoroute-ai-ml-training@sha256:" + "a" * 64,
     )
     core = CoreStack(
         app, "Core", env=env, data=data, asset_path=str(asset), ml_inference_arn=ml.inference_arn
@@ -290,6 +290,11 @@ def test_optional_ml_workflow_has_no_endpoint_no_enabled_schedule_and_scoped_rol
     machine = next(r for r in resources if r["Type"] == "AWS::StepFunctions::StateMachine")
     definition = json.dumps(machine)
     assert "createTrainingJob.sync" in definition and "VerifyAndPublish" in definition
+    assert machine["Properties"]["StateMachineName"].startswith("EcoRoute-")
+    role_resources = Template.from_stack(ml).to_json()["Resources"]
+    training_roles = [r for r in role_resources.values() if r["Type"] == "AWS::IAM::Role" and "sagemaker.amazonaws.com" in json.dumps(r["Properties"]["AssumeRolePolicyDocument"])]
+    assert len(training_roles) == 1
+    assert "TrainingRoleAA3C7BE5" in role_resources
     assert "Retry" not in definition
     policies = [r for r in resources if r["Type"] == "AWS::IAM::Policy"]
     for policy in policies:
