@@ -121,6 +121,7 @@ def test_low_quota_aspect_and_gemini_scoped_secret(tmp_path):
 
 def test_iot_rule_envelope_permission_and_retention(templates):
     iot = templates["iot"]
+    assert resources(iot, "AWS::IoT::TopicRule")[0]["Properties"]["RuleName"] == "ecoroute_wearable_measurements"
     rule = resources(iot, "AWS::IoT::TopicRule")[0]["Properties"]["TopicRulePayload"]
     assert rule["RuleDisabled"] is True
     assert "encode(*, 'base64')" in rule["Sql"] and "principal()" in rule["Sql"]

@@ -379,7 +379,8 @@ class IotStack(Stack):
         validator = worker(self, "WearableValidator", data=data,
             code=lambda_.Code.from_asset(str(Path(asset_path).resolve())),
             handler="ecoroute.wearable.handlers.mqtt_handler")
-        rule = iot.CfnTopicRule(self, "Measurements", topic_rule_payload=iot.CfnTopicRule.TopicRulePayloadProperty(
+        rule = iot.CfnTopicRule(self, "Measurements", rule_name="ecoroute_wearable_measurements",
+            topic_rule_payload=iot.CfnTopicRule.TopicRulePayloadProperty(
             aws_iot_sql_version="2016-03-23", rule_disabled=True,
             sql="SELECT encode(*, 'base64') AS payload_b64, topic(3) AS owner_key, topic(5) AS device_id, topic() AS mqtt_topic, clientid() AS mqtt_client_id, principal() AS principal FROM 'ecoroute/users/+/devices/+/measurements'",
             actions=[iot.CfnTopicRule.ActionProperty(lambda_=iot.CfnTopicRule.LambdaActionProperty(function_arn=validator.function_arn))]))
