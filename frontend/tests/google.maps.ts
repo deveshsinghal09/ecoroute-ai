@@ -10,6 +10,30 @@ window.google={maps:{Map:MockMap,OverlayView,RenderingType:{VECTOR:'VECTOR',RAST
 window.ecoGoogleReady();`;
 async function mockMap(page:Page){await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk}));}
 
+test('route factor controls stay inside the planner and send compatible guest preferences',async({page})=>{
+ await page.setViewportSize({width:1366,height:768});await mockMap(page);
+ let submitted:any;
+ await page.route('**/api/v1/routes/preview',route=>{submitted=route.request().postDataJSON();return route.fulfill({json:{...recording,persistence:'request_only'}});});
+ await page.goto('/');await page.getByText('Route factors & forecasts',{exact:true}).click();
+ await expect(page.getByRole('button',{name:'Check station forecast availability'})).toBeDisabled();
+ const body=await page.locator('.route-preferences-body').boundingBox();
+ const planner=await page.locator('.detail-panel').boundingBox();
+ expect(body).not.toBeNull();expect(planner).not.toBeNull();
+ expect(body!.y).toBeGreaterThanOrEqual(planner!.y);expect(body!.x).toBeGreaterThanOrEqual(planner!.x);
+ expect(body!.x+body!.width).toBeLessThanOrEqual(planner!.x+planner!.width);
+ await page.getByLabel('Weather preference',{exact:true}).focus();await page.keyboard.press('End');
+ await page.getByRole('checkbox',{name:'Prefer avoiding tolls'}).check();
+ await page.screenshot({path:'../work/route-factor-controls-desktop.png'});
+ await page.getByText('Route factors & forecasts',{exact:true}).click();
+ await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('checkbox',{name:'Allow processing my locations and route. Google routes are not saved.'}).check();
+ await page.getByRole('button',{name:'Compare routes',exact:true}).click();
+ await expect(page.locator('.route-option')).toHaveCount(2);
+ expect(submitted.weather_weight).toBe(.2);expect(submitted.avoid_tolls).toBe(true);
+ expect(submitted.terrain_weight).toBe(0);expect(submitted.station_ids).toBeUndefined();
+ expect(submitted.consent_to_store).toBe(false);
+});
+
 test('map is public, tilted, controllable, and does not invent initial journey pins',async({page})=>{
  await mockMap(page);await page.goto('/');
  await expect(page.getByLabel('Journey map',{exact:true})).toHaveAttribute('data-ready','true');

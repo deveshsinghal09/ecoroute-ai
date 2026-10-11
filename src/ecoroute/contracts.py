@@ -19,6 +19,11 @@ def ref(name):
 
 
 SCHEMAS = {
+    "RouteWeather": obj({"status": STRING, "preference_cost": NULL_NUMBER, "temperature_c": NUMBER,
+        "precipitation_mm": NUMBER, "wind_m_s": NUMBER, "source": STRING, "reported_at": STRING,
+        "collected_at": STRING, "resolution": STRING, "definition": STRING}, ("status", "preference_cost")),
+    "RouteTerrain": obj({"status": STRING, "ascent_m": NULL_NUMBER, "descent_m": NULL_NUMBER,
+        "source": STRING, "resolution": STRING, "definition": STRING}, ("status", "ascent_m", "descent_m")),
     "ApiError": obj({"error": obj({"code": STRING, "request_id": STRING}, ("code", "request_id"))}, ("error",)),
     "GeoJsonLineString": obj({"type": {"const": "LineString"}, "coordinates": {"type": "array", "minItems": 2,
         "items": {"type": "array", "prefixItems": [NUMBER, NUMBER], "minItems": 2, "maxItems": 2}}}, ("type", "coordinates")),
@@ -35,12 +40,16 @@ SCHEMAS = {
         "known_pm25_exposure_ug_h_m3": NUMBER, "pm25_coverage_fraction": NUMBER,
         "relative_exposure_change_percent": NULL_NUMBER, "baseline_route_id": STRING,
         "confidence": STRING, "routing_source": OBJECT, "source_metadata": ARRAY,
+        "weather": ref("RouteWeather"), "terrain": ref("RouteTerrain"),
         "segments": {"type": "array", "items": ref("RouteSegment")}, "recommendation_reason": STRING},
         ("route_id", "geometry", "duration_s", "distance_m", "estimated_pm25_exposure_ug_h_m3")),
     "RouteComparison": obj({"routes": {"type": "array", "items": ref("ScoredRoute")},
         "selected_route_id": STRING, "baseline_route_id": STRING, "recommended_route_ids": OBJECT,
         "baseline_definition": STRING, "score_definition": STRING, "spatial_differentiation": STRING,
         "cache_hit": BOOL}, ("routes", "selected_route_id", "baseline_route_id", "recommended_route_ids")),
+    "PredictedRouteComparison": {"allOf": [ref("RouteComparison"), obj({"station_forecasts": OBJECT,
+        "model_versions": {"type": "array", "items": STRING}, "horizon_hours": {"const": 1}},
+        ("station_forecasts", "model_versions", "horizon_hours"))]},
     "OwnedRecord": obj({"id": STRING, "expires_at": {"anyOf": [{"type": "integer"}, STRING]}}),
     "DataEnvelope": obj({"status": STRING, "records": ARRAY, "truncated": BOOL, "attribution": STRING, "limitations": STRING}, ("status", "records", "truncated")),
     "DepartureAnalysis": obj({"departures": ARRAY, "lowest_estimated_exposure_departure": {"anyOf": [STRING, {"type": "null"}]}, "baseline_definition": STRING}, ("departures",)),
@@ -62,6 +71,7 @@ def response_schema(path, method):
     relative = path.removeprefix("/api/v1/")
     exact = {
         "routes/preview": ref("RouteComparison"),
+        "routes/predict": ref("PredictedRouteComparison"),
         "health": obj({"status": STRING, "profile": STRING, "phase": STRING, "live_domain_providers": BOOL}),
         "ready": obj({"status": STRING}), "routes/compare": ref("RouteComparison"),
         "routes/optimize": obj({"recommended_route": ref("ScoredRoute"), "recommended_route_ids": OBJECT,

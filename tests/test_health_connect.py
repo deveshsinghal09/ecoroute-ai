@@ -194,7 +194,7 @@ def test_deep_invalid_json_fails_safely_and_releases_read_lock():
 
 
 def test_missing_configuration_and_overlapping_read_fail_before_network():
-    phone = HealthConnectClient(Settings(_env_file=None))
+    phone = HealthConnectClient(Settings(_env_file=None, health_connect_base_url=""))
     with pytest.raises(HealthConnectError, match="not_configured"):
         phone.data()
     phone.lock.acquire()

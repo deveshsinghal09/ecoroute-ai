@@ -1,5 +1,6 @@
 """Google Routes + Places adapter. Keys only in headers; never log response bodies."""
 from datetime import UTC, datetime
+import math
 
 import httpx
 
@@ -79,7 +80,7 @@ class GoogleRoutes:
                 if not isinstance(duration, str) or not duration.endswith("s"):
                     raise ValueError()
                 static = raw.get("staticDuration")
-                if static is not None and (not isinstance(static, str) or not static.endswith("s") or float(static[:-1]) <= 0):
+                if static is not None and (not isinstance(static, str) or not static.endswith("s") or not math.isfinite(float(static[:-1])) or float(static[:-1]) <= 0):
                     raise ValueError()
                 geometry = raw["polyline"]["geoJsonLinestring"]
                 if geometry["type"] != "LineString":
