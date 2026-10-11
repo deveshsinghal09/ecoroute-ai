@@ -12,6 +12,11 @@ diagnoses or recommendations. Selection and safety rules have already been decid
 """
 
 
+def full_coverage(value):
+    # Segment-duration sums can produce 0.9999999999999999 for full coverage.
+    return value is not None and math.isclose(value, 1, rel_tol=0, abs_tol=1e-9)
+
+
 def explain(routes, settings, repo, client=None):
     # Do not forward place names, geometry, provider prose, user IDs or health information.
     metrics = []
@@ -57,11 +62,11 @@ def explain(routes, settings, repo, client=None):
         statement = f"{label} takes about {duration / 60:.1f} minutes" if duration is not None and duration > 0 else f"{label}: travel time is unavailable"
         distance = fact["distance_m"]
         statement += f" and covers {distance / 1000:.1f} km." if distance is not None and distance >= 0 else "."
-        if duration is not None and duration > 0 and exposure is not None and exposure >= 0 and fact["pm25_coverage_fraction"] == 1:
+        if duration is not None and duration > 0 and exposure is not None and exposure >= 0 and full_coverage(fact["pm25_coverage_fraction"]):
             statement += f" Its estimated average PM2.5 level is {exposure / (duration / 3600):.1f} µg/m³."
             baseline = next((m for m in metrics if m["route_id"] == fact["baseline_route_id"]), None)
             change = fact["relative_exposure_change_percent"]
-            if baseline and baseline is not fact and baseline["pm25_coverage_fraction"] == 1:
+            if baseline and baseline is not fact and full_coverage(baseline["pm25_coverage_fraction"]):
                 base_exposure = baseline["estimated_pm25_exposure_ug_h_m3"]
                 if base_exposure is not None and base_exposure > 0 and change is not None and math.isclose(change, (exposure - base_exposure) / base_exposure * 100, abs_tol=.01):
                     base_label = baseline["alias"].replace("route_", "Route ")
@@ -85,7 +90,7 @@ def explain(routes, settings, repo, client=None):
             statement += " This takes more extra time than your detour limit allows."
         statements[alias] = statement
     complete = bool(metrics) and all(
-        m["pm25_coverage_fraction"] == 1 and m["duration_s"] is not None and m["duration_s"] > 0
+        full_coverage(m["pm25_coverage_fraction"]) and m["duration_s"] is not None and m["duration_s"] > 0
         and m["estimated_pm25_exposure_ug_h_m3"] is not None and m["estimated_pm25_exposure_ug_h_m3"] >= 0
         for m in metrics
     )

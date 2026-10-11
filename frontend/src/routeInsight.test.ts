@@ -33,6 +33,13 @@ it('preserves a genuine zero estimate and explains the detour limit',()=>{
  const text=routeSummary({...route,estimated_pm25_exposure_ug_h_m3:0,within_detour_limit:false});
  expect(text).toContain('0.0 µg/m³');expect(text).toContain('maximum extra travel time');
 });
+it('handles full-coverage floating point sums from the actual saved comparison',()=>{
+ for(const recorded of historical.routes){
+  expect(routeSummary(recorded,historical)).toContain('estimated average PM2.5 level');
+  expect(routeSummary(recorded,historical)).not.toContain('data is missing');
+ }
+ expect(routeSummary({...route,pm25_coverage_fraction:.999})).toContain('data is missing');
+});
 it('gives a clear next step without made-up data when no route is selected',()=>{
  expect(routeSummary()).toBe('Compare routes, then choose one to see what it means for your journey.');
 });

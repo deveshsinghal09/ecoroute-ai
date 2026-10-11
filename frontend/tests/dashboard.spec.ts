@@ -32,7 +32,7 @@ test('historical dashboard, route geometry and honest unavailable features',asyn
   await expect(page.getByText('Cloud bridge not connected')).toBeVisible();
   await page.getByRole('button',{name:'Insights',exact:true}).click();
   await page.getByRole('button',{name:'Explain this comparison'}).click();
-  await expect(page.getByText('Deterministic summary · no LLM invoked')).toBeVisible();
+  await expect(page.getByText('Route summary · based on your route results',{exact:true})).toBeVisible();
   expect(errors).toEqual([]);
 });
 test('live mode clears preview and guest routing never authenticates private features',async({page})=>{

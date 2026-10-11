@@ -1,5 +1,23 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Insights coverage rounding and browser expectation follow-up — 12 October 2026
+
+Published historical replay revealed the actual second route has coverage0.9999999999999999.
+Treat only floating-point rounding within1e-9 of full coverage as complete; genuine partial coverage
+still yields an unavailable comparison. Backend and frontend regression tests use the actual saved
+response and verify its12.0% higher exposure relative to the documented baseline, without implying
+cleaner streets or modifying measurements. Completed follow-up local pytest:382 passed,1 optional
+container skip; advisory/Gemini/forecast71 passed; frontend65 passed; build and Ruff passed.
+
+Initial GitHub run38181228850: backend check passed; frontend failed one stale expectation for the
+removed technical fallback label. Updated historical dashboard and Drive/Walk/Cycle Maps expectations
+to the new factual route-summary label, preserving all assertions about mode, consent and geometry.
+Full default browser suite35 passed; full Maps rerun22 passed after the label fix. Backend follow-up is
+again a reviewed Lambda-package-only change; Amplify remains Git-connected to main.
+Initial published frontend assetindex-BPxtWoZs.js verified on laptop/mobile with historical replay
+and mocked Maps SDK (no new provider/AI calls). Evidence:work/insights-published-verification.json.
+Follow-up commit author:Devesh Singhal; next meaningful author:Mayank Gupta.
+
 ## Plain-language route Insights — 12 October 2026
 
 Replaced technical route prose with everyday travel language in both the backend-approved

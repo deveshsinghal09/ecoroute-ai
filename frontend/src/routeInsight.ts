@@ -9,7 +9,7 @@ export function routeSummary(route?:Route,comparison?:Comparison|null) {
   else if(fastest&&route.duration_s>fastest.duration_s)summary+=` It takes ${number((route.duration_s-fastest.duration_s)/60)} minutes longer than the quickest option.`;
   if(route.within_detour_limit===false)summary+=' It exceeds your maximum extra travel time.';
   const concentration=weightedConcentration(route);
-  if(concentration===null||route.pm25_coverage_fraction<1)summary+=' Some air-quality data is missing, so we cannot reliably compare pollution exposure for the whole journey.';
+  if(concentration===null||!Number.isFinite(concentration)||Math.abs(route.pm25_coverage_fraction-1)>1e-9)summary+=' Some air-quality data is missing, so we cannot reliably compare pollution exposure for the whole journey.';
   else summary+=` The estimated average PM2.5 level is ${number(concentration)} µg/m³. PM2.5 means tiny particles in the air; your exposure also depends on how long you travel.`;
   if(comparison?.spatial_differentiation==='not_resolved_same_model_cell')summary+=' These routes share an area-wide air-quality forecast, so we cannot tell which street has cleaner air.';
   return summary;

@@ -85,7 +85,7 @@ for(const [label,mode] of [['Drive','driving'],['Walk','walking'],['Cycle','cycl
   await page.getByRole('button',{name:'Alternative route'}).click();
   await expect(page.locator('.route-option.chosen')).toContainText('Alternative route');
   await page.getByRole('button',{name:'Insights',exact:true}).click();await page.getByRole('button',{name:'Explain this comparison'}).click();
-  await expect(page.getByText('Deterministic summary · no LLM invoked')).toBeVisible();
+  await expect(page.getByText('Route summary · based on your route results',{exact:true})).toBeVisible();
  });
 }
 

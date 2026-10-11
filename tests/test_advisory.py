@@ -1,5 +1,6 @@
 """Synthetic mechanics fixtures, never presented as measured pollution or live delivery."""
 import json
+from pathlib import Path
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -189,6 +190,16 @@ def test_plain_percentage_needs_complete_matching_documented_baseline():
     assert "20.0% lower than Route 1" in explain([first, second], Settings(_env_file=None), Budget())["explanation"]
     for changes in ({"baseline_route_id": "missing"}, {"relative_exposure_change_percent": -90}, {"pm25_coverage_fraction": .5}):
         assert "% lower" not in explain([first, {**second, **changes}], Settings(_env_file=None), Budget())["explanation"]
+
+
+def test_actual_saved_comparison_does_not_mislabel_rounding_as_missing_data():
+    recorded = json.loads(Path("examples/delhi-recorded-response.json").read_text())["response"]
+    result = explain(recorded["routes"], Settings(_env_file=None), Budget())
+    assert "data is missing" not in result["explanation"]
+    assert result["explanation"].count("estimated average PM2.5") == 2
+    assert "12.0% higher than Route 1" in result["explanation"]
+    partial = {**route(), "pm25_coverage_fraction": .999}
+    assert "data is missing" in explain([partial], Settings(_env_file=None), Budget())["explanation"]
 
 
 TOPIC = "arn:aws:sns:ap-south-1:123456789012:private-alerts"
