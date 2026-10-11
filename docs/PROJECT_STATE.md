@@ -1,5 +1,27 @@
 # EcoRoute AI project state — Phases 1–7
 
+## IoT retry deployed; latest Cognito bootstrap update still pending — 2026-10-11
+
+CLI GetTemplate confirms deployed CDKToolkit still lacks SetUserPoolMfaConfig; its last update
+is the earlier SSM correction. GetPolicy denied, so installed template was inspected instead.
+Data/ML remain CREATE_COMPLETE. Core/Hosting ROLLBACK_COMPLETE with retained Cognito pool
+ap-south-1_x6ddLvmZV and hosting bucket ecoroutehosting-frontend23d93c55-kcaqtm7unqpl.
+Those retained resources were not deleted or accessed. Inventory: work/deployment-current.json.
+
+IoT rollback was complete with all resource entries DELETE_COMPLETE. Assumed scoped deploy
+role, rechecked both conditions and removed only empty failed EcoRouteIoT stack metadata.
+Pinned CDK deploy EcoRouteIoT reused Data (no changes) and successfully reached CREATE_COMPLETE
+in91.53s. RuleName ecoroute_wearable_measurements; GetTemplate verifies RuleDisabled=true.
+Direct iot:GetTopicRule denied for developer user; no live MQTT/health event test performed.
+No cert/device enrolled, messages sent or schedules/training enabled. New IoT Lambda, role,
+failure queue and alarm are provisioned definitions, not proof of hardware integration.
+
+Next: Console update CDKToolkit with current work/EcoRouteBootstrap.console.json, expecting
+only EcoRouteExecuteCompute modification. CloudFront requires separate Support verification.
+No working backend or hosted frontend URL yet. This turn performed deployment verification,
+not a new local test run; earlier16targeted+1infra passing tests remain recorded evidence.
+
+
 ## Partial real deployment; Cognito and CloudFront blockers — 2026-10-11
 
 Independent IoT attempt failed at CreateTopicRule with generic AccessDenied; exact root cause

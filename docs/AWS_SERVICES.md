@@ -1,5 +1,10 @@
 # AWS service decisions and IAM boundaries
 
+Latest follow-up: EcoRouteIoT CREATE_COMPLETE with explicit ecoroute_wearable_measurements
+rule; deployed template confirms disabled. No hardware or MQTT event tested. Data/ML remain
+deployed; Core/Hosting rolled back. Latest Cognito bootstrap policy correction not installed.
+
+
 Latest deployment (2026-10-11): Data and ML preparation stacks CREATE_COMPLETE; bootstrap
 UPDATE_COMPLETE. CloudFront creation blocked by account verification; Core rolling back after
 Cognito MFA configuration permission denial. No working API/frontend URL or training job.

@@ -1,5 +1,10 @@
 # Credentials and configuration checklist
 
+Follow-up verification: IoT provisioned with disabled rule, no enrolled device. Direct
+GetTopicRule denied to developer; deployed CloudFormation template verified instead. Current
+CDKToolkit template still lacks latest Cognito MFA action fix; Console update remains required.
+
+
 2026-10-11: bootstrap verified UPDATE_COMPLETE; scoped role assumption deploys Data/ML.
 Remaining deployment requirements: authorized Console update of EcoRouteExecuteCompute using
 regenerated bootstrap file (Cognito MFA configuration actions); AWS Support CloudFront account

@@ -1,5 +1,9 @@
 # API contract — backend foundation and environmental datasets
 
+Follow-up: disabled IoT stack deployed; this creates no HTTP endpoint or public health access.
+Core rollback remains complete; AWS API base URL still unavailable. Existing schemas unchanged.
+
+
 Cloud status 2026-10-11: Data/ML preparation deployed, Core deployment failed on Cognito MFA
 configuration permission and is rolling back. No AWS API base URL has passed runtime tests;
 use existing local endpoints. CloudFront separately blocked by account verification. No API

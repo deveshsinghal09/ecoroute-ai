@@ -1,5 +1,9 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Follow-up: IoT stack now CREATE_COMPLETE, rule disabled in deployed template; no certificates,
+devices or live telemetry tested. Core still blocked by pending Cognito policy update.
+
+
 Deployment evidence 2026-10-11: environmental storage/queues and ML role/artifact/ECR preparation
 are deployed. Core runtime is not verified (Cognito configuration denial/rollback); CloudFront
 blocked by AWS account verification. Definitions do not imply working ingestion/authentication.
