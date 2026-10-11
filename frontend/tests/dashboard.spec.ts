@@ -19,7 +19,7 @@ test('live mode clears preview and guest routing never authenticates private fea
   await page.goto('/');await page.getByRole('button',{name:'Connection settings'}).click();
   await page.getByRole('button',{name:'Live services',exact:true}).click();
   await page.getByRole('button',{name:'Sign in with Cognito'}).click();
-  await expect(page.getByRole('status')).toContainText('Cognito is not configured');
+  await expect(page.getByRole('status')).toContainText('Sign-in setup is incomplete');
   await page.getByRole('button',{name:'Close dialog'}).click();
   await page.getByRole('button',{name:'Open journey planner'}).click();
   await expect(page.locator('.route-option')).toHaveCount(0);
@@ -118,4 +118,15 @@ test('all dashboard panels share dimensions and hide scrollbars',async({page})=>
   const box=await panel.boundingBox();if(!box)throw Error('Missing panel');reference??=box;expect(box.width).toBeCloseTo(reference.width,0);expect(box.height).toBeCloseTo(reference.height,0);
   await expect(panel).toHaveCSS('scrollbar-width','none');await expect(panel).toHaveCSS('overflow-y','auto');
  }
+});
+
+
+test('insights separates actual local metrics from unavailable navigation training',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Insights',exact:true}).click();
+ await page.getByText('Completed local training evaluation',{exact:true}).click();
+ await expect(page.locator('.training-evidence')).toContainText('420,768');
+ await expect(page.locator('.training-evidence')).toContainText('9.75');
+ await expect(page.locator('.training-evidence')).toContainText('No SageMaker training job has run');
+ await expect(page.locator('.training-evidence')).toContainText('excluded from Delhi navigation');
+ await page.screenshot({path:'../work/training-evidence-desktop.png'});
 });
