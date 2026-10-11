@@ -5,6 +5,8 @@ export interface Route {
   duration_s: number; distance_m: number; departure_at: string;
   estimated_pm25_exposure_ug_h_m3: number | null; pm25_coverage_fraction: number;
   relative_exposure_change_percent: number | null; confidence: string;
+  weather?:{status:string;temperature_c?:number;precipitation_mm?:number;wind_m_s?:number;preference_cost:number|null};
+  terrain?:{status:string;ascent_m:number|null;descent_m:number|null};
   source_metadata?: unknown; warnings: string[]; recommendation_reason: string; routing_source: Record<string, unknown>;
   segments: { duration_s: number; pm25_exposure_ug_h_m3: number | null; pollutants: Record<string, {value_ug_m3: number | null; source?: string; reported_at?: string}> }[];
 }

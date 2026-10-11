@@ -1,0 +1,14 @@
+.route-preferences{position:relative;margin:8px 0;color:#283137;font-size:12px}
+.route-preferences summary{cursor:pointer;padding:7px 0;font-weight:650;text-decoration:underline;text-underline-offset:3px}
+.route-preferences-body{position:absolute;bottom:calc(100% + 6px);left:0;right:0;z-index:12;background:#fff6ed;border:1px solid #cf9670;border-radius:14px;padding:14px;box-shadow:0 12px 28px #29333830;max-height:min(420px,65dvh);overflow:auto;scrollbar-width:none}
+.route-preferences-body::-webkit-scrollbar{display:none}
+.route-preferences-body p{font-size:11px;line-height:1.5;margin:7px 0;color:#384950}
+.route-preferences-body label{display:block;font-weight:600;font-size:12px;margin:10px 0}
+.route-preferences-body output{float:right;font-variant-numeric:tabular-nums}
+.route-preferences-body input[type=range]{width:100%;accent-color:#b54413;min-height:24px}
+.route-preferences-body .route-preference-check{display:flex;align-items:center;gap:8px;font-weight:500}
+.route-preferences-body input[type=checkbox]{accent-color:#b54413}
+.route-preferences-body select{width:100%;margin-top:6px;border:1px solid #ba8159;border-radius:7px;padding:8px;background:#fff;color:#283137}
+.route-preferences-body :focus-visible{outline:2px solid #234d61;outline-offset:3px}
+.route-factor-summary{font-size:11px;line-height:1.5;color:#35464d;margin:8px 0}
+@media(max-width:740px){.route-preferences-body{max-height:55dvh}}
