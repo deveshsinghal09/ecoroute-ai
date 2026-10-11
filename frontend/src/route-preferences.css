@@ -20,3 +20,9 @@
 .training-evidence th:first-child{text-align:left}
 .training-evidence a{color:#96370e;text-underline-offset:3px}
 @media(max-width:740px){.route-preferences-body{max-height:55dvh}}
+
+.route-weight-controls{border:0;padding:0;margin:0;min-width:0}
+.route-weight-controls:disabled{opacity:.65}
+.route-weight-controls input:disabled{cursor:not-allowed}
+.route-planning-note{font-size:11px;line-height:1.5;color:#35464d;margin:8px 0}
+.route-detour-warning{display:block;font-size:11px;color:#8b350b;line-height:1.4;margin-top:6px}

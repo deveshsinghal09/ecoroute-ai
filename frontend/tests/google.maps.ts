@@ -193,3 +193,57 @@ test('alternative colors match cards and map legend, persist across selection, a
  expect(changed.map((l:any)=>l.path)).toEqual(initial.map((l:any)=>l.path));
  await page.screenshot({path:'../work/route-colors-fixed.png'});
 });
+
+test('pure objectives disable unused sliders and restore balanced priorities',async({page})=>{
+ await mockMap(page);await page.goto('/');
+ await page.getByText('Route factors & forecasts',{exact:true}).click();
+ await page.getByLabel('Weather preference',{exact:true}).focus();await page.keyboard.press('End');
+ await page.getByLabel('Route preference',{exact:true}).selectOption('fastest');
+ await expect(page.getByLabel('Pollution priority',{exact:true})).toBeDisabled();
+ await expect(page.getByLabel('Weather preference',{exact:true})).toBeDisabled();
+ await expect(page.getByRole('checkbox',{name:'Prefer avoiding tolls'})).toBeEnabled();
+ await page.getByLabel('Route preference',{exact:true}).selectOption('lowest_exposure');
+ await expect(page.getByLabel('Pollution priority',{exact:true})).toBeDisabled();
+ await page.getByLabel('Route preference',{exact:true}).selectOption('balanced');
+ await expect(page.getByLabel('Weather preference',{exact:true})).toBeEnabled();
+ await expect(page.getByLabel('Weather preference',{exact:true})).toHaveValue('20');
+});
+
+test('city overview submits objectives and detour, then warns until changed settings are recomputed',async({page})=>{
+ await mockMap(page);let sent:any;
+ await page.route('**/api/v1/routes/preview',r=>{
+  sent=r.request().postDataJSON();const response=structuredClone(recording);response.persistence='request_only';
+  response.selected_route_id=response.routes[sent.objective==='lowest_exposure'&&sent.max_detour_percent>0?1:0].route_id;
+  if(sent.max_detour_percent===0){response.routes[1].within_detour_limit=false;response.routes[1].detour_percent=15;}
+  return r.fulfill({json:response});
+ });
+ await page.goto('/');await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('checkbox',{name:'Allow processing my locations and route. Google routes are not saved.'}).check();
+ await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ await expect(page.getByText('Settings changed. Compare again to update these routes.')).toHaveCount(0);
+ await page.getByLabel('Route preference',{exact:true}).selectOption('lowest_exposure');
+ await page.getByLabel('Maximum detour',{exact:true}).selectOption('0');
+ await expect(page.getByText('Settings changed. Compare again to update these routes.')).toBeVisible();
+ await page.getByRole('button',{name:'Compare routes',exact:true}).click();
+ await expect(page.getByText('Settings changed. Compare again to update these routes.')).toHaveCount(0);
+ expect(sent.objective).toBe('lowest_exposure');expect(sent.exposure_weight).toBe(1);expect(sent.weather_weight).toBe(0);expect(sent.max_detour_percent).toBe(0);
+ await expect(page.locator('.route-detour-warning')).toContainText('Outside detour limit');
+ await expect(page.locator('.selected-route-context')).toContainText('Route 1 selected'); // UI honors response; ranking arithmetic is tested in Python.
+});
+
+test('departure defaults to a fresh leave-now value and scheduled dates reach the backend',async({page})=>{
+ await mockMap(page);let sent:any;
+ await page.route('**/api/v1/routes/preview',r=>{sent=r.request().postDataJSON();return r.fulfill({json:recording});});
+ await page.goto('/');await expect(page.getByLabel('Departure timing',{exact:true})).toHaveValue('now');
+ await expect(page.getByLabel('Departure',{exact:true})).toHaveCount(0);
+ await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('checkbox',{name:'Allow processing my locations and route. Google routes are not saved.'}).check();
+ await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ const now=await page.evaluate(()=>Date.now());expect(new Date(sent.departure_at).getTime()-now).toBeGreaterThan(0);expect(new Date(sent.departure_at).getTime()-now).toBeLessThan(65000);
+ await page.getByLabel('Departure timing',{exact:true}).selectOption('planned');
+ const plan=await page.evaluate(()=>{const date=new Date(Date.now()+3600000);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);});
+ await page.getByLabel('Departure',{exact:true}).fill(plan);
+ const expected=await page.evaluate(v=>new Date(v).toISOString(),plan);
+ await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ await expect.poll(()=>sent.departure_at).toBe(expected);
+});

@@ -5,6 +5,7 @@ export interface Route {
   duration_s: number; distance_m: number; departure_at: string;
   estimated_pm25_exposure_ug_h_m3: number | null; pm25_coverage_fraction: number;
   relative_exposure_change_percent: number | null; confidence: string;
+  within_detour_limit?:boolean; detour_percent?:number; balanced_score?:number|null;
   weather?:{status:string;temperature_c?:number;precipitation_mm?:number;wind_m_s?:number;preference_cost:number|null};
   terrain?:{status:string;ascent_m:number|null;descent_m:number|null};
   source_metadata?: unknown; warnings: string[]; recommendation_reason: string; routing_source: Record<string, unknown>;
