@@ -1,5 +1,23 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Support case pending; full backend verification — 2026-10-11
+
+User reports CloudFront Support case created; no Support outcome independently verified.
+CLI GetTemplate again confirms Cognito MFA fix not installed in CDKToolkit. No additional
+paid provisioning attempted because Core remains blocked and CloudFront requires AWS review.
+Data, ML preparation and IoT each verified CREATE_COMPLETE. Deployed templates inspected for
+S3 public-access blocks/AES encryption, DynamoDB on-demand/encryption/TTL and disabled IoT rule;
+direct S3 GetPublicAccessBlock denied, so this is template evidence rather than a live bucket
+configuration/drift check. Report: ignored work/deployed-storage-verification.json.
+
+Executed full pytest:294passed,1skipped,3deprecation warnings in30.52s; Ruff src/scripts/infra/tests
+passed. Skip is optional ML container test; no SageMaker job, trained metrics, real MQTT or AWS
+API runtime success implied. Existing Cognito pool/hosting bucket retained untouched. No new
+API schema/frontend changes. No secret values printed/uploaded. Next required Console action
+is Update existing CDKToolkit with current regenerated template, Modify EcoRouteExecuteCompute
+only, wait UPDATE_COMPLETE; this requires authorized operator because CLI cannot alter policy.
+
+
 ## IoT retry deployed; latest Cognito bootstrap update still pending — 2026-10-11
 
 CLI GetTemplate confirms deployed CDKToolkit still lacks SetUserPoolMfaConfig; its last update
