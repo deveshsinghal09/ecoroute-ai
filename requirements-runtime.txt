@@ -7,3 +7,4 @@ mangum
 PyJWT[crypto]
 httpx
 pyarrow
+tzdata

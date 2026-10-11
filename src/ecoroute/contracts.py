@@ -80,6 +80,9 @@ def response_schema(path, method):
         "wearables/latest": obj({"status": STRING, "measurement": {"anyOf": [OBJECT, {"type": "null"}]}}),
         "wearables/history": obj({"measurements": ARRAY, "next_cursor": {"anyOf": [STRING, {"type": "null"}]}, "truncated": BOOL}),
         "wearables/data": obj({"status": STRING}),
+        "wearables/health-connect/status": ref("HealthConnectStatus"),
+        "wearables/health-connect/data": ref("HealthConnectData"),
+        "wearables/health-connect/summary": ref("HealthConnectSummary"),
         "journeys/{journey_id}/wearable-correlation": obj({"journey_id": STRING, "device_id": STRING, "samples": ARRAY, "paired_count": {"type": "integer"}, "exposure_index": {"type": "null"}, "medical_stress_score": {"type": "null"}}),
         "ai/explain-route": ref("Explanation"), "alerts/evaluate": ref("AlertEvaluation"),
         "alerts": obj({"alerts": ARRAY, "truncated": BOOL}), "alerts/{alert_id}": ref("OwnedRecord"),
@@ -115,6 +118,11 @@ def enrich(schema):
             operation["x-ecoroute-scope"] = ("ecoroute/read" if method == "get" else "ecoroute/write") if operation.get("security") else None
             for code in ("401", "403", "404", "409", "413", "422", "429", "500", "503"):
                 operation["responses"][code] = {"description": "Normalized error; endpoint-dependent", "content": {"application/json": {"schema": ref("ApiError")}}}
+            if "/wearables/health-connect/" in path:
+                operation["x-ecoroute-local-pairing"] = True
+                operation["description"] = "Owner-only phone bridge read. Cognito ecoroute/read or an expiring local pairing bearer; explicit session consent for records. Local pairing is restricted to loopback and approved origins."
+                for code in ("502", "504"):
+                    operation["responses"][code] = {"description": "Phone response invalid/unreachable or timed out", "content": {"application/json": {"schema": ref("ApiError")}}}
             if response is None:
                 operation["deprecated"] = True
                 operation["description"] = "Legacy unconnected placeholder or retired telemetry API; returns 503/410 after authentication/validation."

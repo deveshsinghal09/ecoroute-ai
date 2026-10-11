@@ -22,6 +22,8 @@ from ecoroute.routing.models import RoutingError
 from ecoroute.ml.api import router as ml_router
 from ecoroute.ml.inference import MLUnavailable
 from ecoroute.wearable.api import router as wearable_router
+from ecoroute.wearable.health_connect_api import router as health_connect_router
+from ecoroute.wearable.health_connect import HealthConnectClient
 from ecoroute.advisory.api import router as advisory_router
 from ecoroute.contracts import enrich
 
@@ -40,6 +42,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
                   description="Integrated pollution-aware backend. Provider access and verified measured-data models are configuration-dependent; no deployed services or model accuracy are implied.")
     app.state.settings = settings
     app.state.verifier = verifier or CognitoVerifier(settings)
+    app.state.health_connect = HealthConnectClient(settings)
     if store is None and settings.ecoroute_profile == "aws":
         client = boto3.client("dynamodb", region_name=settings.aws_region,
                              config=Config(connect_timeout=2, read_timeout=3,
@@ -128,6 +131,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
     app.include_router(routing_router, prefix="/api/v1")
     app.include_router(ml_router, prefix="/api/v1")
     app.include_router(wearable_router, prefix="/api/v1")
+    app.include_router(health_connect_router, prefix="/api/v1")
     app.include_router(advisory_router, prefix="/api/v1")
     original_openapi = app.openapi
 

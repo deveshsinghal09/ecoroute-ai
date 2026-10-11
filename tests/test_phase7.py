@@ -24,7 +24,7 @@ def test_runtime_export_and_all_response_schemas(tmp_path):
     assert spec == app.openapi()
     app.state.store.db.close()
     operations = [(p, m, op) for p, ops in spec["paths"].items() for m, op in ops.items()]
-    assert len(operations) == len(collection["item"]) == 43
+    assert len(operations) == len(collection["item"]) == 46
     for definition in spec["components"]["schemas"].values():
         Draft202012Validator.check_schema(definition)
     for _, _, operation in operations:

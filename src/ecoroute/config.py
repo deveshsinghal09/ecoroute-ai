@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     s3_data_bucket: str = ""
     wearable_archive_path: str = "work/wearable-history"
     wearable_demo_mode: bool = False
+    health_connect_base_url: str = ""
+    health_connect_token: SecretStr = SecretStr("")
+    health_connect_owner_sub: str = Field(default="", max_length=128)
+    health_connect_local_access_token: SecretStr = SecretStr("")
+    health_connect_local_access_expires_at: int = Field(default=0, ge=0)
     enable_bedrock: bool = False
     bedrock_model_id: str = ""
     bedrock_daily_limit: int = Field(default=20, ge=1, le=100)
@@ -62,6 +67,20 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def configuration_guard(self):
+        if self.health_connect_base_url:
+            from ecoroute.wearable.health_connect import validate_phone_url
+            validate_phone_url(self.health_connect_base_url)
+            if self.ecoroute_profile != "local":
+                raise ValueError("The LAN Health Connect bridge is local-only")
+        phone_token = self.health_connect_token.get_secret_value()
+        local_token = self.health_connect_local_access_token.get_secret_value()
+        if any(c in phone_token for c in "\r\n") or len(phone_token) > 8192:
+            raise ValueError("Invalid Health Connect phone token")
+        if local_token and (self.ecoroute_profile != "local" or len(local_token) < 32
+                            or len(local_token) > 256 or any(c.isspace() for c in local_token)
+                            or not self.health_connect_owner_sub
+                            or not self.health_connect_local_access_expires_at):
+            raise ValueError("Local health pairing requires an owner, a strong key and expiry")
         if self.enable_gemini and self.enable_bedrock:
             raise ValueError("Choose one explanation provider: Gemini or Bedrock")
         if self.enable_gemini:
