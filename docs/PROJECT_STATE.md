@@ -1,5 +1,18 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Route/air activation walkthrough - 2026-10-11
+
+Created AWS_ROUTE_AIR_SETUP.md with exact existing-resource Console/CLI steps. Latest diagnostic
+verified local frontend calls cloud API, cloud CORS allows Amplify but not127.0.0.1:5173, local
+OAuth redirect points to Amplify, and collector InvokeFunction still AccessDeniedException.
+Guide starts with hosted testing/narrow operator grant/one real forecast ingestion, then verifies
+S3->SQS->Worker->Parquet/DynamoDB, Cognito and route selection. Secrets unchanged; no provider data
+fabricated, cloud IAM change, successful ingestion claim, paid job or enabled schedule. Existing
+Google/ORS route smoke evidence retained. Documentation only; no runtime code changed. Policy
+file opened for copying; instructions explicitly preserve private buckets, scoped IAM and source
+resolution. New guide/diff checked; no additional test suite or deployment needed for this doc change.
+
+
 ## Large-data training, route-factor integration and live verification - 2026-10-11
 
 Core UPDATE_COMPLETE verified. Existing public backend remains

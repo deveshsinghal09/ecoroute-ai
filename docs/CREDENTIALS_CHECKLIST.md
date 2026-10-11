@@ -1,5 +1,12 @@
 # Credentials and configuration checklist
 
+## Activation walkthrough - 2026-10-11
+
+Use AWS_ROUTE_AIR_SETUP.md for narrow IAM policy, collector test, user signup and public Amplify
+variables. Existing secret values stay in Secrets Manager. Public noncommercial Open-Meteo forecast
+needs no key. More permissions do not resolve unsupported wearable hardware/remaining Insights wiring.
+
+
 ## Large datasets and route factors - 2026-10-11
 
 No SageMaker API key: use the existing IAM profile/execution role, never VITE_ secrets. Before

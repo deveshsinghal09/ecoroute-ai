@@ -1,5 +1,12 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Activation walkthrough - 2026-10-11
+
+AWS_ROUTE_AIR_SETUP.md explains existing dataflow activation and hosted-vs-local configuration.
+Current air display derives selected-route concentration; it is not an AQI product. Pollution
+collection is not automatically global for every user-selected origin. Runtime design unchanged.
+
+
 ## Verified Core update - 2026-10-11
 
 Core UPDATE_COMPLETE, Data no changes. Live Google driving/walking and ORS cycling returned200

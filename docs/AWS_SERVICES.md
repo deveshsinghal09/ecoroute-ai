@@ -1,5 +1,12 @@
 # AWS service decisions and IAM boundaries
 
+## Activation walkthrough - 2026-10-11
+
+Exact service setup order is in AWS_ROUTE_AIR_SETUP.md. IAM collector invocation is still denied;
+existing S3/SQS/Worker/DynamoDB flow needs one-shot verification. No new service/deployment or
+continuous workflow is enabled by the guide. Hosted Amplify origin is allowed; local cloud CORS is not.
+
+
 ## Verified Core update - 2026-10-11
 
 Core UPDATE_COMPLETE, Data no changes. Live Google driving/walking and ORS cycling returned200

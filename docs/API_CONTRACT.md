@@ -1,5 +1,12 @@
 # API contract — backend foundation and environmental datasets
 
+## Activation walkthrough - 2026-10-11
+
+No HTTP contract changed. AWS_ROUTE_AIR_SETUP.md gives compare/selected-route air display semantics:
+PM2.5 ug/m3 and concentration-time exposure, not AQI or guaranteed street-level pollution differences.
+Guest routing is request-only; private data/quality/ML/alerts require a verified Cognito access token.
+
+
 ## Route factors and prediction comparison - 2026-10-11
 
 Request fields: weather_weight, terrain_weight, avoid_tolls/highways/ferries/steps. Nonnegative
