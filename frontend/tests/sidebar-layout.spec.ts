@@ -10,6 +10,9 @@ for(const size of [{width:1280,height:720},{width:1366,height:768},{width:1024,h
  for(const card of rail.children){const b=card.getBoundingClientRect();if(innerWidth>740&&b.bottom>rail.getBoundingClientRect().bottom+1)issues.push(card.className+' exceeds rail by '+Math.round(b.bottom-rail.getBoundingClientRect().bottom));for(const child of card.querySelectorAll('*')){if(child.closest('svg'))continue;const r=child.getBoundingClientRect();if(r.width&&r.height&&(r.left<b.left-1||r.right>b.right+1||r.bottom>b.bottom+1))issues.push(child.className||child.tagName);}}
  if(innerWidth>740&&rail.getBoundingClientRect().bottom>innerHeight)issues.push('rail exceeds viewport');return issues;
  });expect(problems).toEqual([]);
+ await expect(page.locator(".brand")).toContainText("EcoRoute AI");
+ await expect(page.locator(".selected-route-air .small-badge")).toHaveCount(0);
+ if(size.width>740){const air=await page.locator(".selected-route-air").boundingBox(),exposure=await page.locator(".selected-route-exposure").boundingBox();expect(Math.abs(air!.height-exposure!.height)).toBeLessThanOrEqual(1);}
  const gauge=await page.locator('.air-ring').evaluate(el=>{
    const ring=el.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(el.querySelector('strong')!);const value=range.getBoundingClientRect();range.selectNodeContents(el.querySelector('span')!);const unit=range.getBoundingClientRect();
    return {fits:value.left>=ring.left&&value.right<=ring.right&&unit.left>=ring.left&&unit.right<=ring.right&&value.top>=ring.top&&unit.bottom<=ring.bottom,separated:value.bottom<=unit.top};
@@ -56,8 +59,8 @@ test('long test-only concentration values stay inside the dial without colliding
  await page.getByLabel('Origin',{exact:true}).fill('India Gate');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place');
  await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();
  await expect(page.getByTestId('selected-pm25')).toHaveText('1234.5');await page.evaluate(()=>document.fonts.ready);
- const fits=await page.locator('.air-ring').evaluate(el=>{
+ await expect.poll(()=>page.locator('.air-ring').evaluate(el=>{
   const ring=el.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(el.querySelector('strong')!);const value=range.getBoundingClientRect();range.selectNodeContents(el.querySelector('span')!);const unit=range.getBoundingClientRect();
   return value.left>=ring.left&&value.right<=ring.right&&value.bottom<=unit.top&&unit.bottom<=ring.bottom;
- });expect(fits).toBe(true);
+ })).toBe(true);
 });

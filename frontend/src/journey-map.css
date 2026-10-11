@@ -28,3 +28,5 @@
 .journey-map-legend button[aria-pressed=true]{border:2px solid #243744;padding:6px 8px}
 .journey-map-legend button>span:first-child{width:20px;height:5px;border-radius:3px;flex-shrink:0}
 .route-legend-selected{font-size:10px;font-weight:700}
+
+.journey-map-switches{background:#f5f7f8;border-color:#c5cfd3}.journey-map-switches button[aria-pressed=true]{background:#26343c;color:#fff}

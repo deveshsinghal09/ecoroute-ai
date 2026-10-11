@@ -55,7 +55,7 @@ test('map is public, tilted, controllable, and does not invent initial journey p
  await expect(page.locator('.journey-pin')).toHaveCount(0);
  await expect(page.locator('.route-option')).toHaveCount(0);
  const result=await page.evaluate(()=> (window as any).mapEvidence.options);
- expect(result.renderingType).toBe('VECTOR');expect(result.tilt).toBe(0);expect(result.center).toEqual({lat:0,lng:0});
+ expect(result.mapTypeId).toBe('roadmap');await expect(page.getByLabel('Toggle satellite imagery')).toHaveAttribute('aria-pressed','false');expect(result.renderingType).toBe('VECTOR');expect(result.tilt).toBe(0);expect(result.center).toEqual({lat:0,lng:0});
  await expect(page.getByLabel('Origin',{exact:true})).toHaveValue('');await expect(page.getByLabel('Destination',{exact:true})).toHaveValue('');
  await page.getByLabel('Show 3D map').click();
  expect(await page.evaluate(()=> (window as any).mapEvidence.cameras.at(-1).tilt)).toBe(50);

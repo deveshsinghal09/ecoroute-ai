@@ -65,7 +65,7 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
   const [switching3D,setSwitching3D]=useState(false);
   const [ready, setReady] = useState(false), [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0), [perspective, setPerspective] = useState(false);
-  const [vector, setVector] = useState<boolean|null>(null), [satellite, setSatellite] = useState(true);
+  const [vector, setVector] = useState<boolean|null>(null), [satellite, setSatellite] = useState(false);
   const [picking, setPicking] = useState<'origin'|'destination'|null>(null);
   const [pinDetail, setPinDetail] = useState<{label:string; position:google.maps.LatLngLiteral}|null>(null);
   const [viewMessage,setViewMessage]=useState('');
@@ -88,7 +88,7 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
       if (!mounted || !host.current) return;
       map.current = new google.maps.Map(host.current, {
         center:WORLD, zoom:2, tilt:0, heading:0, renderingType:google.maps.RenderingType.VECTOR,
-        ...(mapId ? {mapId} : {}), mapTypeId:'hybrid', mapTypeControl:false,
+        ...(mapId ? {mapId} : {}), mapTypeId:'roadmap', mapTypeControl:false,
         streetViewControl:false, fullscreenControl:false, zoomControl:false, rotateControl:false,
         cameraControl:false, clickableIcons:true, tiltInteractionEnabled:true,
         headingInteractionEnabled:true, gestureHandling:'cooperative', isFractionalZoomEnabled:true,

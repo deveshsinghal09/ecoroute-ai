@@ -1746,3 +1746,9 @@ events and do not prove Noise compatibility. No physical standard-sensor measure
 Cloud telemetry still needs configured Cognito, registered ownership and consent; this work did not
 authenticate to AWS, provision IoT, send SNS, invoke Bedrock or claim health data ingestion. Local
 BLE/ADB has no AWS cost. See LIVE_WATCH_SETUP.md for exact prerequisites, revocation and contracts.
+
+### Sidebar branding and default map view — 2026-10-12
+- Sidebar now says EcoRoute AI; removed the returned/recorded-data badge while retaining coverage and shared-grid context.
+- Concentration and exposure cards have equal desktop heights, inset spacing, and contained numeric/unit text. Six responsive sidebar checks and 55 frontend unit tests passed; production build passed.
+- Map initializes as a 2D street map with satellite disabled. View switches use neutral charcoal selection styling.
+- All 16 mocked Google Maps browser integration tests passed, including initial street-map state, 2D/3D switching and satellite toggle.
