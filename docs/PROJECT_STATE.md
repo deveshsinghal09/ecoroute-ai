@@ -1,5 +1,9 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Core live verification — 2026-10-11
+
+Core CREATE_COMPLETE verified after mapping cleanup and public-route scope fix. Data reused unchanged. Explicit authorization_scopes=[] removes inherited JWT scopes on NONE routes; protected routes retain scopes.18infra tests/Ruff passed. API https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com: health200/profileaws/live_domain_providersfalse, OpenAPI200, wearable/latest401, ready401, hosted-origin OPTIONS204 exact Allow-Origin. Two schedules disabled/12Core alarms in deployed template. CloudWatch read denied, delivery not verified. Provider secrets not uploaded, guest routes disabled, no model/training or device event tested. Amplify app management denied; Console environment/rebuild pending (docs/AMPLIFY_CONNECTION.md). Local ignored frontend configuration updated with public identifiers, preserving keys. Core recovery inventories recorded retained pools; no pool deleted. Public frontend previously verified200; no claim of frontend integration until redeploy checked. Original CloudFront stack remains failed; user Amplify outside CDK cleanup. Commands: scoped-role cleanup, pinnedCDK Coredeploy, HTTPGET/OPTIONS, GetTemplate/ListStackResources, FilterLogEvents denied. No real notifications or continuous workflows activated.
+
 Public frontend verified: https://main.d3txif33djiy59.amplifyapp.com/ returns200 and JavaScript asset200. Bundle contains localhost API fallback and no Mumbai execute-api domain; not proof of working backend. Prepared exact hosted origin/callback in ignored work/aws-deploy.context.json. Amplify environment/rebuild pending actual backend output.
 
 ## Frontend reported deployed; stale bootstrap upload detected — 2026-10-11

@@ -1,5 +1,9 @@
 # API contract — backend foundation and environmental datasets
 
+## Core live verification � 2026-10-11
+
+Live API base: https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com. Health200/OpenAPI200; private endpoints401 without token. CORS exact Amplify domain. No request/response schema change; public route scope infrastructure fixed.
+
 ## Mapping cleanup correction — 2026-10-11
 
 Core DELETE_FAILED, no AWS API URL. Mapping permission correction introduces no HTTP schema change.

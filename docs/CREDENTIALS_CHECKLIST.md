@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+## Core live verification — 2026-10-11
+
+Core API and Cognito identifiers now real; Amplify Console public environment variables/rebuild required. Backend provider Secrets Manager references, verified Cognito user/scopes and optional device enrollment still needed. No private values requested. See AMPLIFY_CONNECTION.md.
+
 ## Mapping cleanup correction â€” 2026-10-11
 
 Current prerequisite: Console bootstrap update for complete Lambda mapping lifecycle actions, restricted to Mumbai execution role. Metadata read installed; deletion still denied. No new secret required.

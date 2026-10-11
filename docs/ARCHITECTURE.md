@@ -1,5 +1,9 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Core live verification � 2026-10-11
+
+Core deployed with exact Amplify origin and callback; public routes explicitly clear inherited JWT scopes. Private routes remain protected. Backend foundation verified live, domain providers unconfigured. See AMPLIFY_CONNECTION.md.
+
 ## Mapping cleanup correction — 2026-10-11
 
 Core rollback recovery blocked on Lambda mapping deletion; regional deployment-role correction prepared. No live Core runtime verified.
