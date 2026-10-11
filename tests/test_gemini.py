@@ -63,7 +63,8 @@ def test_outage_refusal_or_injection_preserves_deterministic_metrics(status, ans
             status, json=response(answer, finish)))) as client:
         result = explain([route()], settings(), Budget(), Gemini(settings(), client))
     assert result["mode"] == "deterministic" and result["usage"] is None
-    assert result["fallback_reason"] == "gemini_unavailable_or_invalid_output"
+    expected = {403: "gemini_access_denied", 429: "gemini_provider_quota", 503: "gemini_provider_unavailable"}.get(status)
+    assert result["fallback_reason"] == (expected or ("gemini_incomplete_or_blocked" if finish != "STOP" else "gemini_unavailable_or_invalid_output"))
     assert "99" not in result["explanation"] and "PRIVATE_KEY" not in json.dumps(result)
 
 
@@ -85,6 +86,19 @@ def test_flash_statement_ordering_disables_hidden_thinking():
         return httpx.Response(200, json=response({"statement_ids": IDS}))
     result = explain([route()], config, Budget(), Gemini(config, httpx.Client(transport=httpx.MockTransport(send))))
     assert result["mode"] == "gemini_arranged_approved_text"
+
+
+def test_new_flash_signature_is_discarded_but_extra_measurements_are_rejected():
+    config = settings().model_copy(update={"gemini_model_id": "gemini-3.5-flash-lite"})
+    body = response({"statement_ids": IDS})
+    body["candidates"][0]["content"]["parts"][0]["thoughtSignature"] = "PRIVATE_SIGNATURE_MARKER"
+    client = httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=body)))
+    result = explain([route()], config, Budget(), Gemini(config, client))
+    assert result["mode"] == "gemini_arranged_approved_text"
+    assert "PRIVATE_SIGNATURE_MARKER" not in json.dumps(result)
+    body["candidates"][0]["content"]["parts"][0]["invented_measurement"] = 999
+    result = explain([route()], config, Budget(), Gemini(config, client))
+    assert result["mode"] == "deterministic"
 
 
 @pytest.mark.parametrize("value", ['{"api_key":"test-key"}', 'test-key'])

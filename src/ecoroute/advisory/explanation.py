@@ -90,8 +90,12 @@ def explain(routes, settings, repo, client=None):
             order, mode, reason = ids, provider + "_arranged_approved_text", None
         except BudgetExceeded:
             reason, usage = provider + "_request_limit", None
-        except Exception:
+        except Exception as exc:
             # Never return model free text or provider exceptions, including denied access.
             reason, usage = provider + "_unavailable_or_invalid_output", None
+            if provider == "gemini":
+                from ecoroute.advisory.gemini import GeminiUnavailable
+                if isinstance(exc, GeminiUnavailable):
+                    reason = exc.code
     return {"mode": mode, "fallback_reason": reason, "explanation": " ".join(statements[i] for i in order),
             "supporting_metrics": metrics, "usage": usage, "ranking_changed": False}
