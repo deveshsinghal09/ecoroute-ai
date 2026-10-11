@@ -29,6 +29,7 @@ core = CoreStack(app, "EcoRouteCore", data=data, asset_path="build/lambda", env=
           google_routes_secret_arn=app.node.try_get_context("google_routes_secret_arn"),
           cycling_secret_arn=app.node.try_get_context("cycling_secret_arn"),
           enable_guest_routes=str(app.node.try_get_context("enable_guest_routes")).lower() == "true",
+          enable_self_signup=str(app.node.try_get_context("enable_self_signup")).lower() == "true",
           provider_secret_arn=app.node.try_get_context("provider_secret_arn"),
           gemini_secret_arn=app.node.try_get_context("gemini_secret_arn"),
           gemini_model_id=app.node.try_get_context("gemini_model_id"),

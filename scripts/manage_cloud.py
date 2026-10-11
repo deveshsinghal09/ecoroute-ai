@@ -19,7 +19,7 @@ STACKS = ["EcoRouteCore", "EcoRouteML", "EcoRouteData"]
 CONTEXT_KEYS = {"callback_urls", "frontend_origins", "ml_image_uri", "gemini_secret_arn",
                 "gemini_model_id", "google_routes_secret_arn", "cycling_secret_arn",
                 "provider_secret_arn", "enable_guest_routes", "ingestion_interval_minutes",
-                "workload_boundary_arn"}
+                "workload_boundary_arn", "enable_self_signup"}
 
 
 def load_context(path):

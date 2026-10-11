@@ -117,10 +117,14 @@ def test_low_quota_aspect_and_gemini_scoped_secret(tmp_path):
     secret = "arn:aws:secretsmanager:ap-south-1:123456789012:secret:gemini-AbCdEf"
     core = CoreStack(app, "LowQuotaCore", data=data, asset_path=asset, env=env,
                      gemini_secret_arn=secret, gemini_model_id="gemini-test-model",
-                     enable_workflows=True)
+                     enable_workflows=True, enable_self_signup=True)
     cdk.Aspects.of(app).add(UnreservedLambda())
     app.synth()
     template = Template.from_stack(core).to_json()
+    pool = resources(template, "AWS::Cognito::UserPool")[0]["Properties"]
+    assert pool["AdminCreateUserConfig"]["AllowAdminCreateUserOnly"] is False
+    assert pool["AutoVerifiedAttributes"] == ["email"]
+    assert pool["VerificationMessageTemplate"]["DefaultEmailOption"] == "CONFIRM_WITH_CODE"
     machine = resources(template, "AWS::StepFunctions::StateMachine")[0]["Properties"]
     assert machine["StateMachineName"] == "EcoRoute-LowQuotaCore-EnvironmentalWorkflow"
     assert all("ReservedConcurrentExecutions" not in r["Properties"]

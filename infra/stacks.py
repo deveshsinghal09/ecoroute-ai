@@ -99,7 +99,7 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None, frontend_origins=None,
-                 google_routes_secret_arn=None, cycling_secret_arn=None, enable_guest_routes=False, provider_secret_arn=None, gemini_secret_arn=None, gemini_model_id=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
+                 google_routes_secret_arn=None, cycling_secret_arn=None, enable_guest_routes=False, enable_self_signup=False, provider_secret_arn=None, gemini_secret_arn=None, gemini_model_id=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         frontend_origins = frontend_origins or []
         if not isinstance(frontend_origins, list):
@@ -126,7 +126,9 @@ class CoreStack(Stack):
             role.add_to_policy(iam.PolicyStatement(actions=["logs:CreateLogStream", "logs:PutLogEvents"],
                                                    resources=[group.log_group_arn]))
         self.pool = cognito.UserPool(
-            self, "Users", self_sign_up_enabled=False,
+            self, "Users", self_sign_up_enabled=enable_self_signup,
+            user_verification=cognito.UserVerificationConfig(
+                email_style=cognito.VerificationEmailStyle.CODE),
             sign_in_aliases=cognito.SignInAliases(email=True),
             auto_verify=cognito.AutoVerifiedAttrs(email=True),
             account_recovery=cognito.AccountRecovery.EMAIL_ONLY,
