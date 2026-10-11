@@ -61,9 +61,10 @@ class DataStack(Stack):
         self.queue = sqs.Queue(self, "Tasks", encryption=sqs.QueueEncryption.SQS_MANAGED,
             enforce_ssl=True, retention_period=Duration.days(4), visibility_timeout=Duration.seconds(180),
             dead_letter_queue=sqs.DeadLetterQueue(queue=self.dlq, max_receive_count=3))
-        # S3 raw-object events feed the existing cleaning queue; no raw response is sent through SQS.
+        # Keep the notification prefix free of special characters requiring URL encoding.
+        # The cleaner separately enforces raw/source= and rejects unrelated object keys.
         self.bucket.add_event_notification(s3.EventType.OBJECT_CREATED,
-            s3_notifications.SqsDestination(self.queue), s3.NotificationKeyFilter(prefix="raw/source="))
+            s3_notifications.SqsDestination(self.queue), s3.NotificationKeyFilter(prefix="raw/"))
         CfnOutput(self, "DataBucket", value=self.bucket.bucket_name)
 
 

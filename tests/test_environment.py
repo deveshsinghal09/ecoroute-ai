@@ -143,6 +143,13 @@ def test_clean_partial_batch_and_replay(raw, repo):
     assert len(repo.query("QUALITY#open_meteo")[0]) == 1
 
 
+def test_clean_rejects_unrelated_raw_objects(repo):
+    body = {"Records": [{"eventSource": "aws:s3", "s3": {"object": {"key": "raw/untrusted.json"}}}]}
+    event = {"Records": [{"messageId": "unrelated", "body": json.dumps(body)}]}
+    assert clean(event, None, repo=repo) == {"batchItemFailures": [{"itemIdentifier": "unrelated"}]}
+    assert repo.query("QUALITY#open_meteo")[0] == []
+
+
 def test_protected_dataset_apis_and_validation(raw, repo, secured):
     secured.app.dependency_overrides[repository] = lambda: repo
     for path in ("air-quality/current?location_id=x", "air-quality/forecast?location_id=x", "air-quality/stations", "data/quality"):
