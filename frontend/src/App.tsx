@@ -5,7 +5,7 @@ STORY: Explore a city, open genuine road routes, compare time and estimated expo
 FIRST VIEWPORT: Narrow left metrics, floating pill navigation, large 3D plaza, right route planner.
 FORM: User-pinned Axle reference composition; confirmed city-first with side planner. No random direction. */
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowDownUp, ArrowUpRight, Bell, Bike, Car, ChevronDown, Footprints, Layers, Leaf, LoaderCircle, MapPin, Menu, Minus, Navigation, Pause, Play, Plus, RotateCcw, Settings2, ShieldCheck, Sparkles, Watch, Wind, X } from 'lucide-react';
+import { ArrowDownUp, ArrowUpRight, Bell, Bike, Building2, Car, ChevronDown, Footprints, Layers, Leaf, LoaderCircle, MapPin, Menu, Minus, Navigation, Pause, Play, Plus, RotateCcw, Settings2, ShieldCheck, Sparkles, Watch, Wind, X } from 'lucide-react';
 import { capturedAt, historical, projectRoutes, type Comparison, type Route } from './data';
 import { config, finishSignIn, request, signedIn, signIn, signOut } from './api';
 import GoogleMap, { mapsKey } from './GoogleMap';
@@ -25,6 +25,9 @@ const SmartwatchShowcase=lazy(()=>import('./wearable/SmartwatchShowcase'));
 let completion: Promise<boolean> | undefined;
 const tabs=['City overview','Air quality','Journeys','Wearable','Insights'] as const;
 type Tab=typeof tabs[number];
+const tabIcons={
+  'City overview':Building2,'Air quality':Wind,'Journeys':Navigation,'Wearable':Watch,'Insights':Sparkles,
+} as const;
 const localTime=(date:Date)=>new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
 
 function RouteMap({routes,selected,onSelect,live}:{routes:Route[];selected:string;onSelect:(id:string)=>void;live:boolean}) {
@@ -120,7 +123,7 @@ export default function App() {
       <button className="rail-footer" onClick={()=>setDrawer('connection')}><ShieldCheck size={17}/><span>Private by design</span><ArrowUpRight size={14}/></button>
     </aside>
     <main className="workspace">
-      <header className="topbar"><button className="circle-button menu-toggle" aria-label={panel?'Hide detail panel':'Show detail panel'} onClick={()=>setPanel(!panel)}><Menu size={21}/></button><nav aria-label="Dashboard sections">{tabs.map(t=><button disabled={busy} key={t} className={tab===t?'nav-pill active':'nav-pill'} onClick={()=>changeTab(t)}>{t}</button>)}</nav><div className="top-actions"><button className="circle-button" aria-label="Alerts" onClick={()=>{setDrawer('alerts');setServiceData(null);}}><Bell size={19}/></button><button className="circle-button" aria-label="Connection settings" onClick={()=>setDrawer('connection')}><Settings2 size={19}/></button></div></header>
+      <header className="topbar"><button className="circle-button menu-toggle" aria-label={panel?'Hide detail panel':'Show detail panel'} onClick={()=>setPanel(!panel)}><Menu size={21}/></button><nav className="dashboard-nav" aria-label="Dashboard sections">{tabs.map(t=>{const Icon=tabIcons[t];return <button type="button" disabled={busy} key={t} aria-pressed={tab===t} className={tab===t?'nav-pill active':'nav-pill'} onClick={()=>changeTab(t)}><span className="nav-icon"><Icon size={18} strokeWidth={1.8} aria-hidden="true"/></span><span className="nav-label">{t}</span></button>;})}</nav><div className="top-actions"><button className="circle-button" aria-label="Alerts" onClick={()=>{setDrawer('alerts');setServiceData(null);}}><Bell size={19}/></button><button className="circle-button" aria-label="Connection settings" onClick={()=>setDrawer('connection')}><Settings2 size={19}/></button></div></header>
       <section className={`city-stage ${panel?'panel-open':''} mode-${view} ${tab==='Wearable'?'wearable-active':''}`} aria-label="City observatory">
         {view==='city'&&<CinematicCity moving={moving} zoom={zoom} reset={reset}/>}
         {view==='route'&&(mapsKey||live?<GoogleMap routes={routes} selected={selected} onSelect={selectRoute} live={live} originLabel={routes.length?routeLabels.origin:origin} destinationLabel={routes.length?routeLabels.destination:destination} chosenLocations={live?chosenLocations:undefined} onChooseLocation={chooseMapLocation}/>:<RouteMap live={live} routes={routes} selected={selected} onSelect={selectRoute}/>)}

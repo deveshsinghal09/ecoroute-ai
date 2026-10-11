@@ -1,5 +1,21 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Navigation refinement — approved publication, 12 October 2026
+
+- Local preview completed first; user subsequently approved pushing and deploying this update.
+  Publication uses the existing Amplify Git integration; no backend or infrastructure deployment.
+- Added navigation.css and section icons/aria-pressed states in App.tsx. Unified cream navigation
+  rail, charcoal active button with orange icon, clearer spacing and matching utility controls.
+  Mobile shows all five labeled sections without horizontal scrolling; mobile brand is EcoRoute AI.
+- Verified local5173 at320,390,768,1024,1280 and1536px: all five buttons fit, minimum44px navigation
+  targets, selected state updates and keyboard Tab/Enter/focus work. Maps SDK mocked and API
+  requests blocked during UI verification. Existing route logic and credentials unchanged.
+- npm run build passed; git diff --check passed; design detector[]; desktop/mobile screenshots
+  reviewed. Existing watch bundle-size warning remains. Results in work/navigation-local-verification.json.
+- Prior journey separation2f59254 is deployed; GitHub CI38184167758 succeeded, published desktop/mobile
+  historical replay checks passed. Navigation commit author:Mayank Gupta; next meaningful author:Devesh Raj.
+
+
 ## Distinct City overview and Journeys tabs — 12 October 2026
 
 - Removed the shared planner branch that made both tabs identical. City overview keeps the

@@ -1,0 +1,37 @@
+/* One navigation rail, using the city's cream surfaces and transit-orange accent. */
+.topbar{gap:12px}
+.topbar .dashboard-nav{display:flex;align-items:stretch;gap:3px;flex:1;min-width:0;max-width:780px;background:#e9ece8;border:1px solid #f5f6f2;border-radius:18px;padding:4px}
+.dashboard-nav .nav-pill{position:relative;display:flex;align-items:center;justify-content:center;gap:9px;flex:1;min-width:0;min-height:44px;padding:4px 12px;border:0;border-radius:13px;background:transparent;color:#465153;font-size:12px;font-weight:600;line-height:1.3;white-space:normal;transition:background .2s ease-out,color .2s ease-out}
+.dashboard-nav .nav-icon{display:flex;align-items:center;justify-content:center;width:28px;height:28px;flex-shrink:0;border-radius:9px;color:#536061;transition:background .2s ease-out,color .2s ease-out}
+.dashboard-nav .nav-label{white-space:nowrap}
+.dashboard-nav .nav-pill:hover:not(:disabled){filter:none;background:#f9faf5;color:#253033}
+.dashboard-nav .nav-pill:hover:not(:disabled) .nav-icon{color:#9c400e}
+.dashboard-nav .nav-pill.active{color:#fff7ee;background:#252e30}
+.dashboard-nav .nav-pill.active .nav-icon{background:#ff8a47;color:#252e30}
+.dashboard-nav .nav-pill.active:hover:not(:disabled){background:#303c3e;color:#fff7ee}
+.dashboard-nav .nav-pill.active:hover:not(:disabled) .nav-icon{color:#252e30}
+.dashboard-nav .nav-pill:focus-visible{outline:2px solid #365465;outline-offset:2px;z-index:1}
+.topbar .top-actions{margin-left:auto;gap:8px}
+.topbar .top-actions .circle-button{width:44px;height:44px;background:#e9ece8;color:#344548;border:1px solid #f5f6f2;border-radius:14px}
+.topbar .top-actions .circle-button:hover{background:#fff0df;filter:none;color:#8a390f}
+.topbar .menu-toggle{width:44px;height:44px;border-radius:14px}
+@media(min-width:741px) and (max-width:1200px){
+ .topbar{gap:8px}
+ .dashboard-nav .nav-pill{gap:5px;font-size:11px;padding-inline:6px}
+ .dashboard-nav .nav-icon{width:25px;height:27px}
+}
+@media(min-width:741px) and (max-width:960px){
+ .dashboard-nav .nav-pill{flex-direction:column;gap:2px;font-size:10px;padding:3px 4px;min-height:47px}
+ .dashboard-nav .nav-icon{height:22px;width:25px;border-radius:6px}
+ .dashboard-nav .nav-icon svg{width:16px;height:16px}
+}
+@media(max-width:740px){
+ .topbar{gap:10px}
+ .topbar .dashboard-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));flex:0 0 100%;max-width:none;width:100%;overflow:visible;gap:2px;padding:4px;border-radius:17px}
+ .dashboard-nav .nav-pill{flex-direction:column;gap:4px;min-height:64px;padding:6px 2px;font-size:10px;line-height:1.2;border-radius:12px}
+ .dashboard-nav .nav-icon{width:26px;height:26px;border-radius:8px}
+ .dashboard-nav .nav-label{white-space:normal;min-height:24px;display:flex;align-items:center;justify-content:center;text-align:center}
+ .topbar .top-actions:before{content:'EcoRoute AI';font-size:18px;letter-spacing:-.5px;font-weight:600;color:#253033;margin-right:8px}
+ .topbar .menu-toggle,.topbar .top-actions .circle-button{width:40px;height:40px;border-radius:13px}
+}
+@media(prefers-reduced-motion:reduce){.dashboard-nav .nav-pill,.dashboard-nav .nav-icon{transition:none}}
