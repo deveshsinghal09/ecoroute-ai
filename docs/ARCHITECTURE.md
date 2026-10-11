@@ -1,5 +1,9 @@
 # EcoRoute AI architecture â€” Phases 1â€“7
 
+## Provider secrets connected — 2026-10-11
+
+Guest request-only route preview now enabled with real Google/ORS providers and budgets; personal routes/wearables still JWT-protected. Secret-specific Lambda roles connected; no persisted pollution yet verified. No Gemini claims beyond configuration.
+
 ## Uniform API key secret format — 2026-10-11
 
 Backend routing secret reader normalizes Console api_key JSON and legacy plaintext; schema errors sanitized. Change pending Lambda deployment.

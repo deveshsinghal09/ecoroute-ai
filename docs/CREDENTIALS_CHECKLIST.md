@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+## Provider secrets connected — 2026-10-11
+
+Four provider secrets now discovered and connected by exact ARNs. Google actual name ecoroute/google-route accepted. Runtime Google/ORS route calls verified. OpenAQ/Gemini retrieval not verified; collector invoke permission denied CLI. No new frontend secret required. See PROVIDER_ACTIVATION.md.
+
 ## Uniform API key secret format — 2026-10-11
 
 Current recommended secret format: use Key/value pairs api_key for OpenAQ, Gemini, Google Routes and OpenRouteService. Routing reader also accepts legacy plaintext; JSON support pending Lambda deployment. Names ecoroute/openaq, ecoroute/gemini, ecoroute/google-routes, ecoroute/openrouteservice. Enter values only in Console, never chat.

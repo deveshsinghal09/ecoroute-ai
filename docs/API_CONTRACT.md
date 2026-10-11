@@ -1,5 +1,9 @@
 # API contract â€” backend foundation and environmental datasets
 
+## Provider secrets connected — 2026-10-11
+
+POST /api/v1/routes/preview now enabled in deployed API without JWT, bounded and no personal journey persistence. All3modes returned200; full PM2.5 exposure null when data missing. Private APIs unchanged. No schema change; correct fields duration_s and estimated_pm25_exposure_ug_h_m3.
+
 ## Uniform API key secret format — 2026-10-11
 
 Routing secret configuration accepts api_key JSON or legacy plaintext, no HTTP schema change. No secret data returned to clients.

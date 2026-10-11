@@ -1,5 +1,9 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Provider secrets connected — 2026-10-11
+
+All four Secrets Manager metadata entries verified. Actual Google name ecoroute/google-route; exact ARNs wired through ignored context. Core UPDATE_COMPLETE deploy includes rebuilt JSON-compatible routing reader and secret-specific API/collector permissions; Gemini model gemini-2.5-flash, guest preview enabled per prior user request.59targeted tests/security review passed. Real Delhi previews driving/walking/cycling200 with genuine geometries/durations. Full exposure null due no pollution coverage. Six bounded previews total; corrected report field names. Collector invocation denied to CLI, so no raw ingestion/cleaning claim; OpenAQ key validity/Gemini generation unverified. See PROVIDER_ACTIVATION.md for exact manual forecast test. Schedules/IoT remain disabled; no SMS/training. No secret values read by agent; runtime routing retrieved own secrets for actual calls.
+
 ## Uniform API key secret format — 2026-10-11
 
 Routing Secrets Manager readers now accept Console JSON {api_key: string} and legacy raw plaintext. Invalid/empty/whitespace or malformed JSON fails with sanitized error before provider use.29secret-format/Google tests passed; Ruff passed. Initial pytest command named nonexistent test_cycling.py and did not run; reran actual files. Code not yet deployed to Lambda; deployment will follow known secret ARNs. User can store Google/OpenRouteService using Key/value pairs api_key. Existing plaintext stays compatible. No key read/logged or secret created by agent.

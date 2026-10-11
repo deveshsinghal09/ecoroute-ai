@@ -1,5 +1,9 @@
 # AWS service decisions and IAM boundaries
 
+## Provider secrets connected — 2026-10-11
+
+Core updated with four exact secret references: OpenAQ collector; Google Routes/ORS/Gemini API. Driving/walking/cycling live previews200. OpenAQ ingest and Gemini generation remain untested; full route exposure unavailable pending data. See PROVIDER_ACTIVATION.md.
+
 ## Uniform API key secret format — 2026-10-11
 
 Secrets Manager routing credentials can use Console key/value api_key JSON; legacy plaintext retained. Local code verified, Lambda update pending.
