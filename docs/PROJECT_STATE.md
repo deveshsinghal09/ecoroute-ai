@@ -1,5 +1,24 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Guided AWS permission setup — 2026-10-11
+
+Rechecked scripts/aws_readiness.py: existing dev-admin/devesh_eco IAM identity works; diagnostic
+denials and missing bootstrap persist. Attempted only the narrowly scoped EcoRouteReadiness
+policy creation to unblock the user's requested setup. IAM CreatePolicy returned AccessDenied;
+no policy/attachment or AWS resource was created. Generated ignored
+work/EcoRouteReadiness.console.json with the verified account substituted, parsed JSON and
+provided exact IAM Console create/attach steps for an authorized operator. Local JSON opened
+for copying. Deployment approval persists, but no provisioning started. Source tests were not
+rerun for these documentation-only edits; no new application behavior is claimed.
+
+Gemini follow-up checks verified saved key presence (no value exposed), valid backend Settings,
+enabled gemini-2.5-flash metadata HTTP200/generateContent capability, disabled Bedrock and local
+healthHTTP200. No content generation or charge was performed. Prior missing-key snapshots are
+historical. Updated current runbook/credentials with this result. Required operator actions:
+create/attach the diagnostic policy, review scoped deployment execution policy, verify quotas
+and Billing/Budget, then continue previously approved serverless provisioning. Paid ML still
+awaits actual sufficient measured data and separate job approval.
+
 ## AWS readiness, Gemini and SageMaker preparation — 2026-10-11
 
 Deployment authorization update: user approved the reviewed $5–20/month serverless deployment

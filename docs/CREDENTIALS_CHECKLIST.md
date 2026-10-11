@@ -329,6 +329,13 @@ no private key, vendor token, password or AWS credential was requested in chat.
 
 ## Current AWS/Gemini configuration check — 2026-10-11
 
+Latest follow-up supersedes the earlier missing-key check: GEMINI_API_KEY is saved privately,
+ENABLE_GEMINI=true, GEMINI_MODEL_ID=gemini-2.5-flash, ENABLE_BEDROCK=false; Settings validation
+and model metadata HTTP200 passed. Generation is not tested. AWS iam:CreatePolicy is denied
+for the current identity; no permission change was made. An authorized IAM operator must create
+and attach EcoRouteReadiness using the filled-in ignored work/EcoRouteReadiness.console.json.
+See the current runbook's immediate guided setup; never send keys or private credentials in chat.
+
 Verified CLI and Boto3 IAM user dev-admin/devesh_eco, Mumbai. Required deployment prerequisites
 still missing/unverified: CDK_BOOTSTRAP, scoped DEPLOY_IAM_PERMISSIONS, SageMaker training quota,
 verified ml_image_uri digest, sufficient measured dataset, provider secret ARNs, Cognito outputs,

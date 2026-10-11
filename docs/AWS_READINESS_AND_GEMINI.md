@@ -1,5 +1,36 @@
 # AWS readiness, Gemini and SageMaker — 2026-10-11
 
+## Immediate guided setup — latest check
+
+Gemini local configuration now validates: GEMINI_API_KEY is present, enable flag true,
+model gemini-2.5-flash accessible through model metadata HTTP200, Bedrock disabled. Actual
+generateContent has not been invoked. This supersedes the earlier missing-key snapshot below.
+
+AWS diagnostic recheck still reports the same IAM/quota/stack/ECR/CloudWatch denials and no
+CDKToolkit. A bounded attempt to create EcoRouteReadiness using the existing prepared read-only
+policy returned **AccessDenied for iam:CreatePolicy**. No policy, attachment or paid resource
+was created. AWS login alone cannot grant these missing permissions.
+
+An account-specific, non-secret JSON copy has been generated locally at
+`work/EcoRouteReadiness.console.json`; ACCOUNT_ID is already replaced with112920804206.
+It is ignored by Git, and can be regenerated from docs/iam/readiness-policy.json by replacing
+ACCOUNT_ID with the verified account. An authorized IAM operator should:
+
+1. Open https://console.aws.amazon.com/iam/ in the credited account.
+2. Choose Policies → Create policy → JSON, and paste the complete local file.
+3. Review IAM validation, choose Next, name it EcoRouteReadiness and create.
+4. Users → devesh_eco → Permissions → Add permissions → Attach policies directly.
+5. Select EcoRouteReadiness and add permissions. If these actions are denied, use an already
+   authorized IAM operator/role; do not create root keys or add AdministratorAccess.
+6. Re-run scripts/aws_readiness.py with dev-admin/Mumbai and the verified account.
+
+The operator needs iam:CreatePolicy and iam:AttachUserPolicy on this policy/user. This change
+adds diagnostic reads only, with no cost, provisioning permission or secret/application-data
+access. Successful attachment is a prerequisite to review the actual deployment policy, not
+proof that all services can now deploy. Deployment approval remains recorded and is not asked
+again. After verification: review scoped bootstrap/deployer policy, credits/budget, bootstrap,
+deploy existing stacks, configure private provider secret references and verify individual flows.
+
 Latest direction: retain SageMaker for genuine measured-data training; use Gemini instead of
 Bedrock for optional grounded explanations. This supersedes the intervening request to exclude
 SageMaker. These are code, template and read-only account checks, not a successful deployment.
