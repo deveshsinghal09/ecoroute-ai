@@ -12,6 +12,7 @@ An AWS-native journey planner that combines genuine road routes, environmental f
 ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)
 ![AWS](https://img.shields.io/badge/AWS-Serverless-ff9900)
 ![CDK](https://img.shields.io/badge/IaC-Python_CDK-232f3e)
+[![License: MIT](https://img.shields.io/badge/License-MIT-25343c)](LICENSE)
 
 **Real routes · Pollution forecasts · Estimated exposure · Grounded explanations · Consent-based wearables**
 
@@ -213,3 +214,8 @@ Built collaboratively by **Devesh Singhal**, **Mayank Gupta** and **Devesh Raj**
 [Devesh Singhal](https://github.com/deveshsinghal09) · [Mayank Gupta](https://github.com/Mayank2142) · [Devesh Raj](https://github.com/DEVESH859)
 
 Provider attribution and data licensing remain applicable. See [verified sources](docs/VERIFIED_SOURCES.md) for the project's references.
+
+## License
+
+Original EcoRoute AI project code is licensed under the [MIT License](LICENSE).
+Third-party dependencies, provider data and map imagery retain their respective licenses and terms.

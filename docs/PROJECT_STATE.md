@@ -1800,3 +1800,7 @@ BLE/ADB has no AWS cost. See LIVE_WATCH_SETUP.md for exact prerequisites, revoca
 - Modified only frontend/src/styles.css, frontend/tests/google.maps.ts and project-state documentation. No commit/push/deployment or AWS action performed; local preview remains available on port5173.
 - Final compact-layout follow-up: kept Compare fully inside the planner at1280x720 and1024x640 while preserving checkbox visibility. Consolidated CSS and reran seven targeted browser checks (all passed); final production build/detector passed. No card footprint, backend, authentication, storage or deployment change.
 - User authorized Amplify deployment of this styling update. Publication will use the existing main-branch integration; backend/consent logic is unchanged. Published asset and live controls will be verified after push.
+
+### MIT license — 12 October 2026
+- Added the standard MIT LICENSE with copyright2026 EcoRoute AI contributors. README includes a linked MIT badge and license section; third-party dependency, data and imagery terms remain applicable.
+- Documentation-only change: checked license/link presence and git diff whitespace. No runtime tests or AWS changes needed. Commit author is Mayank Gupta, starting the user-requested three-person author rotation; next author is Devesh Raj.
