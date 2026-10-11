@@ -101,6 +101,8 @@ def policies(account, region):
         allow("lambda:CreateEventSourceMapping", "*", {
             "StringEquals": {"aws:RequestedRegion": region},
             "ArnLike": {"lambda:FunctionArn": functions}}),
+        # The live CloudFormation handler authorizes this read against '*'.
+        allow("lambda:GetEventSourceMapping", "*", regional),
         allow("lambda:UpdateEventSourceMapping "
               "lambda:GetEventSourceMapping lambda:DeleteEventSourceMapping",
               arn("lambda", "event-source-mapping:*"),
