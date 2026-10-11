@@ -1,0 +1,810 @@
+{
+  "execution": "local_cpu",
+  "sagemaker_training_job": null,
+  "dataset_source": "https://archive.ics.uci.edu/dataset/501/beijing+multi+site+air+quality+data",
+  "source_sha256": "b04da438b2f331ac0ffd45aebdfec0d20d2367feb5f6948c4b1f7ce1191e33c4",
+  "model_version": "c72e274c84d4a4bad246d4d6",
+  "model_sha256": "19cf7d166ddd6f1e4246dcb0722adabef68c54b13a030f1bbfc3e46c5f8b6c9f",
+  "selected_algorithm": "random_forest",
+  "trained_at": "2026-10-11T12:34:34.015681+00:00",
+  "input_records": 420768,
+  "split_counts": {
+    "train": 245633,
+    "validation": 81546,
+    "test": 81979
+  },
+  "date_ranges": {
+    "train": {
+      "first_issued_at": "2013-02-28T16:00:00+00:00",
+      "last_target_at": "2015-07-24T02:00:00+00:00"
+    },
+    "validation": {
+      "first_issued_at": "2015-07-24T03:00:00+00:00",
+      "last_target_at": "2016-05-11T20:00:00+00:00"
+    },
+    "test": {
+      "first_issued_at": "2016-05-11T21:00:00+00:00",
+      "last_target_at": "2017-02-28T15:00:00+00:00"
+    }
+  },
+  "feature_schema": [
+    "pm25_latest",
+    "pm25_lag1",
+    "pm25_lag2",
+    "pm25_lag3",
+    "pm25_lag24",
+    "pm25_mean3",
+    "pm25_mean6",
+    "observation_age_hours",
+    "latitude",
+    "longitude",
+    "hour_sin",
+    "hour_cos",
+    "week_sin",
+    "week_cos",
+    "temperature_c",
+    "humidity_pct",
+    "wind_m_s",
+    "wind_direction_sin",
+    "wind_direction_cos"
+  ],
+  "packages": {
+    "scikit-learn": "1.7.2",
+    "numpy": "2.2.6",
+    "scipy": "1.15.3",
+    "joblib": "1.5.2"
+  },
+  "metrics": {
+    "validation": {
+      "persistence": {
+        "overall": {
+          "mae": 10.128160792681431,
+          "rmse": 20.368038711582305,
+          "mean_bias": -0.06782674809310082,
+          "sample_count": 81546,
+          "unit": "ug/m3",
+          "first_target_at": "2015-07-24T04:00:00+00:00",
+          "last_target_at": "2016-05-11T20:00:00+00:00"
+        },
+        "by_station": {
+          "uci_beijing:Aotizhongxin": {
+            "mae": 10.244024786072588,
+            "rmse": 21.547911303835964,
+            "mean_bias": 0.01150781941575686,
+            "sample_count": 6778,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Changping": {
+            "mae": 9.143880597014926,
+            "rmse": 17.73170699159618,
+            "mean_bias": 0.04417910447761194,
+            "sample_count": 6700,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Dingling": {
+            "mae": 8.596207555490224,
+            "rmse": 21.319000434097283,
+            "mean_bias": -0.14258415404968397,
+            "sample_count": 6803,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Dongsi": {
+            "mae": 10.743938066023956,
+            "rmse": 21.419952010743746,
+            "mean_bias": -0.012416009348524685,
+            "sample_count": 6846,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Guanyuan": {
+            "mae": 9.905955658600202,
+            "rmse": 19.066259285795056,
+            "mean_bias": -0.08071294015360092,
+            "sample_count": 6901,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Gucheng": {
+            "mae": 10.6705295584568,
+            "rmse": 20.615962175833126,
+            "mean_bias": -0.040340325656447115,
+            "sample_count": 6817,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Huairou": {
+            "mae": 9.146503393331367,
+            "rmse": 18.274145092803217,
+            "mean_bias": -0.07332546473886102,
+            "sample_count": 6778,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Nongzhanguan": {
+            "mae": 10.505993784223769,
+            "rmse": 20.20122612062634,
+            "mean_bias": -0.05076217256178778,
+            "sample_count": 6757,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Shunyi": {
+            "mae": 11.258343265792611,
+            "rmse": 22.037931867604815,
+            "mean_bias": -0.33075089392133494,
+            "sample_count": 6712,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Tiantan": {
+            "mae": 10.30307917888563,
+            "rmse": 20.01174508504877,
+            "mean_bias": -0.047653958944281524,
+            "sample_count": 6820,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Wanliu": {
+            "mae": 9.697181052019761,
+            "rmse": 19.819550670545755,
+            "mean_bias": -0.023539668700959023,
+            "sample_count": 6882,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Wanshouxigong": {
+            "mae": 11.333678909952607,
+            "rmse": 21.844448875686115,
+            "mean_bias": -0.06975710900473933,
+            "sample_count": 6752,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          }
+        }
+      },
+      "random_forest": {
+        "overall": {
+          "mae": 9.945205116185859,
+          "rmse": 19.905984271049906,
+          "mean_bias": -0.3620414230407978,
+          "sample_count": 81546,
+          "unit": "ug/m3",
+          "first_target_at": "2015-07-24T04:00:00+00:00",
+          "last_target_at": "2016-05-11T20:00:00+00:00"
+        },
+        "by_station": {
+          "uci_beijing:Aotizhongxin": {
+            "mae": 10.018925726087843,
+            "rmse": 21.2028547699402,
+            "mean_bias": -0.5768889545446781,
+            "sample_count": 6778,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Changping": {
+            "mae": 8.803735775490145,
+            "rmse": 16.020339231580206,
+            "mean_bias": 0.606286720394028,
+            "sample_count": 6700,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Dingling": {
+            "mae": 8.508851533273662,
+            "rmse": 20.271332521664572,
+            "mean_bias": 0.24191547984249903,
+            "sample_count": 6803,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Dongsi": {
+            "mae": 10.610149421781028,
+            "rmse": 21.291010611120612,
+            "mean_bias": -1.0007260877917104,
+            "sample_count": 6846,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Guanyuan": {
+            "mae": 9.658201285178588,
+            "rmse": 18.565353095820303,
+            "mean_bias": -0.585428617313575,
+            "sample_count": 6901,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Gucheng": {
+            "mae": 10.577620552296489,
+            "rmse": 20.459546829295807,
+            "mean_bias": -0.578538919122899,
+            "sample_count": 6817,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Huairou": {
+            "mae": 9.032126135394765,
+            "rmse": 17.5449203041532,
+            "mean_bias": 0.36494189196714943,
+            "sample_count": 6778,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Nongzhanguan": {
+            "mae": 10.232427894703228,
+            "rmse": 19.219113115714272,
+            "mean_bias": -0.4942327972711014,
+            "sample_count": 6757,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Shunyi": {
+            "mae": 10.890326249249837,
+            "rmse": 21.25609958313112,
+            "mean_bias": -0.7586570106972853,
+            "sample_count": 6712,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Tiantan": {
+            "mae": 10.166993581632791,
+            "rmse": 20.095053232788544,
+            "mean_bias": -0.5158840898267167,
+            "sample_count": 6820,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Wanliu": {
+            "mae": 9.51721061700515,
+            "rmse": 19.53807025853653,
+            "mean_bias": -0.11777298351893695,
+            "sample_count": 6882,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Wanshouxigong": {
+            "mae": 11.333564296910993,
+            "rmse": 22.501763809302872,
+            "mean_bias": -0.9180881516917263,
+            "sample_count": 6752,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          }
+        }
+      },
+      "hist_gradient_boosting": {
+        "overall": {
+          "mae": 10.268432220294512,
+          "rmse": 22.05648201365213,
+          "mean_bias": -0.4509382695236144,
+          "sample_count": 81546,
+          "unit": "ug/m3",
+          "first_target_at": "2015-07-24T04:00:00+00:00",
+          "last_target_at": "2016-05-11T20:00:00+00:00"
+        },
+        "by_station": {
+          "uci_beijing:Aotizhongxin": {
+            "mae": 10.401954976104925,
+            "rmse": 23.461450951618875,
+            "mean_bias": -0.8592387969811394,
+            "sample_count": 6778,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Changping": {
+            "mae": 8.844152193410716,
+            "rmse": 15.979564720243259,
+            "mean_bias": 0.847849579109453,
+            "sample_count": 6700,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Dingling": {
+            "mae": 8.765159957103974,
+            "rmse": 21.08675266396761,
+            "mean_bias": 0.3028339954908746,
+            "sample_count": 6803,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Dongsi": {
+            "mae": 11.149131091800527,
+            "rmse": 24.746681458738166,
+            "mean_bias": -1.3905494520551551,
+            "sample_count": 6846,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Guanyuan": {
+            "mae": 10.162631647242431,
+            "rmse": 21.381210567358302,
+            "mean_bias": -0.8376409887678022,
+            "sample_count": 6901,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Gucheng": {
+            "mae": 10.99445299539373,
+            "rmse": 23.060452311923875,
+            "mean_bias": -0.6131394401279986,
+            "sample_count": 6817,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Huairou": {
+            "mae": 9.116693292253636,
+            "rmse": 17.5056780487161,
+            "mean_bias": 0.4823118275566068,
+            "sample_count": 6778,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Nongzhanguan": {
+            "mae": 10.536501707479959,
+            "rmse": 21.513687079663125,
+            "mean_bias": -0.5675619215097094,
+            "sample_count": 6757,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Shunyi": {
+            "mae": 11.035968974496997,
+            "rmse": 22.71379673878805,
+            "mean_bias": -0.7832353899073508,
+            "sample_count": 6712,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Tiantan": {
+            "mae": 10.560888254919774,
+            "rmse": 23.112380889385033,
+            "mean_bias": -0.7220192104285177,
+            "sample_count": 6820,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Wanliu": {
+            "mae": 9.754238468775233,
+            "rmse": 21.76099970413348,
+            "mean_bias": 0.022555063168468645,
+            "sample_count": 6882,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          },
+          "uci_beijing:Wanshouxigong": {
+            "mae": 11.8981074692767,
+            "rmse": 26.278495983402955,
+            "mean_bias": -1.2762293383391352,
+            "sample_count": 6752,
+            "unit": "ug/m3",
+            "first_target_at": "2015-07-24T04:00:00+00:00",
+            "last_target_at": "2016-05-11T20:00:00+00:00"
+          }
+        }
+      },
+      "provider_forecast": {
+        "status": "unavailable_no_historical_issued_forecasts",
+        "coverage_fraction": 0.0,
+        "paired_cohort": null
+      }
+    },
+    "test": {
+      "persistence": {
+        "overall": {
+          "mae": 10.090340209077935,
+          "rmse": 19.564504371393088,
+          "mean_bias": -0.0312031129923517,
+          "sample_count": 81979,
+          "unit": "ug/m3",
+          "first_target_at": "2016-05-11T22:00:00+00:00",
+          "last_target_at": "2017-02-28T15:00:00+00:00"
+        },
+        "by_station": {
+          "uci_beijing:Aotizhongxin": {
+            "mae": 10.334837019790454,
+            "rmse": 19.184376677344872,
+            "mean_bias": -0.02779394644935972,
+            "sample_count": 6872,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Changping": {
+            "mae": 9.655587808417996,
+            "rmse": 18.19820323193549,
+            "mean_bias": -0.03323657474600871,
+            "sample_count": 6890,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Dingling": {
+            "mae": 8.215578635014836,
+            "rmse": 16.250583189717677,
+            "mean_bias": -0.003115727002967359,
+            "sample_count": 6740,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Dongsi": {
+            "mae": 11.04576144036009,
+            "rmse": 21.732051686797302,
+            "mean_bias": -0.06451612903225806,
+            "sample_count": 6665,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-12T05:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Guanyuan": {
+            "mae": 10.821098901098901,
+            "rmse": 19.54601221238218,
+            "mean_bias": -0.032527472527472526,
+            "sample_count": 6825,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Gucheng": {
+            "mae": 10.376166861143524,
+            "rmse": 20.722724267098066,
+            "mean_bias": -0.07628354725787631,
+            "sample_count": 6856,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Huairou": {
+            "mae": 8.212099231104018,
+            "rmse": 17.73041509169912,
+            "mean_bias": 0.0043522414043232266,
+            "sample_count": 6893,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Nongzhanguan": {
+            "mae": 10.456319161327897,
+            "rmse": 19.68924270744167,
+            "mean_bias": 0.018637157833430402,
+            "sample_count": 6868,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-12T01:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Shunyi": {
+            "mae": 10.239403337763994,
+            "rmse": 19.753431360387133,
+            "mean_bias": -0.05538325210456358,
+            "sample_count": 6771,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Tiantan": {
+            "mae": 10.656798722971992,
+            "rmse": 19.136321747976645,
+            "mean_bias": -0.029313597445943983,
+            "sample_count": 6891,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Wanliu": {
+            "mae": 9.729553364269142,
+            "rmse": 18.58107196850709,
+            "mean_bias": -0.014066125290023202,
+            "sample_count": 6896,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Wanshouxigong": {
+            "mae": 11.35936582501468,
+            "rmse": 23.346624713139654,
+            "mean_bias": -0.0625366999412801,
+            "sample_count": 6812,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          }
+        }
+      },
+      "random_forest": {
+        "overall": {
+          "mae": 9.75242551847278,
+          "rmse": 18.713091469748118,
+          "mean_bias": 0.18502577091622,
+          "sample_count": 81979,
+          "unit": "ug/m3",
+          "first_target_at": "2016-05-11T22:00:00+00:00",
+          "last_target_at": "2017-02-28T15:00:00+00:00"
+        },
+        "by_station": {
+          "uci_beijing:Aotizhongxin": {
+            "mae": 9.937681098533234,
+            "rmse": 18.240269083675347,
+            "mean_bias": 0.1753411234370225,
+            "sample_count": 6872,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Changping": {
+            "mae": 9.403524833813979,
+            "rmse": 17.359573640427588,
+            "mean_bias": 0.4677098946573347,
+            "sample_count": 6890,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Dingling": {
+            "mae": 8.110722131048284,
+            "rmse": 15.623437886301117,
+            "mean_bias": 0.8800416054747487,
+            "sample_count": 6740,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Dongsi": {
+            "mae": 10.603469979975566,
+            "rmse": 20.725278625515706,
+            "mean_bias": -0.3285325044842287,
+            "sample_count": 6665,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-12T05:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Guanyuan": {
+            "mae": 10.382119213003765,
+            "rmse": 18.654722893061468,
+            "mean_bias": 0.0761689323572231,
+            "sample_count": 6825,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Gucheng": {
+            "mae": 10.09901971629259,
+            "rmse": 19.872145532340877,
+            "mean_bias": -0.34300950859354723,
+            "sample_count": 6856,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Huairou": {
+            "mae": 8.0782197538565,
+            "rmse": 16.92849247169054,
+            "mean_bias": 0.7768277943703993,
+            "sample_count": 6893,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Nongzhanguan": {
+            "mae": 10.052923396075737,
+            "rmse": 18.855567854585402,
+            "mean_bias": 0.02499334809997253,
+            "sample_count": 6868,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-12T01:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Shunyi": {
+            "mae": 9.690417594585448,
+            "rmse": 18.979194164788623,
+            "mean_bias": 0.03677829262222506,
+            "sample_count": 6771,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Tiantan": {
+            "mae": 10.254506544770788,
+            "rmse": 18.21039709658411,
+            "mean_bias": 0.19363902727378707,
+            "sample_count": 6891,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Wanliu": {
+            "mae": 9.489987241981275,
+            "rmse": 17.77927985354069,
+            "mean_bias": 0.5277398031890006,
+            "sample_count": 6896,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Wanshouxigong": {
+            "mae": 10.94092818263195,
+            "rmse": 22.448955343779506,
+            "mean_bias": -0.28159763532977705,
+            "sample_count": 6812,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          }
+        }
+      },
+      "hist_gradient_boosting": {
+        "overall": {
+          "mae": 9.875634530174828,
+          "rmse": 19.471621988810288,
+          "mean_bias": 0.24311756117189084,
+          "sample_count": 81979,
+          "unit": "ug/m3",
+          "first_target_at": "2016-05-11T22:00:00+00:00",
+          "last_target_at": "2017-02-28T15:00:00+00:00"
+        },
+        "by_station": {
+          "uci_beijing:Aotizhongxin": {
+            "mae": 9.971463422952402,
+            "rmse": 19.237119486820124,
+            "mean_bias": 0.4532910169268389,
+            "sample_count": 6872,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Changping": {
+            "mae": 9.357971571503677,
+            "rmse": 17.5585839468725,
+            "mean_bias": 0.5401270395437202,
+            "sample_count": 6890,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Dingling": {
+            "mae": 8.116703966214306,
+            "rmse": 15.505849021042339,
+            "mean_bias": 1.1699895963788696,
+            "sample_count": 6740,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Dongsi": {
+            "mae": 10.926668804437496,
+            "rmse": 22.28810542304072,
+            "mean_bias": -0.35860393822049264,
+            "sample_count": 6665,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-12T05:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Guanyuan": {
+            "mae": 10.467338950651543,
+            "rmse": 19.03754455723401,
+            "mean_bias": 0.08054357113321242,
+            "sample_count": 6825,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Gucheng": {
+            "mae": 10.513261705824869,
+            "rmse": 22.036544166399498,
+            "mean_bias": -1.0563535645380462,
+            "sample_count": 6856,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Huairou": {
+            "mae": 8.177432472667238,
+            "rmse": 17.10004283132543,
+            "mean_bias": 0.9492177554927903,
+            "sample_count": 6893,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Nongzhanguan": {
+            "mae": 10.165912806074655,
+            "rmse": 19.79049487751715,
+            "mean_bias": 0.1528797102861053,
+            "sample_count": 6868,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-12T01:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Shunyi": {
+            "mae": 9.674621503380315,
+            "rmse": 19.420714145104128,
+            "mean_bias": 0.11892282083036788,
+            "sample_count": 6771,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Tiantan": {
+            "mae": 10.33835139396723,
+            "rmse": 18.651019242201397,
+            "mean_bias": 0.34198321180692853,
+            "sample_count": 6891,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Wanliu": {
+            "mae": 9.549721649953709,
+            "rmse": 18.17366372538527,
+            "mean_bias": 0.9472191287367541,
+            "sample_count": 6896,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          },
+          "uci_beijing:Wanshouxigong": {
+            "mae": 11.267340888477317,
+            "rmse": 23.450734827775065,
+            "mean_bias": -0.43977286734611776,
+            "sample_count": 6812,
+            "unit": "ug/m3",
+            "first_target_at": "2016-05-11T22:00:00+00:00",
+            "last_target_at": "2017-02-28T15:00:00+00:00"
+          }
+        }
+      },
+      "provider_forecast": {
+        "status": "unavailable_no_historical_issued_forecasts",
+        "coverage_fraction": 0.0,
+        "paired_cohort": null
+      }
+    }
+  },
+  "synthetic": false,
+  "navigation_deployment_eligible": false,
+  "limitations": [
+    "Station prediction, not street-level pollution",
+    "No calibrated interval; one temporal test does not establish seasonal generalization",
+    "Experimental only: not a Delhi model and cannot be promoted to navigation inference.",
+    "No station coordinates supplied; latitude/longitude remain missing, never fabricated.",
+    "No archived issued provider forecasts; provider baseline unavailable.",
+    "Retrospective assumption: observations were available at their recorded hour; actual publication delays/revisions unknown.",
+    "Weather values are historical observations, not future forecasts; humidity not supplied and remains missing."
+  ]
+}
