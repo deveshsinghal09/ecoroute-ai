@@ -17,6 +17,12 @@ for(const size of [{width:1280,height:720},{width:1366,height:768},{width:1024,h
    const ring=el.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(el.querySelector('strong')!);const value=range.getBoundingClientRect();range.selectNodeContents(el.querySelector('span')!);const unit=range.getBoundingClientRect();
    return {fits:value.left>=ring.left&&value.right<=ring.right&&unit.left>=ring.left&&unit.right<=ring.right&&value.top>=ring.top&&unit.bottom<=ring.bottom,separated:value.bottom<=unit.top};
  });expect(gauge).toEqual({fits:true,separated:true});
+ const balance=await page.locator('.selected-route-air').evaluate(card=>{
+  const visible=Array.from(card.children).filter(child=>child.getBoundingClientRect().height>0);
+  const bounds=card.getBoundingClientRect(),first=visible[0].getBoundingClientRect(),last=visible.at(-1)!.getBoundingClientRect();
+  return Math.abs((first.top-bounds.top)-(bounds.bottom-last.bottom));
+ });expect(balance).toBeLessThanOrEqual(1);
+
  const readability=await page.locator('.instrument-rail').evaluate(rail=>{
    const failures:string[]=[];
    const rgb=(color:string)=>color.match(/[\d.]+/g)!.slice(0,3).map(Number);

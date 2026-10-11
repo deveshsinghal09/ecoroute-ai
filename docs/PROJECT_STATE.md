@@ -1752,3 +1752,12 @@ BLE/ADB has no AWS cost. See LIVE_WATCH_SETUP.md for exact prerequisites, revoca
 - Concentration and exposure cards have equal desktop heights, inset spacing, and contained numeric/unit text. Six responsive sidebar checks and 55 frontend unit tests passed; production build passed.
 - Map initializes as a 2D street map with satellite disabled. View switches use neutral charcoal selection styling.
 - All 16 mocked Google Maps browser integration tests passed, including initial street-map state, 2D/3D switching and satellite toggle.
+
+### Local sidebar spacing review — 2026-10-12
+- Enlarged the EcoRoute AI identity card with more vertical padding and separation around location and tagline. The two metric cards retain equal heights and shrink slightly to accommodate it.
+- Compact-height dial sizing preserves number/unit containment. Six responsive browser checks and production build passed. Local review only; no commit, push or deployment for this change.
+
+### Local concentration gauge refinement — 2026-10-12
+- Enlarged the concentration dial responsively, separated the PM2.5 heading and caption, and centered the content group with equal top/bottom space inside the existing card dimensions.
+- Six responsive browser checks passed, including top/bottom balance, equal metric-card heights, long values and numeric/unit containment. Production build passed. Local only; no commit or deployment.
+- Deployment authorized by user: these local refinements are being published through the existing Amplify main-branch integration; live publication will be verified separately.
