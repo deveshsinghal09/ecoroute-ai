@@ -48,4 +48,21 @@ describe('API connection and guest authorization', () => {
     vi.mocked(fetch).mockResolvedValue({ok:false,status:502,json:async()=>({error:{code:'PRIVATE_MARKER'}})} as Response);
     await expect(api.requestHealthConnect('/wearables/health-connect/summary','SYNTHETIC_PAIR_KEY')).rejects.toThrow('request failed');
   });
+
+  it.each([
+    ['google_provider_unavailable','Google routing or place search'],
+    ['google_secret_unavailable','AWS Secrets Manager'],
+    ['storage_unavailable','AWS data store'],
+  ])('explains known routing dependency %s without exposing the provider body',async(code,message)=>{
+    const id='a'.repeat(32);
+    vi.mocked(fetch).mockResolvedValue({ok:false,status:503,json:async()=>({error:{code,request_id:id,detail:'PRIVATE_MARKER'}})} as Response);
+    await expect(api.request('/routes/preview',{},false)).rejects.toThrow(message);
+    await expect(api.request('/routes/preview',{},false)).rejects.toThrow(`Reference: ${id}`);
+  });
+
+  it('rejects untrusted error codes and request references',async()=>{
+    vi.mocked(fetch).mockResolvedValue({ok:false,status:503,json:async()=>({error:{code:'PRIVATE_MARKER',request_id:'SECRET_MARKER'}})} as Response);
+    try{await api.request('/routes/preview',{},false);throw new Error('Expected failure');}
+    catch(error){expect((error as Error).message).toBe('This service is not configured or temporarily unavailable.');}
+  });
 });

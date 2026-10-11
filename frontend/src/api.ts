@@ -31,6 +31,14 @@ const routingMessages:Record<string,string> = {
   cycling_request_rejected:'The bicycle route request was rejected. Try nearby endpoints or reduce alternatives.',
   google_routes_key_missing:'The map is connected, but routing needs GOOGLE_ROUTES_API_KEY in the backend .env. Use a separate server key.',
   google_access_or_billing_unavailable:'Google routing access is unavailable. Check the server key, Routes/Places APIs and Google billing.',
+  google_provider_unavailable:'Google routing or place search did not respond successfully. Wait a moment and retry your comparison.',
+  google_secret_unavailable:'The backend cannot read its Google routing credential from AWS Secrets Manager. Check the API Lambda role and secret reference.',
+  routing_secret_invalid:'The backend routing credential has an unsupported format. Store the key as plaintext or JSON with an api_key field in Secrets Manager.',
+  google_quota_exceeded:'Google routing has reached its request quota. Wait before trying again or review the Google API quota.',
+  location_request_budget_exhausted:'EcoRoute has reached its routing request allowance. Wait for the next allowance window before comparing again.',
+  storage_unavailable:'The backend cannot access its AWS data store. Check the API Lambda permissions and configured resource names.',
+  cycling_secret_unavailable:'The backend cannot read its cycling credential from AWS Secrets Manager. Check the API Lambda role and secret reference.',
+  cycling_provider_unavailable:'The cycling provider did not respond successfully. Wait a moment and retry.',
   google_no_route_for_selected_mode:'Google returned no route for this travel mode. Try different endpoints; no driving route was substituted.',
   google_route_request_rejected:'Google rejected this route request. Check your endpoints, travel mode and departure time.',
   cycling_provider_not_configured:'Cycle needs CYCLING_PROVIDER=openrouteservice and its server key. Google does not list bicycle routing for India.',
@@ -64,8 +72,11 @@ async function send<T>(path:string,body:unknown,token:string|undefined,cognito:b
     if (!response.ok) {
       if(response.status===401&&cognito) signOut();
       // Only allowlisted codes become UI messages; never render provider bodies or echoed secrets.
-      let code=''; try {const body=await response.json(); code=typeof body?.error?.code==='string'?body.error.code:'';} catch { /* Non-JSON failures use the HTTP status. */ }
-      throw new Error(routingMessages[code] || messages[response.status] || 'The request failed. Try again later.');
+      let code='',reference=''; try {const body=await response.json(); code=typeof body?.error?.code==='string'?body.error.code:'';
+        const id=body?.error?.request_id; if(typeof id==='string'&&/^[a-f0-9]{32}$/.test(id))reference=id;
+      } catch { /* Non-JSON failures use the HTTP status. */ }
+      const message=routingMessages[code] || messages[response.status] || 'The request failed. Try again later.';
+      throw new Error(message+(response.status>=500&&reference?` Reference: ${reference}.`:''));
     }
     return await response.json();
   } catch (error) { if (error instanceof TypeError || (error instanceof DOMException && error.name==='AbortError')) throw new Error('Cannot reach the backend. Check its address, connection and CORS configuration.'); throw error; }
