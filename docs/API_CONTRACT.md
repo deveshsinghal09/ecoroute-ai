@@ -1,5 +1,9 @@
 # API contract â€” backend foundation and environmental datasets
 
+## Cognito registration and hosted Maps - 2026-10-11
+
+No HTTP schema changes. Cognito hosted Sign up now available with email confirmation; JWT scope enforcement unchanged. Frontend setup errors distinguish hosted Amplify variables from local env files.
+
 ## Provider secrets connected — 2026-10-11
 
 POST /api/v1/routes/preview now enabled in deployed API without JWT, bounded and no personal journey persistence. All3modes returned200; full PM2.5 exposure null when data missing. Private APIs unchanged. No schema change; correct fields duration_s and estimated_pm25_exposure_ug_h_m3.

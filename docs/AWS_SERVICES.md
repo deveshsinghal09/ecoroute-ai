@@ -1,5 +1,9 @@
 # AWS service decisions and IAM boundaries
 
+## Cognito registration and hosted Maps - 2026-10-11
+
+Core update enables email-verified self-registration; hosted form verified, actual email delivery/login not tested. Amplify browser Maps key absent; Google Maps basemap not verified. Server route providers already passed actual requests.
+
 ## Provider secrets connected — 2026-10-11
 
 Core updated with four exact secret references: OpenAQ collector; Google Routes/ORS/Gemini API. Driving/walking/cycling live previews200. OpenAQ ingest and Gemini generation remain untested; full route exposure unavailable pending data. See PROVIDER_ACTIVATION.md.

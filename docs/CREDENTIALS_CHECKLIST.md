@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+## Cognito registration and hosted Maps - 2026-10-11
+
+Self-registration now enabled in existing pool with email confirmation; user should click Sign in with Cognito then Sign up. No passwords/codes in chat. Hosted map missing VITE_GOOGLE_MAPS_API_KEY: add separate browser key to Amplify, exact website restriction https://main.d3txif33djiy59.amplifyapp.com/* and Maps JavaScript API enabled, redeploy. Server route key remains private. Maps billing controlled in Google, not AWS credits.
+
 ## Live setup/test prerequisites — 2026-10-11
 
 Cognito user not created; authorized Console operator must create one locally without invitation; no passwords/tokens in chat. Collector invoke CLI still denied. Narrow config/iam-integration-checks.json can be attached to devesh_eco for one collector invocation and environmental-only diagnostics; see LIVE_SETUP_AND_TEST.md. No new provider secret required.
