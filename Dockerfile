@@ -1,4 +1,5 @@
-FROM public.ecr.aws/docker/library/python:3.11-slim
+ARG PYTHON_BASE_IMAGE=public.ecr.aws/docker/library/python:3.11-slim
+FROM ${PYTHON_BASE_IMAGE}
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY requirements-runtime.txt requirements.lock ./

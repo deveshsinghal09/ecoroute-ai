@@ -40,12 +40,22 @@ jobs:
       - name: Install pinned CDK before deployment-command tests
         run: npm ci --ignore-scripts
       - run: python -m pytest -q
-      - run: docker build -f Dockerfile.ml -t ecoroute-ml:ci .
+      - name: Pull official Python base with public-registry fallback
+        run: |
+          for base_candidate in public.ecr.aws/docker/library/python:3.11-slim mirror.gcr.io/library/python:3.11-slim docker.io/library/python:3.11-slim; do
+            if docker pull "$base_candidate"; then
+              docker tag "$base_candidate" ecoroute-python-base:ci
+              exit 0
+            fi
+          done
+          echo "All official Python base sources failed" >&2
+          exit 1
+      - run: docker build --build-arg PYTHON_BASE_IMAGE=ecoroute-python-base:ci -f Dockerfile.ml -t ecoroute-ml:ci .
       - run: ECOROUTE_TEST_ML_CONTAINER=true python -m pytest tests/test_ml_container.py -q
       - run: python scripts/smoke_local.py
       - run: python scripts/check_repo.py
       - run: python scripts/export_api.py && git diff --exit-code -- docs/openapi.json docs/FRONTEND_INTEGRATION.md examples
-      - run: docker build -t ecoroute-api:ci .
+      - run: docker build --build-arg PYTHON_BASE_IMAGE=ecoroute-python-base:ci -t ecoroute-api:ci .
       - name: Container health and authorization smoke
         run: |
           docker run -d --name ecoroute-api -p 8000:8000 ecoroute-api:ci

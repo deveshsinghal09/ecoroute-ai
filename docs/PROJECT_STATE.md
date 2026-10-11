@@ -1,5 +1,18 @@
 # EcoRoute AI project state — Phases 1–7
 
+## CI public registry fallback - 2026-10-12
+
+After successful code runs38170666203 and38170765806, docs run38171082700 failed because
+ECR Public anonymously pulling official Python returned429 Data limit exceeded.365 backend
+tests passed before the pull failure. Added bounded one-attempt-per-source pull fallback:
+ECR Public first, documented Google Docker Hub mirror second, official Docker Hub third.
+One successfully pulled image is tagged locally and reused by both container builds. Dockerfiles
+accept PYTHON_BASE_IMAGE; default remains ECR Public. No AWS authentication, resources, roles
+or workload image publication. CI fails honestly if all sources fail. Docker unavailable locally;
+actual container verification on hosted CI remains required. Reference:
+https://docs.cloud.google.com/artifact-registry/docs/pull-cached-dockerhub-images .
+
+
 ## Route visibility, sidebar readability and CI ownership repair - 2026-10-12
 
 Stable route palette (orange, blue, violet, teal) shared by Google map, projected fallback and
