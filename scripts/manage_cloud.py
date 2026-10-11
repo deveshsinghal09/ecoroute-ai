@@ -2,6 +2,7 @@
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -17,7 +18,8 @@ from infra.profiles import DeploymentOptions  # noqa: E402
 STACKS = ["EcoRouteCore", "EcoRouteML", "EcoRouteData"]
 CONTEXT_KEYS = {"callback_urls", "frontend_origins", "ml_image_uri", "gemini_secret_arn",
                 "gemini_model_id", "google_routes_secret_arn", "cycling_secret_arn",
-                "provider_secret_arn", "enable_guest_routes", "ingestion_interval_minutes"}
+                "provider_secret_arn", "enable_guest_routes", "ingestion_interval_minutes",
+                "workload_boundary_arn"}
 
 
 def load_context(path):
@@ -25,6 +27,9 @@ def load_context(path):
     if not isinstance(values, dict) or set(values) - CONTEXT_KEYS:
         raise ValueError("Context file accepts only reviewed non-secret identifiers and settings")
     for key, value in values.items():
+        if key == "workload_boundary_arn" and (not isinstance(value, str) or
+                not re.fullmatch(r"arn:aws:iam::\d{12}:policy/EcoRouteWorkloadBoundary", value)):
+            raise ValueError("Workload boundary must be an exact reviewed IAM policy ARN")
         if key.endswith("_secret_arn") and (not isinstance(value, str) or
                 not value.startswith("arn:aws:secretsmanager:") or "*" in value):
             raise ValueError("Context secrets must be complete ARNs, never secret values")
@@ -37,6 +42,15 @@ def load_context(path):
 def guard_identity(identity, expected):
     if not expected or identity.get("Account") != expected or identity.get("Arn", "").endswith(":root"):
         raise ValueError("expected_nonroot_account_required")
+
+
+def guard_bootstrap(stack, context, account):
+    if stack.get("StackStatus") not in {"CREATE_COMPLETE", "UPDATE_COMPLETE", "UPDATE_ROLLBACK_COMPLETE"}:
+        raise ValueError("Bootstrap must be in a complete deployment state")
+    parameters = {p["ParameterKey"]: p["ParameterValue"] for p in stack.get("Parameters", [])}
+    if parameters.get("BootstrapVariant", "").startswith("EcoRoute:"):
+        if context.get("workload_boundary_arn") != f"arn:aws:iam::{account}:policy/EcoRouteWorkloadBoundary":
+            raise ValueError("EcoRoute bootstrap requires its workload boundary in the deployment context")
 
 
 def command(action, profile, *, iot=False, location=False, workflows=False, context=None, optional_stacks=()):
@@ -99,7 +113,8 @@ def main(argv=None):
     guard_identity(session.client("sts", config=config).get_caller_identity(), args.expected_account_id)
     cloudformation = session.client("cloudformation", config=config)
     if args.action == "deploy":
-        cloudformation.describe_stacks(StackName="CDKToolkit")
+        bootstrap = cloudformation.describe_stacks(StackName="CDKToolkit")["Stacks"][0]
+        guard_bootstrap(bootstrap, context, args.expected_account_id)
         if not (ROOT / "build/lambda/ecoroute/handlers/api.py").exists():
             parser.error("Build Linux Lambda asset before deployment")
     else:

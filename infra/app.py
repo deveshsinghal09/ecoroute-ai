@@ -2,6 +2,7 @@
 import os
 
 import aws_cdk as cdk
+from aws_cdk import aws_iam as iam
 from stacks import CoreStack, DataStack, IotStack, MlStack
 from analytics import AnalyticsStack
 from compute import ComputeStack
@@ -41,6 +42,15 @@ if options.hosting != "none":
 if options.analytics != "none":
     AnalyticsStack(app, "EcoRouteAnalytics", env=env, data=data, options=options, asset_path="build/lambda",
                    alert_topic=core.operational_alerts)
+boundary_arn = app.node.try_get_context("workload_boundary_arn")
+if boundary_arn:
+    expected_boundary = f"arn:aws:iam::{os.environ.get('EXPECTED_AWS_ACCOUNT_ID')}:policy/EcoRouteWorkloadBoundary"
+    if boundary_arn != expected_boundary:
+        raise ValueError("Workload boundary must be the reviewed policy in the expected account")
+    for child in app.node.children:
+        if isinstance(child, cdk.Stack):
+            boundary = iam.ManagedPolicy.from_managed_policy_arn(child, "DeploymentWorkloadBoundary", boundary_arn)
+            iam.PermissionsBoundary.of(child).apply(boundary)
 cdk.Tags.of(app).add("Project", "ecoroute-ai")
 cdk.Tags.of(app).add("Environment", "hackathon")
 if not options.lambda_reserved_concurrency:

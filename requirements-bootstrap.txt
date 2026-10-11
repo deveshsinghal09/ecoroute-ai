@@ -1,0 +1,3 @@
+# Offline conversion tooling only; keep out of application/Lambda dependencies.
+PyYAML==6.0.3
+cfn-lint==1.57.2
