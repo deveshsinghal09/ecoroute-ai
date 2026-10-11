@@ -326,3 +326,26 @@ Exact local setup, revocation, diagnostic commands, source contract, blocked Noi
 cloud prerequisites: [LIVE_WATCH_SETUP.md](LIVE_WATCH_SETUP.md). Noise vendor SDK/API/export support
 is still required before decoding this device. Backend cloud reads remain Cognito-protected;
 no private key, vendor token, password or AWS credential was requested in chat.
+
+## Current AWS/Gemini configuration check — 2026-10-11
+
+Verified CLI and Boto3 IAM user dev-admin/devesh_eco, Mumbai. Required deployment prerequisites
+still missing/unverified: CDK_BOOTSTRAP, scoped DEPLOY_IAM_PERMISSIONS, SageMaker training quota,
+verified ml_image_uri digest, sufficient measured dataset, provider secret ARNs, Cognito outputs,
+exact HTTPS callback/CORS origins and budget/credit eligibility. Some metadata checks are denied;
+see [read-only policy](iam/readiness-policy.json) and [Console/CLI steps](AWS_READINESS_AND_GEMINI.md).
+No service key, root key or private certificate should be shared in chat.
+
+Gemini names: ENABLE_GEMINI, GEMINI_API_KEY (sensitive, ignored backend .env only),
+GEMINI_MODEL_ID (explicit supported non-secret model ID), GEMINI_SECRET_ARN (non-secret AWS
+alternative), GEMINI_DAILY_LIMIT/GEMINI_HOURLY_LIMIT, ENABLE_BEDROCK=false. The checked backend
+.env, frontend .env.local and process contain no GEMINI_API_KEY; no credential validity is claimed.
+Create the key through Google AI Studio; do not use a Maps key. In AWS, store JSON api_key in
+Secrets Manager and supply exact gemini_secret_arn/gemini_model_id contexts. The API role receives
+GetSecretValue on that reference only. Google API charges are separate from AWS credits.
+
+SageMaker execution role and ECR repository are defined with stack outputs; creation remains
+approval-gated. The role is created by CDK, not a requirement to start Studio/notebooks. Job
+launcher needs job-specific SageMaker actions and role-specific iam:PassRole with PassedToService
+sagemaker.amazonaws.com; training role needs scoped S3 data/artifact access, ECR pulls/token,
+training logs. Latest local preparation found zero eligible samples, so no paid training is ready.

@@ -1,5 +1,68 @@
 # EcoRoute AI project state — Phases 1–7
 
+## AWS readiness, Gemini and SageMaker preparation — 2026-10-11
+
+Latest request retains SageMaker and selects Gemini instead of Bedrock for explanations.
+Reused the backend, ingestion, training/inference modules and CDK stacks. Created no AWS
+resource, secret, budget, training job, endpoint, notification or deployed URL.
+
+Live read-only CLI/Boto3 checks: dev-admin is IAM user devesh_eco in account112920804206,
+Mumbai. CDKToolkit DescribeStacks confirms missing bootstrap. Project stack DescribeStacks,
+own-policy inspection/simulation, region/quota inspection, ECR repository list, bootstrap
+parameter and CloudWatch alarm list are denied. Lambda limit10/unreserved10 verified.
+SageMaker training-job, API Gateway, Cognito, DDB, Scheduler/SQS/SNS/IoT/Step Functions and
+Secrets Manager lists are empty; three existing S3 buckets were listed, with no object reads
+or reuse. List access does not establish provisioning permissions; denied stack existence
+is unverified. Filtered account report is ignored work/aws-service-readiness.json.
+
+Added server-only Gemini REST adapter to the existing owned-route explanation API. It sends
+only sanitized computed facts, validates an exact permutation of approved text IDs, preserves
+scores, bounds daily/hourly calls and response size, and falls back deterministically. Secret
+references receive an exact same-account/region IAM grant; no key is in CDK or browser code.
+Local GEMINI_API_KEY is absent from the two checked env files and process, despite reported
+configuration. No live Gemini call was made. Guest Google Insights stays deterministic; no
+anonymous AI endpoint or private-data authorization bypass was added.
+
+Default CDK app removes reserved concurrency to support the verified new-account limit10;
+explicit profile opt-in still permits it after a quota review. Added immutable retained ECR
+training repository and scoped SageMaker execution role even without an image; reused the
+same role builder in the existing optional training workflow. Training still requires a
+verified image digest, quota, sufficient actual measured history and separate paid-job approval.
+Actual preparation audit:389 records,5 measured PM2.5,384 non-measured/non-PM2.5,1 station series,
+0 eligible hourly samples. No model or evaluation metrics were produced. Docker daemon absent.
+
+Created: advisory/gemini.py; infra/concurrency.py, ml_roles.py; scripts/aws_readiness.py;
+tests/test_gemini.py, test_aws_readiness.py; config/hackathon.aws.json;
+docs/AWS_READINESS_AND_GEMINI.md and docs/iam/readiness-policy.json. Modified config/explanation,
+CDK app/profiles/stacks/ml_workflow, infra tests, security review, .env.example, README and
+the five maintained documents. OpenAPI exporter ran; no endpoint/schema shape changed.
+Deployment wrapper now forwards --workflows and a whitelist-validated non-secret --context-file;
+CLI JSON URL arrays are decoded before existing CORS validation. Later targeted rerun43passed
+after wrapper/security additions; whitespace warnings were fixed before the final diff check.
+Final wrapper/context/infra rerun46passed. Local HTTP health200 and private wearable401 verified.
+CDK synth rerun with explicit review.example.org JSON callback/CORS arrays passed; these are
+structural test URLs, not a configured production website. Active-assembly security review
+remains free of findings. Three separate single-author commits save Gemini, AWS preparation
+and Console documentation; no unrelated bedrock-messages.json/test-results files are included.
+
+Commands/results: CLI STS/region/policy/bootstrap/Lambda/SageMaker reads, aws_readiness.py,
+train.py --prepare-only (truthful insufficient_data), build_lambda.py (183.1MiB Linux asset),
+focused pytest (67passed), full pytest (247passed,1skipped,3 existingwarnings), newly added
+readiness/security test rerun (3passed), Ruff/pass, export_api.py, check_repo.py/pass,
+git diff --check/pass. CDK synth --no-lookups with config/hackathon.aws.json,
+enable_iot=true/enable_workflows=true passed: Data/ML/Core/IoT/Hosting, zero reserved fields.
+Security review initially flagged ECR GetAuthorizationToken wildcard: AWS requires this
+authentication action without a resource ARN. Added a narrow Mumbai-only documented
+exception and regression test; rerun zero findings. Image pull/write grants remain scoped.
+No runtime IAM, real cloud ingestion, physical watch metrics, ML or notifications were verified.
+
+Remaining: operator applies the supplied read-only policy, reviews bootstrap/deployer
+permissions, verifies credits/budget/account plan/quotas, configures provider secret ARNs and
+Cognito callbacks/exact HTTPS CORS, starts Docker, supplies real measured history, and approves
+the concrete $5–20/month serverless proposal before provisioning. Training priced/approved
+separately. Optional idle compute/database alternatives remain off. Read the new runbook for
+exact Console/CLI steps, credential names, current limitations and retaining cleanup.
+
 ## AWS setup runbook — 2026-10-10 IST
 
 Created docs/AWS_SETUP_FROM_ZERO.md and linked it from README/CREDENTIALS_CHECKLIST for

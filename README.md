@@ -199,3 +199,11 @@ restricted secret IAM and verification. Google Routes/Places feed the existing e
 Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
 Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
 No AWS resources were deployed. Google charges are separate from AWS credits.
+
+## Current AWS setup
+
+Read [AWS readiness, Gemini and SageMaker](docs/AWS_READINESS_AND_GEMINI.md) for actual
+IAM/region/service checks, exact Console steps and the bounded serverless deployment proposal.
+SageMaker remains for genuine measured-data training; Gemini is an optional grounded explanation
+provider. No cloud deployment or training was performed by this preparation. Do not start Studio,
+notebooks or an always-running endpoint to configure the model workflow.

@@ -215,3 +215,14 @@ remain unavailable. Backend values are manual snapshots. Standard BLE provides n
 timestamp; its browser receipt time is labeled explicitly and cannot be silently substituted for
 a device observation timestamp in the existing Measurement API. A verified future companion bridge
 must follow the unchanged Registration/Consent/Measurement schemas. See LIVE_WATCH_SETUP.md.
+
+## Gemini explanation provider — 2026-10-11
+
+Existing protected POST /api/v1/ai/explain-route retains its route_ids request and Explanation
+response. With explicitly configured Gemini it returns mode=gemini_arranged_approved_text;
+scores/ranking never change. Missing/invalid provider output or bounded request exhaustion
+returns deterministic mode and gemini_unavailable_or_invalid_output/gemini_request_limit.
+Only server-owned route facts are passed, without geometry, user/health/place/provider prose.
+API and Cognito ownership/scopes remain unchanged. Guest Google request-only Insights does not
+invoke this saved-route API and remains deterministic. See AWS_READINESS_AND_GEMINI.md.
+No deployed API URL, successful Gemini call or trained-model result is claimed.

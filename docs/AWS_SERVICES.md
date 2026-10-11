@@ -231,3 +231,25 @@ was added/deployed. Existing protected GET /wearables/latest can populate the wa
 backend records when Cognito/device consent are configured; this change does not verify cloud ingestion.
 Live Noise health data remains blocked by undocumented vendor packet semantics. Standard-sensor
 tests are synthetic and cannot establish physical watch compatibility. See LIVE_WATCH_SETUP.md.
+
+## Current AWS preparation — 2026-10-11
+
+No AWS resource was provisioned in this update. Read-only account checks verified named IAM
+identity and service metadata for many services; deployment/IAM/quota/ECR/CloudWatch checks have
+specific denials recorded in [the current runbook](AWS_READINESS_AND_GEMINI.md). Project stack
+existence is unverified where DescribeStacks is denied; CDKToolkit is confirmed missing. Three
+existing S3 buckets were listed and were not repurposed or read.
+
+SageMaker is retained by latest user instruction. ML now includes an immutable retained ECR
+repository, bounded image retention and least-privilege job execution role before an image is
+supplied. No paid job/endpoint/domain exists from this work. Five local measured PM2.5 records
+give zero eligible training samples. Lambda app default omits reservations to support quota10;
+API/DDB/SQS controls remain, with no per-function concurrency ceiling. The active offline
+assembly includes Data, ML, Core, IoT and private S3/CloudFront Hosting; optional ECS/EKS/EC2/
+Lightsail/AppRunner/RDS/Aurora/Amplify profiles are not running services.
+
+Gemini replaces optional Bedrock explanations when explicitly configured; Gemini is a Google
+service called server-side, not an AWS service and not a SageMaker substitute. Secrets Manager
+reference, sanitized facts, approved text validation, request caps and fallback are integrated.
+No key/model invocation was verified. Google guest Insights remains deterministic. IAM ECR token
+retrieval requires Resource:* with a Mumbai condition; separate image access is repository-scoped.

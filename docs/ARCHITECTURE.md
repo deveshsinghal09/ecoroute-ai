@@ -313,3 +313,22 @@ snapshots, not a phone stream. API/storage/IAM definitions remain unchanged.
 
 Actual ADB/nRF inspection verified authorized USB and vendor notifications, not health semantics.
 Noise 0x0AF0/0x0AF7 lacks a verified decoder; its bridge remains blocked. See LIVE_WATCH_SETUP.md.
+
+## Gemini and small-account AWS deployment — 2026-10-11
+
+Latest deployment plan retains SageMaker for measured-data forecasting, with Gemini as the
+optional explanation provider instead of Bedrock. Both cannot be enabled together. The same
+owned-route API uses sanitized calculated metrics and model-selected approved statement IDs;
+free model prose cannot reach the response or change scores. Guest Google request-only Insights
+remains deterministic. Gemini is external to AWS; server-only keys/Secret Manager references
+are separate from AWS identity. No browser key, health data or place text goes to Gemini.
+
+CDK default Lambda functions use the account's unreserved pool because live quota10 cannot
+support the former reservations; profile opt-in requires a reviewed increased quota. SQS/API
+throttles and DDB caps remain; removing reservations is not a per-function spend cap.
+ML defines an immutable ECR training repository and narrowly scoped SageMaker training role
+before an image exists. A reviewed digest enables the existing validation/train/publish workflow
+and Lambda inference; neither deployment nor a role implies trained data/models. Actual local
+eligible sample count is zero. CloudFront serves the existing frontend through private S3/OAC;
+other runtimes/SQL/Amplify stay alternatives. No new deployment or paid job was performed.
+See [current AWS runbook](AWS_READINESS_AND_GEMINI.md).
