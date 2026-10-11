@@ -1,5 +1,9 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Latest: logging provisioning progressed; workflow name now explicit within IAM project scope.
+Core rollback failed on mapping read authorization. No operational Core runtime verified.
+
+
 Latest deployment blocker is HTTP API access-log delivery permission; authentication/tagging
 configuration progressed. Logging remains configured, not verified operational. Data/ML/IoT
 unchanged; Core runtime unavailable pending bootstrap correction.

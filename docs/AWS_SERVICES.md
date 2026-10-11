@@ -1,5 +1,9 @@
 # AWS service decisions and IAM boundaries
 
+Latest: Core ROLLBACK_FAILED due mapping metadata-read denial. Prepared regional
+lambda:GetEventSourceMapping Resource* permission; workflow project naming fixed. No live API.
+
+
 Latest Core attempt passed stage tagging; access-log setup denied logs:CreateLogDelivery.
 Prepared seven explicit regional account-level logging actions for CFN execution only;
 not installed yet. This exception is documented in AWS_CONSOLE_BOOTSTRAP.md. No working API.

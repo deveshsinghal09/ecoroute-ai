@@ -1,5 +1,22 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Logging fixed; workflow name corrected; rollback read permission — 2026-10-11
+
+Bootstrap logging update verified installed/UPDATE_COMPLETE. Approved Core retry recovered
+failed record with retained pool preserved (work/core-log-recovery.json), reused Data unchanged.
+Stage/logging progressed. Workflow failed because generated EnvironmentalWorkflowMachine...
+name does not match IAM EcoRoute* scope. Fixed environment_workflow.py with explicit
+EcoRoute-{stack_name}-EnvironmentalWorkflow name;17infra tests/Ruff passed. No cloud retry yet.
+
+Rollback subsequently failed deleting WorkerSqsEventSource...: CFN denied
+lambda:GetEventSourceMapping on Resource*. Core ROLLBACK_FAILED verified. Added only this
+read with Resource* and Mumbai condition to execution policy; existing mapping mutation scope
+unchanged. Regenerated Console file; expected Modify EcoRouteExecuteCompute only.
+18bootstrap/readiness tests passed; cfn-lint/Ruff passed. Backend not live. Data/ML/IoT preserved.
+Next authorized Console update required, then recover failed rollback after inspecting actual
+mapping and retained pools; do not purge data or remove authorization to bypass deployment.
+
+
 ## Stage tagging passed; access-log delivery permission missing — 2026-10-11
 
 CLI verifies bootstrap UPDATE_COMPLETE with stage compatibility grant installed. After

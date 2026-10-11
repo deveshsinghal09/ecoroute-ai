@@ -1,5 +1,12 @@
 # EcoRoute one-time Console setup — 2026-10-11
 
+Latest: logging fix installed; Core rollback failed reading Lambda event mapping. Current file
+adds lambda:GetEventSourceMapping on Resource* with Mumbai condition to Compute execution
+policy only. Update CDKToolkit with current file; expect Modify EcoRouteExecuteCompute only.
+Core workflow explicit name fixed in code, no new IAM permission needed. After update, agent
+must inspect/recover ROLLBACK_FAILED; do not manually delete mapping/pools or other stacks.
+
+
 ## Latest correction: HTTP API access log delivery
 
 Stage tagging fix is installed and passed. AWS now denies logs:CreateLogDelivery.

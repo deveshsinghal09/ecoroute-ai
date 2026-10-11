@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+Latest required Console update: lambda:GetEventSourceMapping regional metadata read for
+Core rollback recovery. Logging fix installed; no secrets needed. See bootstrap guide.
+
+
 Current required action: Console bootstrap update for documented HTTP API log-delivery
 administration permissions. Cognito and stage-tagging fixes verified installed. No new secret.
 

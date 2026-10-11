@@ -1,5 +1,9 @@
 # API contract — backend foundation and environmental datasets
 
+Latest Core ROLLBACK_FAILED; AWS URL unavailable. Workflow naming fix/API mapping read policy
+correction introduce no HTTP schema changes. Live health/authentication tests still blocked.
+
+
 Latest Core attempt failed on CloudWatch log-delivery authorization; no cloud API URL tested.
 API schema unchanged. Health/authentication live checks must wait for successful deployment.
 
