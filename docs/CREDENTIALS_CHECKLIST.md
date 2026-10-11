@@ -1,5 +1,14 @@
 # Credentials and configuration checklist
 
+## Effective ingestion diagnostics - 2026-10-11
+
+EcoRouteIngestionDiagnostics reads succeeded through dev-admin/devesh_eco, account112920804206,
+ap-south-1. Aggregate user inline limit2048characters required a customer-managed policy:
+IAM->Policies->Create->JSON, then explicitly attach to user. Keep existing permissions; no
+AdministratorAccess needed. Diagnostic policy may be detached after troubleshooting. No provider
+secret change required. Positive Cognito/private endpoint checks and other prerequisites remain.
+
+
 ## Collector result verification - 2026-10-11
 
 Additional temporary read-only permissions proposed in config/iam-ingestion-diagnostics.json for exact S3 notification, SQS attributes, Worker config/mapping reads. Latest reads denied. Authorized administrator must attach separately; no secret value, wildcard or queue mutation. See INGESTION_RESULT_CHECK.md.

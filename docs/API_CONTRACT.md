@@ -1,5 +1,14 @@
 # API contract — backend foundation and environmental datasets
 
+## Live exposure verification - 2026-10-11
+
+No schema/auth change. /routes/preview verified HTTP200 for Delhi Drive/Walk/Cycle with
+pm25_coverage_fraction~1 and non-null estimated_pm25_exposure_ug_h_m3. Unit ug*h/m3; arithmetic
+matches sum(segment concentration*duration_s/3600). Pollutants retain forecast/source/time/45km
+resolution; confidence low, spatial_differentiation=not_resolved_same_model_cell. Later departure
+uses corresponding forecast. Private wearable/alerts remain401 without JWT; no positive login claim.
+
+
 ## Collector result verification - 2026-10-11
 
 No API contract change. Raw ingestion success does not establish available concentration/exposure. Curated coverage must be checked before route results can report full exposure; missing values remain unavailable.

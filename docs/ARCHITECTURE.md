@@ -1,5 +1,13 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Verified S3-to-route data path - 2026-10-11
+
+Deployed Data notification uses raw/ to avoid special-character filter encoding. Cleaner still
+validates exact bucket/raw/source= paths. Natural S3->SQS->cleaner->Parquet/DynamoDB->route
+scoring verified with192forward-forecast records and full Delhi route coverage. CAMS45km data
+remains low-confidence/coarse; no resolved roadside differences. No continuous refresh enabled.
+
+
 ## Collector result verification - 2026-10-11
 
 Existing S3->SQS->cleaner chain remains the intended flow. Raw collector save is verified; curation is not. No direct cleaning bypass used to manufacture an end-to-end success. Narrow diagnostic policy is prepared, not applied.

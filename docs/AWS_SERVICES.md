@@ -1,5 +1,16 @@
 # AWS service decisions and IAM boundaries
 
+## Verified environmental AWS chain - 2026-10-11
+
+Existing Data notification alone updated/UPDATE_COMPLETE. Collector Lambda, private encrypted
+S3 raw/curated, SQS, cleaner Lambda, DynamoDB metadata and CloudWatch now verified in natural
+chain:192forward-forecast records/2partitions plus288modeled date-window records/3partitions.
+API Gateway/Lambda routes read curated forecasts for real Google Drive/Walk and ORS Cycle.
+No new service/schedule/SMS/training job. Bounded invocation/storage/provider usage falls under
+prior approved serverless scope; credit eligibility still depends on account/provider terms.
+Budgets are alerts, not spending caps. Temporary scoped diagnostic reads now effective.
+
+
 ## Collector result verification - 2026-10-11
 
 Collector raw Open-Meteo save verified from Console result and CloudWatch. Downstream cleaning not verified: metadata empty, no Worker logs in queried window, diagnostic reads denied. No new resource/deployment or continuous workflow. See INGESTION_RESULT_CHECK.md.

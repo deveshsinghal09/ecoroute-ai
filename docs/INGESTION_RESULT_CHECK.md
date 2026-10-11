@@ -1,5 +1,16 @@
 # Collector success and downstream verification - 11 October 2026
 
+## Follow-up verified result
+
+Customer-managed diagnostic reads are now effective. Safe raw/ notification prefix deployed;
+subsequent real objects reached natural cleaning. Worker curated log and metadata confirm
+192forward-forecast records/2Parquet partitions, zero missing/flagged values. Separate date-window
+collection produced288modeled records/3partitions. No direct cleaning/queue purge/replay used.
+check_live_services.py --pipeline --profile dev-admin now returns curated_metadata_verified.
+Real Drive/Walk/Cycle previews have full PM2.5 coverage with low confidence/coarse-grid warnings.
+Schedules remain disabled. Earlier raw-only checks below are superseded historical evidence.
+
+
 User's Console result shows successful collector execution, cached=false and a raw Open-Meteo
 object dated2026-10-11. Structured collector logs independently show execution at14:03:42UTC.
 This verifies raw collection/persistence, not pollution curation, route exposure or observed data.
@@ -17,9 +28,12 @@ direct cleaning invocation, notification update, schedule, IAM change or deploym
 
 For an authorized administrator:
 
-1. IAM -> Users -> devesh_eco -> Permissions -> Add permissions -> Create inline policy -> JSON.
+1. IAM -> Policies -> Create policy -> JSON. Use a customer-managed policy: this user's
+   aggregate inline-policy size already reaches the 2,048-character limit.
 2. Copy the entire config/iam-ingestion-diagnostics.json contents into the editor.
-3. Review and name EcoRouteIngestionDiagnostics; save. Keep EcoRouteIntegrationChecks attached.
+3. Review and name EcoRouteIngestionDiagnostics; create. Then IAM -> Users -> devesh_eco ->
+   Permissions -> Add permissions -> Attach policies directly -> select that policy -> Add.
+   Keep EcoRouteIntegrationChecks attached; creation alone does not grant user permissions.
 4. This adds read-only access to the exact environmental bucket notification, two queue attributes,
    Worker configuration and one event-source-mapping ARN. It grants no object data reads, secrets,
    queue consumption/deletion, trigger mutation or paid compute provisioning.
@@ -29,7 +43,8 @@ For an authorized administrator:
 Alternative Console checks in Mumbai, without making unreviewed changes:
 
 - S3 -> ecoroutedata-airdatad62c85d3-aqvlom4hqoks -> Properties -> Event notifications:
-  object-created events with prefix raw/source= should target the existing Tasks queue.
+  object-created events with prefix raw/ should target the existing Tasks queue. The cleaner
+  validates raw/source= separately. Special characters in notification filters require encoding.
 - Lambda -> EcoRouteCore-Worker11F36D0F-LhvCNZsSHtKA -> Configuration -> Triggers:
   inspect the Tasks SQS trigger state and last processing result.
 - SQS -> EcoRouteData-Tasks0BA6A452-MJCcBKBl8cek -> Monitoring/Access policy:

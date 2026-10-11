@@ -1,5 +1,36 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Verified pollution pipeline and live route exposure - 2026-10-11
+
+Customer-managed diagnostic permissions now effective for dev-admin/devesh_eco, non-root
+account112920804206/Mumbai. Inspected S3 notifications/SQS attributes/Enabled mapping/Active
+worker. Changed S3 notification prefix raw/source= to raw/; cleaner still rejects unrelated raw
+keys. CDK diff: ONE notification-property change. Exclusive Data deployment UPDATE_COMPLETE
+14:34:00UTC; no new service/continuous schedule/SMS/ML job.
+
+Natural S3->SQS->Worker->Parquet/DynamoDB verified:288historical/model records/3partitions,
+then192forward-forecast records/2partitions; zero missing/rejected/flagged. Latest forecast
+collected14:38:02UTC. Worker curated logs and consistent FILES/QUALITY reads agree. Checker
+now requests explicit forward-forecast window(null dates) and exposes cache status; result
+curated_metadata_verified,192records,cleaned,2files. Earlier cached uncurated raw objects were
+not replayed. Notification configuration propagation time was respected during testing.
+
+Live India Gate->Connaught Place preview: Drive2/Walk3/Cycle2 candidates HTTP200, full PM2.5
+coverage(~1). Selected Drive489s/2830m/9.5219167ug*h/m3; Walk2428s/2824m/47.2785556;
+Cycle781.1s/3430.1m/15.2097528. Segment concentration*time arithmetic verified for every route.
+Drive+1hour462s/8.8806667; first forecast PM2.5 changes70.1->69.2ug/m3 (15:00->16:00UTC).
+All share45kmCAMS cell, confidence low, spatial differentiation unresolved. Google/ORS routing;
+no new Amazon Location verification. Sanitized ignored work reports exclude route geometry.
+
+Modified infra/stacks.py, tests/test_environment.py, scripts/check_live_services.py and six docs.
+Commands: targeted pytest(environment+infra46passed,checker2passed), Ruff/pass, CDK diff/synth,
+exclusive Data deploy/verified, bounded real collector/API calls. No failed final tests; existing
+Python deprecation warnings remain. Separate meaningful commits; no secret value changes.
+Remaining: positive Cognito/private API testing, measured OpenAQ ingestion, approved continuous
+refresh, supported watch bridge, SNS prerequisites and suitable approved SageMaker training.
+Forecast freshness expires after24hours without refresh; disabled schedules remain disabled.
+
+
 ## Collector result verification - 2026-10-11
 
 Collector Console success plus matching logs14:03:42UTC verified; cached=false/raw saved. Environmental FILES/QUALITY queries returned no rows and Worker logs no recent events. S3 notification/SQS attributes/Worker configuration/mapping reads denied, so downstream cause unknown. Prepared exact-resource read-only iam-ingestion-diagnostics.json; not attached/deployed. See INGESTION_RESULT_CHECK.md. No new collection, queue mutation or paid workflow; JSON/scope/diff checks only. Raw success is not curation proof.
