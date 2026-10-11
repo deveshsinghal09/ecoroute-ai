@@ -1,5 +1,21 @@
 # EcoRoute one-time Console setup — 2026-10-11
 
+## Latest: update the completed bootstrap
+
+CDKToolkit CREATE_COMPLETE/version32 is now CLI-verified. The first app change set failed
+because the CloudFormation execution role could not read the bootstrap version through
+ssm:GetParameters. The regenerated file adds only GetParameter/GetParameters on that exact
+SSM parameter to EcoRouteExecuteStorage; no new service, parameter writes or wildcard grants.
+No EcoRoute application stack exists yet.
+
+In Mumbai CloudFormation, select existing CDKToolkit, choose Update stack / Make a direct
+update, Replace current template, Upload a template file, then select the regenerated
+work/EcoRouteBootstrap.console.json. Keep existing stack name/parameters/options, acknowledge
+named IAM resources and submit. Review the change: EcoRouteExecuteStorage policy update only.
+Wait for UPDATE_COMPLETE, then resume the already-approved application deployment. Use an
+authorized IAM operator; the CLI developer cannot modify these bootstrap managed policies.
+
+
 Budget creation is user-confirmed. Latest reviewed amount is USD50 monthly with actual
 50/80/100% and forecast100% email alerts, no actions. CLI budget verification still returns
 AccessDeniedException. User's Console reports a Free plan, USD119.88 credits and displayed

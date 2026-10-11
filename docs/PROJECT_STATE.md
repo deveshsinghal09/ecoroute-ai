@@ -1,5 +1,30 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Bootstrap verified; first deployment blocked by version read — 2026-10-11
+
+User Console events and CLI DescribeStacks both verify CDKToolkit CREATE_COMPLETE in
+account112920804206/Mumbai. Bootstrap version32 and EcoRoute: Scoped Bootstrap v1 verified;
+EcoRouteCdkDeployer attached to devesh_eco. S3 asset bucket, ECR repository, bootstrap roles,
+managed policies and SSM version parameter now exist. No application service is deployed.
+CLI DescribeBudget now verifies EcoRoute-Gross-Usage USD50; response omitted CostFilters and
+CostTypes, so gross-cost filtering and email delivery remain unverified.
+
+Executed aws_readiness.py, build_lambda.py (183.7MiB Linux asset), and the previously approved
+manage_cloud.py deploy command with hackathon.aws.json, IoT/workflow definitions and exact
+workload-boundary context. Five-stack synthesis and structural security review passed. Template
+assets uploaded, but CloudFormation could not create the first EcoRouteData change set:
+execution role lacks ssm:GetParameters on its bootstrap-version parameter. DescribeStacks
+confirms EcoRouteData absent; no app URL, training, active schedules or notifications created.
+The generic user Resource* IAM simulation remains denied by design; deployment uses scoped roles.
+
+Fixed prepare_aws_bootstrap.py to grant only GetParameter/GetParameters on the exact account,
+region and cdk-bootstrap/hnb659fds/version ARN to EcoRouteExecuteStorage. Regenerated ignored
+work/EcoRouteBootstrap.console.json; no IAM mutation performed by the CLI. Authorized Console
+operator must update existing CDKToolkit with this file, not create a second bootstrap stack.
+Regression plus readiness tests15passed; Ruff passed; cfn-lint zero warnings/errors.
+Paid training still needs separate approval, sufficient measured data and quota (currently0).
+
+
 ## Actual Health Connect phone bridge — 2026-10-11
 
 Extended existing FastAPI/React wearable integration, without cloud services or infrastructure
