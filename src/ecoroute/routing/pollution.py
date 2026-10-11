@@ -201,25 +201,29 @@ def rank_routes(routes, request):
         and (not request.terrain_weight or r.get("terrain", {}).get("ascent_m") is not None)
         for r in eligible
     )
-    if len(full) == len(eligible) and weighted_factors_available:
-        times = [r["duration_s"] for r in full]
+    # Zero pollution weight means the user requests a time/weather/terrain score.
+    # Missing PM2.5 must remain unavailable, but must not block unused factors.
+    if (not request.exposure_weight or len(full) == len(eligible)) and weighted_factors_available:
+        times = [r["duration_s"] for r in eligible]
         exposures = [r["estimated_pm25_exposure_ug_h_m3"] for r in full]
 
         def normalized(value, values):
             span = max(values) - min(values)
             return (value - min(values)) / span if span else 0.0
 
-        for r in full:
+        for r in eligible:
             r["balanced_score"] = (1 - request.exposure_weight - request.weather_weight - request.terrain_weight) * normalized(
                 r["duration_s"], times
-            ) + request.exposure_weight * normalized(
-                r["estimated_pm25_exposure_ug_h_m3"], exposures
             )
+            if request.exposure_weight:
+                r["balanced_score"] += request.exposure_weight * normalized(
+                    r["estimated_pm25_exposure_ug_h_m3"], exposures
+                )
             if request.weather_weight:
-                r["balanced_score"] += request.weather_weight * normalized(r["weather"]["preference_cost"], [v["weather"]["preference_cost"] for v in full])
+                r["balanced_score"] += request.weather_weight * normalized(r["weather"]["preference_cost"], [v["weather"]["preference_cost"] for v in eligible])
             if request.terrain_weight:
-                r["balanced_score"] += request.terrain_weight * normalized(r["terrain"]["ascent_m"] / (r["distance_m"] / 1000), [v["terrain"]["ascent_m"] / (v["distance_m"] / 1000) for v in full])
-        balanced = min(full, key=lambda r: (r["balanced_score"], r["duration_s"]))
+                r["balanced_score"] += request.terrain_weight * normalized(r["terrain"]["ascent_m"] / (r["distance_m"] / 1000), [v["terrain"]["ascent_m"] / (v["distance_m"] / 1000) for v in eligible])
+        balanced = min(eligible, key=lambda r: (r["balanced_score"], r["duration_s"]))
     selected = {"fastest": baseline, "lowest_exposure": lowest, "balanced": balanced}[
         request.objective
     ] or baseline
@@ -265,7 +269,7 @@ def rank_routes(routes, request):
         "recommendations": recommendations,
         "baseline_candidate_key": baseline["candidate_key"],
         "baseline_definition": "Fastest returned valid provider candidate at this departure; negative relative change means lower estimated exposure.",
-        "score_definition": "Min-max normalization over detour-eligible fully covered candidates; (1-exposure-weather-terrain)*time + exposure_weight*exposure + weather_weight*weather_preference_cost + terrain_weight*ascent_m_per_km. Traffic is already included in driving time. Undefined if any eligible route lacks pollution or an enabled weighted factor.",
+        "score_definition": "Min-max normalization over detour-eligible candidates; (1-exposure-weather-terrain)*time + exposure_weight*exposure + weather_weight*weather_preference_cost + terrain_weight*ascent_m_per_km. Traffic is already included in driving time. Undefined if any eligible route lacks an enabled weighted factor, including pollution when exposure_weight > 0. Zero-weight factors do not block scoring; unavailable pollution remains unavailable.",
         "spatial_differentiation": "not_resolved_same_model_cell"
         if len(units) == 1 and all_model
         else "limited_by_source_coverage",

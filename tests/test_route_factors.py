@@ -269,3 +269,50 @@ def test_predicted_route_api_auth_missing_model_and_full_geometry(secured, route
     assert result["model_versions"] == ["a" * 24]
     # Invalid temporal match does not fill missing pollution with a prediction.
     assert all(r["estimated_pm25_exposure_ug_h_m3"] is None for r in result["routes"])
+
+@pytest.mark.parametrize(
+    "objective,weight,expected",
+    [("fastest", 0.9, "fast"), ("lowest_exposure", 0.1, "slow"),
+     ("balanced", 0.1, "fast"), ("balanced", 0.9, "slow")],
+)
+def test_objectives_and_pollution_priority_change_selection(routes, objective, weight, expected):
+    fixture, candidates = routes
+    body = request(fixture, objective=objective, exposure_weight=weight, max_detour_percent=100)
+    scored = [score_exposure(c, segments(c, body.departure_at, 250), PollutionIndex([])) for c in candidates]
+    fast, slow = sorted(scored, key=lambda r: r["duration_s"])
+    # Artificial scoring costs only; no measured/provider concentrations are asserted.
+    fast["estimated_pm25_exposure_ug_h_m3"] = 10
+    slow["estimated_pm25_exposure_ug_h_m3"] = 1
+    result = rank_routes(scored, body)
+    assert result["selected_candidate_key"] == (fast if expected == "fast" else slow)["candidate_key"]
+
+
+def test_zero_weight_pollution_does_not_block_weather_but_is_never_filled(routes):
+    fixture, candidates = routes
+    body = request(fixture, exposure_weight=0, weather_weight=0.8, max_detour_percent=100)
+    scored = [score_exposure(c, segments(c, body.departure_at, 250), PollutionIndex([])) for c in candidates]
+    fast, slow = sorted(scored, key=lambda r: r["duration_s"])
+    fast["weather"] = {"preference_cost": 1}
+    slow["weather"] = {"preference_cost": 0}
+    result = rank_routes(scored, body)
+    assert result["selected_candidate_key"] == slow["candidate_key"]
+    assert result["recommendations"]["lowest_exposure"] is None
+    assert all(r["estimated_pm25_exposure_ug_h_m3"] is None for r in result["routes"])
+    body.exposure_weight = 0.1
+    assert rank_routes(scored, body)["recommendations"]["balanced"] is None
+
+
+def test_climbing_priority_changes_choice_without_changing_pollution(routes):
+    fixture, candidates = routes
+    body = request(fixture, mode="cycling", exposure_weight=0, terrain_weight=0.8, max_detour_percent=100)
+    scored = [score_exposure(c, segments(c, body.departure_at, 250), PollutionIndex([])) for c in candidates]
+    fast, slow = sorted(scored, key=lambda r: r["duration_s"])
+    fast["terrain"] = {"ascent_m": 100}
+    slow["terrain"] = {"ascent_m": 0}
+    result = rank_routes(scored, body)
+    assert result["selected_candidate_key"] == slow["candidate_key"]
+    assert all(r["estimated_pm25_exposure_ug_h_m3"] is None for r in result["routes"])
+    body.max_detour_percent = 0
+    result = rank_routes(scored, body)
+    assert result["selected_candidate_key"] == fast["candidate_key"]
+    assert not slow["within_detour_limit"]
