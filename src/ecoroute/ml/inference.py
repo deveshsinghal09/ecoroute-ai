@@ -9,6 +9,7 @@ from pathlib import Path
 from ecoroute.environment.api import read_rows
 from ecoroute.environment.schema import utc
 from ecoroute.ml.preprocessing import FEATURES, feature_row, measured
+from ecoroute.ml.policy import operational_model
 
 VERSION = re.compile(r"^[a-f0-9]{24}$")
 
@@ -34,7 +35,7 @@ class LocalRegistry:
         candidates = [
             m
             for m in self.models()
-            if m.get("verified") and (version is None or m["model_version"] == version)
+            if operational_model(m) and (version is None or m["model_version"] == version)
         ]
         if not candidates:
             raise MLUnavailable("no_verified_station_model")
@@ -66,12 +67,12 @@ class MLService:
     def status(self):
         models = self.registry.models()
         return {
-            "status": "ready" if any(m.get("verified") for m in models) else "unavailable",
-            "verified_models": sum(bool(m.get("verified")) for m in models),
+            "status": "ready" if any(operational_model(m) for m in models) else "unavailable",
+            "verified_models": sum(operational_model(m) for m in models),
             "horizon_hours": 1,
             "forecast_type": "station_prediction",
             "reason": None
-            if any(m.get("verified") for m in models)
+            if any(operational_model(m) for m in models)
             else "No measured-data model passed chronological evaluation",
         }
 

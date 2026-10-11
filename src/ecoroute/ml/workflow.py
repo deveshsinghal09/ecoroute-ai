@@ -11,6 +11,7 @@ import boto3
 from ecoroute.ml.inference import VERSION
 from ecoroute.ml.preprocessing import FEATURES
 from ecoroute.ml.sagemaker import job_spec
+from ecoroute.ml.policy import operational_dataset, operational_model
 
 
 def validate(s3, event):
@@ -26,6 +27,7 @@ def validate(s3, event):
         manifest.get("status") != "ready"
         or manifest.get("dataset_version") != version
         or manifest.get("feature_schema") != FEATURES
+        or not operational_dataset(manifest)
         or any(
             manifest.get("split_counts", {}).get(k, 0) < n
             for k, n in (("train", 72), ("validation", 24), ("test", 24))
@@ -86,7 +88,7 @@ def publish(s3, job_name):
     score = manifest["metrics"]["test"][manifest["algorithm"]]["overall"]
     baseline = manifest["metrics"]["test"]["persistence"]["overall"]
     promoted = (
-        manifest["verified"]
+        operational_model(manifest)
         and score["mae"] < baseline["mae"]
         and score["rmse"] <= baseline["rmse"]
     )

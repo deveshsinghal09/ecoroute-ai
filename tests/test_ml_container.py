@@ -60,7 +60,18 @@ def test_sagemaker_train_and_serve_container(tmp_path):
         timeout=120,
     )
     manifests = list(output.glob("*/manifest.json"))
-    assert len(manifests) == 1 and json.loads(manifests[0].read_text())["verified"]
+    assert len(manifests) == 1 and not json.loads(manifests[0].read_text())["verified"]
+    # Serving must refuse a synthetic artifact, including one that beats a synthetic baseline.
+    refused = subprocess.run(
+        ["docker", "run", "--rm", "--network", "none", "-v", f"{output}:/opt/ml/model:ro", "ecoroute-ml:ci", "serve"],
+        capture_output=True, text=True, timeout=30,
+    )
+    assert refused.returncode != 0 and "no_verified_station_model" in refused.stderr
+    # Test-only fixture metadata supplies a stub approved registry for the HTTP contract below.
+    model = json.loads(manifests[0].read_text())
+    model.update(verified=True, supported_stations=model["all_training_stations"])
+    model["dataset_manifest"]["synthetic"] = False
+    manifests[0].write_text(json.dumps(model))
     container = subprocess.check_output(
         [
             "docker",

@@ -25,6 +25,7 @@ def test_publication_checks_hash_before_registry_write(monkeypatch, tamper):
     manifest = {
         "model_version": version, "model_sha256": hashlib.sha256(artifact).hexdigest(),
         "algorithm": "random_forest", "verified": True,
+        "dataset_manifest": {"training_scope": "delhi_station_operational", "synthetic": False, "feature_availability_verified": True},
         "metrics": {"test": {
             "random_forest": {"overall": {"mae": 1, "rmse": 2}},
             "persistence": {"overall": {"mae": 3, "rmse": 4}},

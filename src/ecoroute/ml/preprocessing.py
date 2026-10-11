@@ -224,6 +224,14 @@ def prepare(rows, *, weather=(), min_train=72, min_validation=24, min_test=24, m
         "schema_version": SCHEMA_VERSION,
         "horizon_hours": 1,
         "availability_rule": "reported_at <= issuance and collected_at <= issuance for every feature",
+        "training_scope": "delhi_station_operational",
+        "synthetic": any(
+            json.loads(r["provenance_json"]).get("synthetic_test_only")
+            or json.loads(r["provenance_json"]).get("synthetic")
+            or json.loads(r["provenance_json"]).get("fixture")
+            for observations in groups.values() for r in observations
+        ),
+        "feature_availability_verified": True,
     }
     if len(times) < 3 or (utc(times[-1]) - utc(times[0])).total_seconds() < min_span_days * 86400:
         raise InsufficientData(

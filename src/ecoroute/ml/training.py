@@ -7,6 +7,7 @@ from pathlib import Path
 
 from ecoroute.environment.schema import digest
 from ecoroute.ml.preprocessing import FEATURES, load_dataset
+from ecoroute.ml.policy import operational_dataset
 
 
 def metrics(rows, predictions):
@@ -107,7 +108,8 @@ def train(dataset, destination):
     selected = min(models, key=lambda name: (scores["validation"][name]["overall"]["mae"], name))
     base = scores["test"]["persistence"]["overall"]
     actual = scores["test"][selected]["overall"]
-    verified = actual["mae"] < base["mae"] and actual["rmse"] <= base["rmse"]
+    beats_baseline = actual["mae"] < base["mae"] and actual["rmse"] <= base["rmse"]
+    verified = beats_baseline and operational_dataset(manifest)
     # Do not promote a station with no observed test evidence of improvement.
     station_verified = [
         station
@@ -125,6 +127,8 @@ def train(dataset, destination):
         "algorithm": selected,
         "trained_at": datetime.now(UTC).isoformat(),
         "verified": verified and bool(station_verified),
+        "beats_persistence_test_gate": beats_baseline,
+        "deployment_eligible": operational_dataset(manifest),
         "supported_stations": station_verified if verified else [],
         "all_training_stations": manifest["supported_stations"],
         "station_locations": {
@@ -138,7 +142,7 @@ def train(dataset, destination):
         "limitations": [
             "Station prediction, not street-level pollution",
             "No calibrated interval; one temporal test does not establish seasonal generalization",
-        ],
+        ] + manifest.get("limitations", []),
         "packages": {
             "scikit-learn": sklearn.__version__,
             "numpy": np.__version__,

@@ -138,8 +138,14 @@ def test_tampering_and_invalid_model_paths_refused(trained, tmp_path):
 
 def test_live_prediction_requires_known_station_and_fresh_observations(trained, observed, tmp_path):
     _, _, _, metadata, root = trained
-    # This dataset is synthetic and exists only inside test temp paths.
-    assert metadata["verified"], "Synthetic sinusoid fixture should exercise the promotion path"
+    # Explicit test-only registry stub exercises the operational path without promoting a fixture.
+    assert metadata["verified"] is False
+    metadata = copy.deepcopy(metadata)
+    metadata.update(verified=True, supported_stations=metadata["all_training_stations"])
+    metadata["dataset_manifest"]["synthetic"] = False
+    class TestRegistry(LocalRegistry):
+        def select(self, version=None):
+            return metadata
     issued = datetime(2026, 8, 15, 23, 10, tzinfo=UTC)
     repo = LocalRepository(tmp_path)
     eligible = [
@@ -150,7 +156,7 @@ def test_live_prediction_requires_known_station_and_fresh_observations(trained, 
     key = "curated/source=openaq/date=2026-08-15/test.parquet"
     repo.put_bytes(key, pack(eligible), "application/vnd.apache.parquet")
     repo.put("FILES#openaq", "2026-08-15#fixture", {"key": key})
-    engine = MLService(LocalRegistry(root / "models"), repo, clock=lambda: issued)
+    engine = MLService(TestRegistry(root / "models"), repo, clock=lambda: issued)
     station = metadata["supported_stations"][0]
     result = engine.predict(station)
     assert result["horizon_hours"] == 1 and result["forecast_type"] == "station_prediction"
