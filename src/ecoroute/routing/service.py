@@ -51,7 +51,8 @@ class DisabledProvider:
 
 
 class RouteService:
-    def __init__(self, provider, store, objects, *, index_factory=None, cache_namespace="routing-v1", weather=None):
+    def __init__(self, provider, store, objects, *, index_factory=None, cache_namespace="routing-v1", weather=None, forecast=None):
+        self.forecast = forecast
         self.weather = weather
         self.cache_namespace = cache_namespace
         self.provider, self.store, self.objects = provider, store, objects
@@ -98,10 +99,11 @@ class RouteService:
             request.departure_at,
             request.departure_at + timedelta(seconds=max(c["duration_s"] for c in candidates)),
         )
-        scored = [
-            score_exposure(c, segments(c, request.departure_at, request.segment_length_m), index)
-            for c in candidates
-        ]
+        pieces = [segments(c, request.departure_at, request.segment_length_m) for c in candidates]
+        forecast_status = "disabled"
+        if self.forecast:
+            index, forecast_status = self.forecast.supplement(index, pieces)
+        scored = [score_exposure(c, p, index) for c, p in zip(candidates, pieces, strict=True)]
         attach_weather(scored, request, self.weather)
         result = rank_routes(scored, request)
         ids = {r["candidate_key"]: uuid.uuid4().hex for r in scored}
@@ -123,6 +125,7 @@ class RouteService:
             resolved_destination=destination,
             candidate_count=len(candidates),
             requested_candidates=request.max_alternatives + 1,
+            pollution_lookup=forecast_status,
         )
         if not getattr(self.provider, "persist_results", True):
             for route in result["routes"]:
@@ -336,4 +339,6 @@ def create_service(settings, store, objects):
         except BudgetExceeded:
             raise ValueError("weather_request_budget_exhausted") from None
     weather = RouteWeather(reserve=weather_reserve) if settings.enable_route_weather else None
-    return RouteService(provider, store, objects, weather=weather)
+    from ecoroute.routing.forecast import RouteForecast
+    forecast = RouteForecast(lambda: objects.reserve("route_air", daily=100, hourly=30)) if settings.enable_route_air else None
+    return RouteService(provider, store, objects, weather=weather, forecast=forecast)

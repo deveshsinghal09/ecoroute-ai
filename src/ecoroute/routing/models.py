@@ -25,6 +25,7 @@ class CompareRequest(StrictModel):
     segment_length_m: int = Field(default=250, ge=100, le=1000)
     max_alternatives: int = Field(default=2, ge=0, le=5)
     consent_to_store: Literal[True]
+    include_explanation: bool = False
 
     @model_validator(mode="after")
     def window(self):

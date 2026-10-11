@@ -78,6 +78,26 @@ def test_request_limit_stops_network_before_key_lookup():
     assert result["fallback_reason"] == "gemini_request_limit"
 
 
+def test_flash_statement_ordering_disables_hidden_thinking():
+    config = settings().model_copy(update={"gemini_model_id": "gemini-2.5-flash"})
+    def send(request):
+        assert json.loads(request.content)["generationConfig"]["thinkingConfig"] == {"thinkingBudget": 0}
+        return httpx.Response(200, json=response({"statement_ids": IDS}))
+    result = explain([route()], config, Budget(), Gemini(config, httpx.Client(transport=httpx.MockTransport(send))))
+    assert result["mode"] == "gemini_arranged_approved_text"
+
+
+@pytest.mark.parametrize("value", ['{"api_key":"test-key"}', 'test-key'])
+def test_console_secret_json_or_plaintext(monkeypatch, value):
+    from ecoroute.advisory import notifications
+    class Secrets:
+        def get_secret_value(self, **kwargs):
+            return {"SecretString": value}
+    monkeypatch.setattr(notifications, "aws_client", lambda *args: Secrets())
+    config = settings().model_copy(update={"gemini_api_key": SecretStr(""), "gemini_secret_arn": "test-reference"})
+    assert Gemini(config).key() == "test-key"
+
+
 def test_oversized_provider_response_falls_back():
     with httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(
             200, content=b"x" * 65537))) as client:

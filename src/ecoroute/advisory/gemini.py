@@ -19,8 +19,10 @@ class Gemini:
         from ecoroute.advisory.notifications import aws_client
         response = aws_client(self.settings, "secretsmanager").get_secret_value(
             SecretId=self.settings.gemini_secret_arn)
-        value = json.loads(response["SecretString"])["api_key"]
-        if not isinstance(value, str) or not value:
+        value = response["SecretString"].strip()
+        if value.startswith(("{", "[", '"')):
+            value = json.loads(value)["api_key"]
+        if not isinstance(value, str) or not value or any(c.isspace() for c in value):
             raise ValueError("gemini_key_missing")
         return value
 
@@ -38,6 +40,9 @@ class Gemini:
                         "type": "ARRAY", "items": {"type": "STRING", "enum": list(statements)}}},
                     "required": ["statement_ids"]}},
         }
+        if model == "gemini-2.5-flash":
+            # This bounded statement-ordering task needs no hidden reasoning budget.
+            payload["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 0}
         def send(client):
             with client.stream("POST", "https://generativelanguage.googleapis.com/v1beta/models/"
                                + model + ":generateContent", json=payload,

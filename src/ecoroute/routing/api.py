@@ -19,9 +19,16 @@ def service(request: Request):
 
 @router.post("/compare")
 def compare(
-    body: CompareRequest, user: Principal = Depends(require("write")), engine=Depends(service)
+    body: CompareRequest, request: Request, user: Principal = Depends(require("write")), engine=Depends(service)
 ):
-    return engine.compare(user.subject, body)
+    return comparison_result(engine.compare(user.subject, body), body, request)
+
+
+def comparison_result(result, body, request):
+    if body.include_explanation:
+        from ecoroute.advisory.explanation import explain
+        result["explanation"] = explain(result["routes"], request.app.state.settings, repository())
+    return result
 
 
 @router.post("/preview")
@@ -36,7 +43,7 @@ def preview(body: PreviewRequest, request: Request):
         raise RoutingError("guest_routes_require_request_only_google")
     # Provider requests share the atomic global hourly/daily budget. There is no
     # guest owner record, per-location cache, saved geometry or journey identifier.
-    return engine.compare("guest-request-only", body)
+    return comparison_result(engine.compare("guest-request-only", body), body, request)
 
 
 @router.post("/optimize")

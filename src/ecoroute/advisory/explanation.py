@@ -48,7 +48,7 @@ def explain(routes, settings, repo, client=None):
         fact["recommendation_reason"] = route.get("recommendation_reason") if route.get("recommendation_reason") in allowed_reasons else None
         metrics.append(fact)
     statements = {
-        "metrics": "Supporting metrics are the stored deterministic route calculations; this explanation does not change route ranking.",
+        "metrics": "Supporting metrics are server-calculated route results; this explanation does not change route ranking.",
         "missing": "Incomplete pollution coverage cannot establish a full-route exposure reduction.",
         "resolution": "Coarse grid forecasts do not establish precise street-level differences between nearby routes.",
         "safety": "Concentration-time exposure is an estimate, not a medical dose or diagnosis.",
@@ -56,8 +56,8 @@ def explain(routes, settings, repo, client=None):
     for fact in metrics:
         alias = fact["alias"]
         duration, exposure = fact["duration_s"], fact["estimated_pm25_exposure_ug_h_m3"]
-        statement = f"{alias}: stored duration is {duration} seconds." if duration is not None else f"{alias}: duration is unavailable."
-        statement += f" Stored PM2.5 concentration-time exposure is {exposure} ug*h/m3." if exposure is not None else " Full-route PM2.5 exposure is unavailable."
+        statement = f"{alias}: calculated duration is {duration} seconds." if duration is not None else f"{alias}: duration is unavailable."
+        statement += f" Estimated PM2.5 concentration-time exposure is {exposure} ug*h/m3." if exposure is not None else " Full-route PM2.5 exposure is unavailable."
         if fact["recommendation_reason"]:
             statement += " " + fact["recommendation_reason"]
         statements[alias] = statement

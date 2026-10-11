@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     openrouteservice_secret_arn: str = ""
     enable_guest_routes: bool = False
     enable_route_weather: bool = False
+    enable_route_air: bool = False
     osrm_base_url: str = ""
     location_daily_limit: int = Field(default=100, ge=1, le=1000)
     location_hourly_limit: int = Field(default=30, ge=1, le=100)
@@ -56,7 +57,7 @@ class Settings(BaseSettings):
     gemini_secret_arn: str = ""
     gemini_model_id: str = ""
     gemini_daily_limit: int = Field(default=20, ge=1, le=100)
-    gemini_hourly_limit: int = Field(default=5, ge=1, le=20)
+    gemini_hourly_limit: int = Field(default=5, ge=1, le=100)
     enable_sms: bool = False
     sns_allowed_topic_arns: list[str] = []
     sms_monthly_spend_limit_usd: float = Field(default=1, gt=0, le=5)

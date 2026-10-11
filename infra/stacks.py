@@ -203,6 +203,8 @@ class CoreStack(Stack):
             raise ValueError("Guest routes require a request-only Google provider secret")
         environment["ENABLE_GUEST_ROUTES"] = str(enable_guest_routes).lower()
         environment["ENABLE_ROUTE_WEATHER"] = str(enable_route_weather).lower()
+        # On-demand real CAMS gap filling; shares existing scoped environmental budget writes.
+        environment["ENABLE_ROUTE_AIR"] = str(bool(google_routes_secret_arn)).lower()
         if enable_location:
             for service, action in (("geo-routes", "CalculateRoutes"), ("geo-places", "Geocode")):
                 api_role.add_to_policy(iam.PolicyStatement(actions=[service + ":" + action],
@@ -216,7 +218,8 @@ class CoreStack(Stack):
                     and gemini_model_id and re.fullmatch(r"gemini-[a-zA-Z0-9.-]{1,100}", gemini_model_id)):
                 raise ValueError("Gemini requires an exact same-account regional secret ARN and model ID")
             environment.update(ENABLE_GEMINI="true", GEMINI_SECRET_ARN=gemini_secret_arn,
-                               GEMINI_MODEL_ID=gemini_model_id, ENABLE_BEDROCK="false")
+                               GEMINI_MODEL_ID=gemini_model_id, ENABLE_BEDROCK="false",
+                               GEMINI_DAILY_LIMIT="100", GEMINI_HOURLY_LIMIT="100")
             api_role.add_to_policy(iam.PolicyStatement(actions=["secretsmanager:GetSecretValue"],
                                                        resources=[gemini_secret_arn]))
         code = lambda_.Code.from_asset(str(Path(asset_path).resolve()))

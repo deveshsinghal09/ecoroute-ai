@@ -46,7 +46,7 @@ SCHEMAS = {
     "RouteComparison": obj({"routes": {"type": "array", "items": ref("ScoredRoute")},
         "selected_route_id": STRING, "baseline_route_id": STRING, "recommended_route_ids": OBJECT,
         "baseline_definition": STRING, "score_definition": STRING, "spatial_differentiation": STRING,
-        "cache_hit": BOOL}, ("routes", "selected_route_id", "baseline_route_id", "recommended_route_ids")),
+        "cache_hit": BOOL, "pollution_lookup": STRING, "explanation": ref("Explanation")}, ("routes", "selected_route_id", "baseline_route_id", "recommended_route_ids")),
     "PredictedRouteComparison": {"allOf": [ref("RouteComparison"), obj({"station_forecasts": OBJECT,
         "model_versions": {"type": "array", "items": STRING}, "horizon_hours": {"const": 1}},
         ("station_forecasts", "model_versions", "horizon_hours"))]},
