@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+Current required action: Console bootstrap update for documented HTTP API log-delivery
+administration permissions. Cognito and stage-tagging fixes verified installed. No new secret.
+
+
 Latest: Cognito MFA permission installed; next required Console update grants compatibility
 API Gateway stage-scoped actions in Mumbai. See AWS_CONSOLE_BOOTSTRAP.md for exact scope.
 Core API remains unavailable; CloudFront Support pending. No extra secret needed for this fix.

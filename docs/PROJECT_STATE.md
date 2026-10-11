@@ -1,5 +1,24 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Stage tagging passed; access-log delivery permission missing — 2026-10-11
+
+CLI verifies bootstrap UPDATE_COMPLETE with stage compatibility grant installed. After
+completed rollback, recovered failed Core record preserving its retained Cognito pool;
+inventory work/core-final-recovery.json. Approved Core retry reused Data unchanged, passed
+tagging and failed Stage with logs:CreateLogDelivery denied (request14b7cbf0-02bf-4e9f-8dc3-a0612713e705).
+No working API URL or runtime test possible. Local wait stopped; AWS rollback continues.
+
+Official HTTP API logging guide documents Create/Get/Update/DeleteLogDelivery,
+ListLogDeliveries, PutResourcePolicy and DescribeResourcePolicies for account-level setup.
+Added those explicit actions with Resource* and Mumbai condition only to CFN execution
+policy, not workload/runtime boundary or human user. Existing project log-group creation
+remains scoped. This account-level logging administration exception is required by AWS
+and can affect regional delivery/resource policies; not claimed resource-level constrained.
+No broad service managed policy or administrator permission added. Regenerated Console file,
+expected Modify EcoRouteExecuteCompute only.18targeted tests passed, Ruff and cfn-lint passed.
+No cloud policy mutation by CLI; Console update needed. Data/ML/IoT untouched.
+
+
 ## Cognito fix verified; API Gateway stage authorization blocker — 2026-10-11
 
 CDKToolkit UPDATE_COMPLETE and SetUserPoolMfaConfig installed verified with GetTemplate.

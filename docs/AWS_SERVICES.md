@@ -1,5 +1,10 @@
 # AWS service decisions and IAM boundaries
 
+Latest Core attempt passed stage tagging; access-log setup denied logs:CreateLogDelivery.
+Prepared seven explicit regional account-level logging actions for CFN execution only;
+not installed yet. This exception is documented in AWS_CONSOLE_BOOTSTRAP.md. No working API.
+
+
 Latest: Cognito configuration progresses; Core stage creation fails apigateway:TagResource.
 Prepared Mumbai stage-only compatibility permission; explicit documented HTTP actions were
 already present. Not installed yet; no working API. See PROJECT_STATE.md for failed retries.

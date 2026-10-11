@@ -1,5 +1,10 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Latest deployment blocker is HTTP API access-log delivery permission; authentication/tagging
+configuration progressed. Logging remains configured, not verified operational. Data/ML/IoT
+unchanged; Core runtime unavailable pending bootstrap correction.
+
+
 Latest cloud retry: Cognito MFA permission fixed; API Gateway stage handler tagging denied.
 Prepared scoped bootstrap policy correction; runtime not deployed/verified. No API changes.
 

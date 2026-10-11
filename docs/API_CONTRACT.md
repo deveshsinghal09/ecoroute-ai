@@ -1,5 +1,9 @@
 # API contract — backend foundation and environmental datasets
 
+Latest Core attempt failed on CloudWatch log-delivery authorization; no cloud API URL tested.
+API schema unchanged. Health/authentication live checks must wait for successful deployment.
+
+
 Latest Core retries failed stage tagging authorization after Cognito fix; no AWS base URL
 verified. Schemas unchanged; local API remains the available runtime.
 

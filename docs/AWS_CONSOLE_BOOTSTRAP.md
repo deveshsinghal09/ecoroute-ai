@@ -1,5 +1,17 @@
 # EcoRoute one-time Console setup — 2026-10-11
 
+## Latest correction: HTTP API access log delivery
+
+Stage tagging fix is installed and passed. AWS now denies logs:CreateLogDelivery.
+Current file adds seven explicit log-delivery/resource-policy administration actions,
+Resource* with RequestedRegion=ap-south-1, to EcoRouteExecuteCompute only. AWS documents
+these account-level permissions for HTTP API logging; runtime roles do not receive them.
+Update existing CDKToolkit with current file; expect only Compute policy modification,
+keep parameters/options, acknowledge IAM and wait UPDATE_COMPLETE. No paid plan or additional
+service is enabled; log retention/settings remain unchanged.
+Source: https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-logging.html
+
+
 ## Latest correction: API Gateway stage handler
 
 Cognito fix is installed. Core now fails at API Gateway stage tagging despite documented
