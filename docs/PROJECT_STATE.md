@@ -15,9 +15,15 @@ contrast >=4.5 verified at1280x720,1366x768,1024x640,390x844. Screenshots review
 Commands: npm test/build/test:e2e; Playwright maps config; Ruff; gh run view --log-failed.
 GitHub latest failure38169842031: container root wrote private artifacts, then host runner could
 not edit manifest. Container smoke now runs with host UID/GID on Linux, preserving private file
-permissions and synthetic-model refusal checks. Fix commit65dd44a pushed; hosted checks pending.
+permissions and synthetic-model refusal checks. Fix commit65dd44a passed hosted CI run38170666203, including Docker train/serve.
+UI commit974f7a4 passed hosted CI run38170765806: both frontend and backend jobs success.
 No Docker daemon available locally, so container execution must be verified on the hosted runner.
-UI publication through existing Amplify main branch approved; deployment verification pending.
+Amplify UI build index-BXC-lBgg.js served publicly. Fresh routing verification returned429 daily
+allowance exhaustion (resets05:30 IST); allowance unchanged, no successful fresh routing claim.
+Published UI with real Google tiles and a captured genuine Mumbai response replay verified:
+blue alternative/legend/card agreement, selected route2, no rail overflow at1280x720.
+Evidence: work/route-sidebar-amplify-replayed-verification.json and screenshot; replay is visual
+verification, not a new provider request. No fabricated data.
 No provider secrets, AWS resources, route calculations or REST schema changed.
 
 

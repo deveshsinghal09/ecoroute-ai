@@ -1,5 +1,9 @@
 # AWS service decisions and IAM boundaries
 
+Amplify route-contrast build verified publicly. Fresh compare returned429 at the daily allowance;
+limits unchanged. Latest UI commit974f7a4 passed both GitHub CI jobs.
+
+
 ## Readability publication - 2026-10-12
 
 Frontend route colors and sidebar contrast published via Amplify-connected main branch; no
