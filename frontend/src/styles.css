@@ -88,6 +88,8 @@
 
 /* Keep the verified provider status visible before long explanation text. */
 .explanation > small:first-child{margin:0 0 8px;font-size:10px;font-weight:600}
+.explanation p{margin:0 0 12px;overflow-wrap:anywhere}
+.explanation p:last-child{margin-bottom:0}
 
 /* Readable instruments: content-sized cards with consistent inset and spacing. */
 .instrument-rail{min-width:0;gap:8px}

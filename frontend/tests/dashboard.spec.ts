@@ -145,7 +145,23 @@ test('insights focuses on selected route explanations without training controls'
  await page.goto('/');await page.getByRole('button',{name:'Insights',exact:true}).click();
  await expect(page.getByText('Completed local training evaluation',{exact:true})).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Check forecasting model',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('heading',{name:'Your route, made simple.'})).toBeVisible();
  await page.getByRole('button',{name:'Explain this comparison'}).click();
- await expect(page.locator('.explanation')).toContainText('Deterministic summary');
- await expect(page.locator('.explanation')).toContainText('Estimated PM2.5 exposure');
+ await expect(page.locator('.panel-description')).toHaveCount(0);
+ await expect(page.locator('.explanation')).toContainText('Route summary');
+ await expect(page.locator('.explanation')).toContainText('PM2.5 means tiny particles');
+});
+
+test('plain-language insights remain readable on laptop and mobile',async({page})=>{
+ for(const size of [{width:1280,height:720},{width:390,height:844}]){
+  await page.setViewportSize(size);await page.goto('/');
+  await page.getByRole('button',{name:'Insights',exact:true}).click();
+  await page.getByRole('button',{name:'Explain this comparison'}).click();
+  const explanation=page.locator('.explanation');await expect(explanation).toContainText('Your selected route takes about');
+  await expect(explanation).not.toContainText('concentration-time');
+  expect(await explanation.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+  const text=explanation.locator('p');const textBox=await text.boundingBox(),box=await explanation.boundingBox();
+  expect(textBox!.x).toBeGreaterThanOrEqual(box!.x);expect(textBox!.x+textBox!.width).toBeLessThanOrEqual(box!.x+box!.width+1);
+  await page.screenshot({path:`../work/insights-simple-${size.width}.png`});
+ }
 });

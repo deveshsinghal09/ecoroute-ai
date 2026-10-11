@@ -18,7 +18,7 @@ test('request-only Insights invokes backend explanation and reports its real mod
  await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
  await page.getByRole('button',{name:'Insights',exact:true}).click();await page.getByRole('button',{name:'Explain this comparison'}).click();
  await expect(page.locator('.explanation')).toContainText('Verified server-calculated explanation');
- await expect(page.locator('.explanation')).toContainText('Gemini · grounded in server-calculated metrics');
+ await expect(page.locator('.explanation')).toContainText('Explained with Gemini · based on your route results');
  const badge=await page.locator('.explanation small').boundingBox();const panel=await page.locator('.detail-panel').boundingBox();
  expect(badge).not.toBeNull();expect(panel).not.toBeNull();expect(badge!.y).toBeGreaterThanOrEqual(panel!.y);expect(badge!.y+badge!.height).toBeLessThanOrEqual(Math.min(720,panel!.y+panel!.height));
  expect(bodies).toHaveLength(2);expect(bodies[1].include_explanation).toBe(true);expect(bodies[1].consent_to_store).toBe(false);

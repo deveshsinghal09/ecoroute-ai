@@ -1,19 +1,26 @@
+import {number, weightedConcentration, type Comparison, type Route} from './data';
+
 export interface RouteExplanation {explanation:string;mode:string;fallback_reason:string|null}
+export function routeSummary(route?:Route,comparison?:Comparison|null) {
+  if(!route)return 'Compare routes, then choose one to see what it means for your journey.';
+  const fastest=comparison?.routes.find(r=>r.route_id===comparison.recommended_route_ids.fastest);
+  let summary=`Your selected route takes about ${number(route.duration_s/60)} minutes and covers ${number(route.distance_m/1000)} km.`;
+  if(fastest&&route.route_id===fastest.route_id)summary+=' It is the quickest of the routes compared.';
+  else if(fastest&&route.duration_s>fastest.duration_s)summary+=` It takes ${number((route.duration_s-fastest.duration_s)/60)} minutes longer than the quickest option.`;
+  if(route.within_detour_limit===false)summary+=' It exceeds your maximum extra travel time.';
+  const concentration=weightedConcentration(route);
+  if(concentration===null||route.pm25_coverage_fraction<1)summary+=' Some air-quality data is missing, so we cannot reliably compare pollution exposure for the whole journey.';
+  else summary+=` The estimated average PM2.5 level is ${number(concentration)} µg/m³. PM2.5 means tiny particles in the air; your exposure also depends on how long you travel.`;
+  if(comparison?.spatial_differentiation==='not_resolved_same_model_cell')summary+=' These routes share an area-wide air-quality forecast, so we cannot tell which street has cleaner air.';
+  return summary;
+}
+
 export function explanationLabel(value?:Pick<RouteExplanation,'mode'|'fallback_reason'>) {
-  if(value?.mode==='gemini_arranged_approved_text')return 'Gemini · grounded in server-calculated metrics';
-  if(value?.mode==='bedrock_arranged_approved_text')return 'Bedrock · grounded in server-calculated metrics';
-  const failures:Record<string,string>={
-    gemini_provider_quota:'Gemini provider quota reached · check Google AI Studio quota and billing',
-    gemini_access_denied:'Gemini access denied · check the backend key and API restrictions',
-    gemini_model_unavailable:'Gemini model unavailable · check the configured model ID',
-    gemini_request_rejected:'Gemini request rejected · check model compatibility and key configuration',
-    gemini_secret_unavailable:'Gemini secret unavailable · check the Lambda secret reference and permissions',
-    gemini_secret_invalid:'Gemini secret format invalid · use api_key JSON or plaintext',
-    gemini_incomplete_or_blocked:'Gemini response incomplete or blocked · deterministic fallback retained',
-    gemini_provider_unavailable:'Gemini temporarily unavailable · deterministic fallback retained',
-  };
-  if(value?.fallback_reason&&Object.prototype.hasOwnProperty.call(failures,value.fallback_reason))return failures[value.fallback_reason];
-  if(value?.fallback_reason?.endsWith('_request_limit'))return 'Deterministic fallback · LLM request allowance reached';
-  if(value?.fallback_reason?.endsWith('_unavailable_or_invalid_output'))return 'Deterministic fallback · LLM unavailable or response could not be verified';
-  return 'Deterministic summary · no LLM invoked';
+  if(value?.mode==='gemini_arranged_approved_text')return 'Explained with Gemini · based on your route results';
+  if(value?.mode==='bedrock_arranged_approved_text')return 'Explained with Bedrock · based on your route results';
+  const reason=value?.fallback_reason;
+  if(reason==='gemini_provider_quota'||reason==='gemini_request_limit'||reason==='bedrock_request_limit')return 'Route summary · AI request limit reached';
+  const unavailable=new Set(['gemini_access_denied','gemini_model_unavailable','gemini_request_rejected','gemini_secret_unavailable','gemini_secret_invalid','gemini_incomplete_or_blocked','gemini_provider_unavailable','gemini_unavailable_or_invalid_output','bedrock_unavailable_or_invalid_output']);
+  if(reason&&unavailable.has(reason))return 'Route summary · AI explanation unavailable';
+  return 'Route summary · based on your route results';
 }

@@ -1,5 +1,39 @@
 # EcoRoute AI project state ‚Äî Phases 1‚Äì7
 
+## Plain-language route Insights ‚Äî 12 October 2026
+
+Replaced technical route prose with everyday travel language in both the backend-approved
+Gemini/Bedrock statements and the frontend summary. Travel time is shown in minutes and distance
+in km; PM2.5 is explained as tiny airborne particles. Average concentration is derived only from
+complete, usable exposure and duration metrics. Relative exposure percentages require a matching,
+complete documented baseline and arithmetic agreement. Missing data never becomes zero, cleaner
+street claims, or medical advice. Approved objective/detour reasons are translated without changing
+route selection. LLMs still arrange approved statements only; untrusted text/places stay excluded.
+
+Insights now says ‚ÄúYour route, made simple.‚Äù Explanations use short paragraphs; the initial summary
+is hidden after explanation to avoid repetition. Provider attribution remains truthful; fallback
+labels explain AI unavailability without Lambda, IAM, secret-format or billing instructions.
+
+Files: src/ecoroute/advisory/explanation.py, frontend/src/{App.tsx,routeInsight.ts,styles.css},
+backend advisory tests, frontend summary tests and dashboard/Maps browser checks. Commands:
+pytest -q (381 passed, 1 optional ML-container test skipped), targeted advisory/Gemini/forecast
+pytest (70 passed), Ruff (passed), npm test (64 passed), npm run build (passed), targeted Playwright
+Insights (3 passed, laptop/mobile and mocked SDK/provider), export_api.py with generated-artifact
+drift check (passed), CDK synth/diff and design detector (no findings), git diff --check.
+Existing dependency deprecation warnings and optional watch-bundle size warning remain.
+Six legacy Windows dash bytes in this document converted to valid UTF-8 without changing meaning.
+
+Verified dev-admin non-root IAM identity in account112920804206, Mumbai ap-south-1. Reviewed
+EcoRouteCore changes: six shared Lambda package updates only; no IAM/configuration changes,
+new resources, schedules, paid training, alerts or higher request limits. Source comparison to
+previous deployed asset confirms routing schemas/services differ only in line endings.
+No fresh Google/ORS comparison, LLM invocation or SMS send used for this copy update.
+Backend publication verified: EcoRouteCore UPDATE_COMPLETE; API template points to reviewed
+asset0a12c59bb901214ba384acaa82a60301c5ebe0e7f4fd8c5739cd93c9e355373f. Public health200,
+missing/invalid-token private endpoints401 and exact Amplify CORS204 verified. Frontend publication
+uses the existing Git-connected Amplify main branch; final served-asset verification follows push.
+Commit author: Devesh Raj; next meaningful commit author: Devesh Singhal.
+
 ## Sidebar card balance and gauge overflow repair - 2026-10-12
 
 Brand and concentration cards receive remaining height; exposure card now sizes to its content.
@@ -490,29 +524,29 @@ key belongs in Amplify. Model training remains local experimental, inference una
 
 Live browser reproduced deployed sign-in redirect correctly with configured domain/client. Google map missing browser VITE key evidenced by fallback/UI message. Enabled opt-in CDK enable_self_signup with verification-email CODE; Core UPDATE_COMPLETE, hosted login now visibly has Sign up, opens email/password form. No user/password entered or verification mail sent; signup completion/login untested. PKCE/JWT/private scopes unchanged. Frontend errors now explain Amplify vs local setup; build passed (existing large watch chunk warning),42frontend tests/32backendinfra tests/Ruff passed. Browser Maps key must be configured by user in Amplify, enable Maps JavaScript API/referrer restrictions/billing; server secret not substituted. docs/ARCHITECTURE.md restored after prior script encoding failure accidentally emptied it; original bytes preserved and new note appended. No pipeline/SMS/training tests in this turn. Separate commits pushed; Amplify frontend copy update awaiting build.
 
-## Live setup/test prerequisites ó 2026-10-11
+## Live setup/test prerequisites ‚Äî 2026-10-11
 
 Cognito login form200/codeflow/scopes/callback verified. User reports no account created; positive authentication pending Console user creation (no invitation/password shared). New scripts/check_live_services.py runs bounded public/auth/pipeline checks with hidden local token and sanitized summaries. config/iam-integration-checks.json prepared, not attached: one collector Invoke plus exact environmental metadata partitions and two ingest log groups, no secrets/health/SNS. Public health200, missing/invalid bearer401, CORS204. Pipeline attempt denied InvokeFunction.32checker/advisory/scaffold tests/Ruff passed; initial missing test_auth filename corrected. No synthetic data or real notifications used. docs/LIVE_SETUP_AND_TEST.md provides user creation/policy/test instructions. Authentication, pipeline curation and real alert dedup remain pending.
 
-## Provider secrets connected ó 2026-10-11
+## Provider secrets connected ‚Äî 2026-10-11
 
 All four Secrets Manager metadata entries verified. Actual Google name ecoroute/google-route; exact ARNs wired through ignored context. Core UPDATE_COMPLETE deploy includes rebuilt JSON-compatible routing reader and secret-specific API/collector permissions; Gemini model gemini-2.5-flash, guest preview enabled per prior user request.59targeted tests/security review passed. Real Delhi previews driving/walking/cycling200 with genuine geometries/durations. Full exposure null due no pollution coverage. Six bounded previews total; corrected report field names. Collector invocation denied to CLI, so no raw ingestion/cleaning claim; OpenAQ key validity/Gemini generation unverified. See PROVIDER_ACTIVATION.md for exact manual forecast test. Schedules/IoT remain disabled; no SMS/training. No secret values read by agent; runtime routing retrieved own secrets for actual calls.
 
-## Uniform API key secret format ó 2026-10-11
+## Uniform API key secret format ‚Äî 2026-10-11
 
 Routing Secrets Manager readers now accept Console JSON {api_key: string} and legacy raw plaintext. Invalid/empty/whitespace or malformed JSON fails with sanitized error before provider use.29secret-format/Google tests passed; Ruff passed. Initial pytest command named nonexistent test_cycling.py and did not run; reran actual files. Code not yet deployed to Lambda; deployment will follow known secret ARNs. User can store Google/OpenRouteService using Key/value pairs api_key. Existing plaintext stays compatible. No key read/logged or secret created by agent.
 
-## Redeployment verification ó 2026-10-11
+## Redeployment verification ‚Äî 2026-10-11
 
 Amplify redeployment verified live: frontend200/JS200; bundle contains real AWS API URL, Cognito client/domain. API health200 with exact Amplify Allow-Origin; private wearable endpoint401 without token. Report work/amplify-redeployment-verification.json. This verifies configuration/assets/public API, not browser login or provider routing. live_domain_providers=false remains; no successful user authentication or pollution/ML/wearable event claimed. No new deployment/resource/test suite run this follow-up.
 
-## Core live verification ó 2026-10-11
+## Core live verification ‚Äî 2026-10-11
 
 Core CREATE_COMPLETE verified after mapping cleanup and public-route scope fix. Data reused unchanged. Explicit authorization_scopes=[] removes inherited JWT scopes on NONE routes; protected routes retain scopes.18infra tests/Ruff passed. API https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com: health200/profileaws/live_domain_providersfalse, OpenAPI200, wearable/latest401, ready401, hosted-origin OPTIONS204 exact Allow-Origin. Two schedules disabled/12Core alarms in deployed template. CloudWatch read denied, delivery not verified. Provider secrets not uploaded, guest routes disabled, no model/training or device event tested. Amplify app management denied; Console environment/rebuild pending (docs/AMPLIFY_CONNECTION.md). Local ignored frontend configuration updated with public identifiers, preserving keys. Core recovery inventories recorded retained pools; no pool deleted. Public frontend previously verified200; no claim of frontend integration until redeploy checked. Original CloudFront stack remains failed; user Amplify outside CDK cleanup. Commands: scoped-role cleanup, pinnedCDK Coredeploy, HTTPGET/OPTIONS, GetTemplate/ListStackResources, FilterLogEvents denied. No real notifications or continuous workflows activated.
 
 Public frontend verified: https://main.d3txif33djiy59.amplifyapp.com/ returns200 and JavaScript asset200. Bundle contains localhost API fallback and no Mumbai execute-api domain; not proof of working backend. Prepared exact hosted origin/callback in ignored work/aws-deploy.context.json. Amplify environment/rebuild pending actual backend output.
 
-## Frontend reported deployed; stale bootstrap upload detected ó 2026-10-11
+## Frontend reported deployed; stale bootstrap upload detected ‚Äî 2026-10-11
 
 User reports Amplify frontend deployment; public URL requested for verification. Amplify ListApps denied to CLI, so hosting status not independently verified. CDKToolkit UPDATE_COMPLETE, but GetTemplate proves account-level mapping statement still only GetEventSourceMapping, missing Update/Delete. Core remains DELETE_FAILED; no further cleanup attempted. Generated distinctly named ignored work/EcoRouteBootstrap-mapping-lifecycle.json from current reviewed generator to prevent stale upload. Console update of Compute policy remains required. Backend API base URL still unavailable; production frontend needs VITE_API_BASE_URL and exact backend CORS/Cognito callback settings once known. No secrets shared/uploaded, no new resources or tests run this turn.
 
