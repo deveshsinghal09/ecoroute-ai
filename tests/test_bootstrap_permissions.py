@@ -68,6 +68,16 @@ def test_execution_can_resolve_only_its_bootstrap_version_parameter():
     assert "ssm:PutParameter" not in actions(policy)
 
 
+def test_cognito_mfa_configuration_is_project_tag_and_region_restricted():
+    policy = policies(ACCOUNT, REGION)["EcoRouteExecuteCompute"]
+    statement = next(s for s in policy["Statement"]
+                     if "cognito-idp:SetUserPoolMfaConfig" in s["Action"])
+    assert "cognito-idp:GetUserPoolMfaConfig" in statement["Action"]
+    assert statement["Resource"] == f"arn:aws:cognito-idp:{REGION}:{ACCOUNT}:userpool/*"
+    assert statement["Condition"]["StringEquals"] == {
+        "aws:RequestedRegion": REGION, "aws:ResourceTag/Project": "ecoroute-ai"}
+
+
 def test_bootstrap_removes_admin_and_cross_account_deployment_grants():
     keys = ("FileAssetsBucketKmsKeyId", "Qualifier", "TrustedAccounts", "TrustedAccountsForLookup",
             "CloudFormationExecutionPolicies", "PublicAccessBlockConfiguration", "UseExamplePermissionsBoundary",

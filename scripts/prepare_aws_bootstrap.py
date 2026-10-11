@@ -115,6 +115,7 @@ def policies(account, region):
         allow("cognito-idp:CreateUserPool", "*", {"StringEquals": {
             "aws:RequestedRegion": region, "aws:RequestTag/Project": "ecoroute-ai"}}),
         allow("cognito-idp:DescribeUserPool cognito-idp:UpdateUserPool cognito-idp:DeleteUserPool "
+              "cognito-idp:GetUserPoolMfaConfig cognito-idp:SetUserPoolMfaConfig "
               "cognito-idp:CreateUserPoolClient cognito-idp:DescribeUserPoolClient "
               "cognito-idp:UpdateUserPoolClient cognito-idp:DeleteUserPoolClient "
               "cognito-idp:CreateResourceServer cognito-idp:DescribeResourceServer "
