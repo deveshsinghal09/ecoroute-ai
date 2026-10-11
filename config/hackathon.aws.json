@@ -1,0 +1,6 @@
+{
+  "runtime": "lambda",
+  "hosting": "cloudfront",
+  "analytics": "none",
+  "lambda_reserved_concurrency": false
+}

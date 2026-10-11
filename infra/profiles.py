@@ -8,11 +8,25 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
+def context_list(value):
+    """CDK CLI context values are strings; context JSON can contain actual arrays."""
+    if value is None:
+        return None
+    try:
+        result = json.loads(value) if isinstance(value, str) else value
+    except (ValueError, TypeError):
+        raise ValueError("URL/topic context must be a JSON array") from None
+    if not isinstance(result, list) or not all(isinstance(item, str) for item in result):
+        raise ValueError("URL/topic context must be an array of strings")
+    return result
+
+
 class DeploymentOptions(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
     runtime: Literal["lambda", "ecs-fargate", "ec2", "eks", "apprunner", "lightsail-proxy"] = "lambda"
     hosting: Literal["none", "cloudfront", "amplify"] = "none"
     analytics: Literal["none", "rds", "aurora"] = "none"
+    lambda_reserved_concurrency: bool = False
     image_uri: str | None = None
     sql_image_uri: str | None = None
     backend_origin: str | None = None
@@ -93,4 +107,5 @@ class DeploymentOptions(BaseModel):
                 "paid_options_enabled": [v for v in (self.runtime, self.hosting, self.analytics) if v not in ("lambda", "none")],
                 "switch_gateway_after_runtime_verification": self.runtime not in ("lambda", "lightsail-proxy") and not self.backend_origin,
                 "schedules_enabled": False, "nat_gateways": 0,
+                "lambda_reserved_concurrency": self.lambda_reserved_concurrency,
                 "training_started": False, "notifications_enabled": False}

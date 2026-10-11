@@ -15,6 +15,23 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from infra.profiles import DeploymentOptions  # noqa: E402
 STACKS = ["EcoRouteCore", "EcoRouteML", "EcoRouteData"]
+CONTEXT_KEYS = {"callback_urls", "frontend_origins", "ml_image_uri", "gemini_secret_arn",
+                "gemini_model_id", "google_routes_secret_arn", "cycling_secret_arn",
+                "provider_secret_arn", "enable_guest_routes", "ingestion_interval_minutes"}
+
+
+def load_context(path):
+    values = json.loads(Path(path).read_text(encoding="utf-8")) if path else {}
+    if not isinstance(values, dict) or set(values) - CONTEXT_KEYS:
+        raise ValueError("Context file accepts only reviewed non-secret identifiers and settings")
+    for key, value in values.items():
+        if key.endswith("_secret_arn") and (not isinstance(value, str) or
+                not value.startswith("arn:aws:secretsmanager:") or "*" in value):
+            raise ValueError("Context secrets must be complete ARNs, never secret values")
+        if key in {"callback_urls", "frontend_origins"} and (
+                not isinstance(value, list) or not value or not all(isinstance(v, str) for v in value)):
+            raise ValueError("Callback/CORS context requires a nonempty list of exact URLs")
+    return values
 
 
 def guard_identity(identity, expected):
@@ -22,7 +39,7 @@ def guard_identity(identity, expected):
         raise ValueError("expected_nonroot_account_required")
 
 
-def command(action, profile, *, iot=False, location=False, optional_stacks=()):
+def command(action, profile, *, iot=False, location=False, workflows=False, context=None, optional_stacks=()):
     node = shutil.which("node")
     cli = ROOT / "node_modules/aws-cdk/bin/cdk"
     if not node or not cli.exists():
@@ -30,6 +47,10 @@ def command(action, profile, *, iot=False, location=False, optional_stacks=()):
     flags = ["-c", "enable_iot=true"] if iot else []
     if location:
         flags += ["-c", "enable_location=true"]
+    if workflows:
+        flags += ["-c", "enable_workflows=true"]
+    for key, value in (context or {}).items():
+        flags += ["-c", key + "=" + (value if isinstance(value, str) else json.dumps(value))]
     if action == "deploy":
         return [node, str(cli), "deploy", "--all", "--profile", profile, "--require-approval", "broadening", "--outputs-file", "work/deployed-outputs.json", *flags]
     return [node, str(cli), "destroy", "--force", "--profile", profile, *optional_stacks, *( (["EcoRouteIoT"] if iot else []) + STACKS), *flags]
@@ -47,13 +68,17 @@ def main(argv=None):
     parser.add_argument("--expected-account-id", default=configuration.get("EXPECTED_AWS_ACCOUNT_ID"))
     parser.add_argument("--iot", action="store_true")
     parser.add_argument("--location", action="store_true")
+    parser.add_argument("--workflows", action="store_true")
+    parser.add_argument("--context-file", help="Local JSON with reviewed non-secret CDK context only")
     parser.add_argument("--deployment-config", default=configuration.get("ECOROUTE_DEPLOY_CONFIG"))
     args = parser.parse_args(argv)
     options = DeploymentOptions.load(args.deployment_config)
+    context = load_context(args.context_file)
     optional_stacks = (["EcoRouteHosting"] if options.hosting != "none" else []) + (["EcoRouteCompute"] if options.runtime != "lambda" else []) + (["EcoRouteAnalytics"] if options.analytics != "none" else [])
     missing = [name for name, value in (("AWS_PROFILE", args.profile), ("AWS_REGION", args.region), ("EXPECTED_AWS_ACCOUNT_ID", args.expected_account_id)) if not value]
     plan = {"action": args.action, "apply": args.apply, "stacks": optional_stacks + (["EcoRouteIoT"] if args.iot else []) + STACKS,
         "deployment_options": options.plan(),
+        "context_names": sorted(context), "workflows_defined": args.workflows,
         "missing_names": missing, "aws_resources_currently_verified": False,
         "unverified_prerequisites": ["CDK_BOOTSTRAP", "DEPLOY_IAM_PERMISSIONS", "SERVICE_QUOTAS", "COGNITO_CALLBACK_URLS", "CREDIT_ELIGIBILITY"],
         "estimated_small_demo_monthly_usd": "Default serverless: 5-20 planning range. Paid profiles cost EXTRA; review MULTISERVICE_INTEGRATION.md before approval.",
@@ -67,7 +92,8 @@ def main(argv=None):
         parser.error("Review DEMO_READINESS.md cost proposal and obtain deployment approval before --accept-estimated-charges")
     if args.action == "teardown" and not args.confirm_retaining_teardown:
         parser.error("Retaining teardown requires --confirm-retaining-teardown; not a zero-cost/full data purge")
-    cmd = command(args.action, args.profile, iot=args.iot, location=args.location, optional_stacks=optional_stacks)
+    cmd = command(args.action, args.profile, iot=args.iot, location=args.location,
+                  workflows=args.workflows, context=context, optional_stacks=optional_stacks)
     session = boto3.Session(profile_name=args.profile, region_name=args.region)
     config = Config(connect_timeout=2, read_timeout=5, retries={"total_max_attempts": 1})
     guard_identity(session.client("sts", config=config).get_caller_identity(), args.expected_account_id)

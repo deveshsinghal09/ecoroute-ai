@@ -26,7 +26,11 @@ def review(template):
                 if any(action in {"*", "*:*"} or action.endswith(":*") for action in actions):
                     issues.append(identifier + ": service-wide IAM action")
                 if statement.get("Resource") == "*":
-                    if set(actions) <= ALLOWED_ACCOUNT_READS and statement.get("Condition"):
+                    if set(actions) == {"ecr:GetAuthorizationToken"} and statement.get("Condition") == {
+                            "StringEquals": {"aws:RequestedRegion": "ap-south-1"}}:
+                        exceptions.append({"policy": identifier, "actions": actions,
+                            "reason": "ECR registry authentication has no resource-level ARN; Mumbai only; image pulls separately restricted to project repository"})
+                    elif set(actions) <= ALLOWED_ACCOUNT_READS and statement.get("Condition"):
                         exceptions.append({"policy": identifier, "actions": actions, "reason": "account-level read API; regional condition"})
                     else:
                         issues.append(identifier + ": unreviewed wildcard resource")

@@ -10,6 +10,7 @@ from aws_cdk import aws_cloudwatch as cloudwatch
 from aws_cdk import aws_cloudwatch_actions as alarm_actions
 from aws_cdk import aws_cognito as cognito
 from aws_cdk import aws_dynamodb as dynamodb
+from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_iot as iot
 from aws_cdk import aws_lambda as lambda_
@@ -71,6 +72,11 @@ class MlStack(Stack):
         super().__init__(scope, name, **kwargs)
         self.bucket = bucket(self, "MlArtifacts", [("datasets/", 90), ("models/", 180)])
         CfnOutput(self, "MlBucket", value=self.bucket.bucket_name)
+        self.training_repository = ecr.Repository(self, "TrainingImages",
+            repository_name="ecoroute-ai-ml-training", image_tag_mutability=ecr.TagMutability.IMMUTABLE,
+            image_scan_on_push=True, removal_policy=RemovalPolicy.RETAIN,
+            lifecycle_rules=[ecr.LifecycleRule(max_image_count=5)])
+        CfnOutput(self, "TrainingImageRepositoryUri", value=self.training_repository.repository_uri)
         self.inference_arn = None
         if image_uri:
             if data is None or not asset_path:
@@ -81,11 +87,19 @@ class MlStack(Stack):
                 from ml_workflow import MlWorkflow
             workflow = MlWorkflow(self, "ML", bucket=self.bucket, data=data, asset_path=asset_path, image_uri=image_uri)
             self.inference_arn = workflow.inference.attr_arn
+        else:
+            if __package__ == "infra":
+                from .ml_roles import training_role
+            else:
+                from ml_roles import training_role
+            role = training_role(self, "TrainingRole", self.bucket, self.training_repository.repository_arn)
+            CfnOutput(self, "TrainingRoleArn", value=role.role_arn)
+            CfnOutput(self, "TrainingStatus", value="Execution role and ECR repository only; image, measured dataset, quota and paid-job approval still required")
 
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None, frontend_origins=None,
-                 google_routes_secret_arn=None, cycling_secret_arn=None, enable_guest_routes=False, provider_secret_arn=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
+                 google_routes_secret_arn=None, cycling_secret_arn=None, enable_guest_routes=False, provider_secret_arn=None, gemini_secret_arn=None, gemini_model_id=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         frontend_origins = frontend_origins or []
         if not isinstance(frontend_origins, list):
@@ -189,6 +203,18 @@ class CoreStack(Stack):
             for service, action in (("geo-routes", "CalculateRoutes"), ("geo-places", "Geocode")):
                 api_role.add_to_policy(iam.PolicyStatement(actions=[service + ":" + action],
                     resources=[self.format_arn(service=service, account="", resource="provider", resource_name="default")]))
+        if gemini_secret_arn or gemini_model_id:
+            import re
+            if bedrock_model_arn:
+                raise ValueError("Select either Gemini or Bedrock explanations")
+            if not (gemini_secret_arn and re.fullmatch(
+                    rf"arn:aws:secretsmanager:{self.region}:{self.account}:secret:[A-Za-z0-9/_+=.@-]+", gemini_secret_arn)
+                    and gemini_model_id and re.fullmatch(r"gemini-[a-zA-Z0-9.-]{1,100}", gemini_model_id)):
+                raise ValueError("Gemini requires an exact same-account regional secret ARN and model ID")
+            environment.update(ENABLE_GEMINI="true", GEMINI_SECRET_ARN=gemini_secret_arn,
+                               GEMINI_MODEL_ID=gemini_model_id, ENABLE_BEDROCK="false")
+            api_role.add_to_policy(iam.PolicyStatement(actions=["secretsmanager:GetSecretValue"],
+                                                       resources=[gemini_secret_arn]))
         code = lambda_.Code.from_asset(str(Path(asset_path).resolve()))
         if __package__ == "infra":
             from .wearable_workflow import worker as wearable_worker

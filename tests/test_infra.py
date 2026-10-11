@@ -82,6 +82,43 @@ def test_no_idle_compute_or_nat(templates):
                 "AWS::SageMaker::Endpoint", "AWS::RDS::DBInstance", "AWS::IoT::Certificate"}
 
 
+def test_sagemaker_preparation_has_scoped_role_and_immutable_images(templates):
+    ml = templates["ml"]
+    repository = resources(ml, "AWS::ECR::Repository")[0]
+    assert repository["Properties"]["ImageTagMutability"] == "IMMUTABLE"
+    assert repository["DeletionPolicy"] == "Retain"
+    policy = json.dumps(resources(ml, "AWS::IAM::Policy"))
+    assert "datasets/*" in policy and "models/training/*" in policy
+    assert "ecr:BatchGetImage" in policy and "sagemaker:*" not in policy
+    assert "TrainingRoleArn" in ml["Outputs"]
+    assert not resources(ml, "AWS::SageMaker::Endpoint")
+
+
+def test_low_quota_aspect_and_gemini_scoped_secret(tmp_path):
+    from infra.concurrency import UnreservedLambda
+    asset = tmp_path / "asset"
+    asset.mkdir()
+    (asset / "handler.py").write_text("# structural fixture only\n")
+    app = cdk.App(outdir=str(tmp_path / "assembly"))
+    env = cdk.Environment(account="123456789012", region="ap-south-1")
+    data = DataStack(app, "LowQuotaData", env=env)
+    secret = "arn:aws:secretsmanager:ap-south-1:123456789012:secret:gemini-AbCdEf"
+    core = CoreStack(app, "LowQuotaCore", data=data, asset_path=asset, env=env,
+                     gemini_secret_arn=secret, gemini_model_id="gemini-test-model",
+                     enable_workflows=True)
+    cdk.Aspects.of(app).add(UnreservedLambda())
+    app.synth()
+    template = Template.from_stack(core).to_json()
+    assert all("ReservedConcurrentExecutions" not in r["Properties"]
+               for r in resources(template, "AWS::Lambda::Function"))
+    api = next(r["Properties"] for r in resources(template, "AWS::Lambda::Function")
+               if r["Properties"].get("Handler") == "ecoroute.handlers.api.handler")
+    assert api["Environment"]["Variables"]["GEMINI_SECRET_ARN"] == secret
+    assert "GEMINI_API_KEY" not in api["Environment"]["Variables"]
+    assert api["Environment"]["Variables"]["ENABLE_GEMINI"] == "true"
+    assert secret in json.dumps(resources(template, "AWS::IAM::Policy"))
+
+
 def test_iot_rule_envelope_permission_and_retention(templates):
     iot = templates["iot"]
     rule = resources(iot, "AWS::IoT::TopicRule")[0]["Properties"]["TopicRulePayload"]

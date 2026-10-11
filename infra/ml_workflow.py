@@ -23,69 +23,12 @@ class MlWorkflow(Construct):
         )
         if not match or match[2] != stack.region:
             raise ValueError("ML image must be a digest-pinned regional ECR image")
-        training = iam.Role(
-            self,
-            "TrainingRole",
-            assumed_by=iam.ServicePrincipal(
-                "sagemaker.amazonaws.com",
-                conditions={
-                    "StringEquals": {"aws:SourceAccount": stack.account},
-                    "ArnLike": {
-                        "aws:SourceArn": stack.format_arn(
-                            service="sagemaker", resource="training-job", resource_name="ecoroute-*"
-                        )
-                    },
-                },
-            ),
-        )
-        training.add_to_policy(
-            iam.PolicyStatement(
-                actions=["s3:GetObject"], resources=[bucket.arn_for_objects("datasets/*")]
-            )
-        )
-        training.add_to_policy(
-            iam.PolicyStatement(
-                actions=["s3:ListBucket"],
-                resources=[bucket.bucket_arn],
-                conditions={"StringLike": {"s3:prefix": ["datasets/*"]}},
-            )
-        )
-        training.add_to_policy(
-            iam.PolicyStatement(
-                actions=["s3:PutObject"], resources=[bucket.arn_for_objects("models/training/*")]
-            )
-        )
-        training.add_to_policy(
-            iam.PolicyStatement(
-                actions=["ecr:GetAuthorizationToken"],
-                resources=["*"],
-                conditions={"StringEquals": {"aws:RequestedRegion": stack.region}},
-            )
-        )
+        if __package__ == "infra":
+            from .ml_roles import training_role
+        else:
+            from ml_roles import training_role
         repo_arn = f"arn:aws:ecr:{match[2]}:{match[1]}:repository/{match[3]}"
-        training.add_to_policy(
-            iam.PolicyStatement(
-                actions=[
-                    "ecr:BatchGetImage",
-                    "ecr:GetDownloadUrlForLayer",
-                    "ecr:BatchCheckLayerAvailability",
-                ],
-                resources=[repo_arn],
-            )
-        )
-        training.add_to_policy(
-            iam.PolicyStatement(
-                actions=["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
-                resources=[
-                    stack.format_arn(
-                        service="logs",
-                        resource="log-group",
-                        resource_name="/aws/sagemaker/TrainingJobs:*",
-                        arn_format=ArnFormat.COLON_RESOURCE_NAME,
-                    )
-                ],
-            )
-        )
+        training = training_role(self, "TrainingRole", bucket, repo_arn)
         log = logs.LogGroup(
             self,
             "WorkflowHandlerLogs",
