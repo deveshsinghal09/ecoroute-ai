@@ -217,3 +217,11 @@ IAM/region/service checks, exact Console steps and the bounded serverless deploy
 SageMaker remains for genuine measured-data training; Gemini is an optional grounded explanation
 provider. No cloud deployment or training was performed by this preparation. Do not start Studio,
 notebooks or an always-running endpoint to configure the model workflow.
+
+
+## Larger training datasets and route factors
+
+Real local training used 420,768 UCI Beijing rows; this is not a verified Delhi model or SageMaker run.
+See [actual metrics and exact AWS setup](docs/LARGE_DATA_TRAINING.md) and [route preferences/prediction API](docs/ROUTE_FACTORS.md).
+Frontend Route factors & forecasts exposes weights and approved-model selection after sign-in.
+A100,000-row synthetic stress-test dataset is available but cannot be promoted to navigation.

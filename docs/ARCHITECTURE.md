@@ -1,5 +1,16 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Route factors and large-data experiments - 2026-10-11
+
+Real provider road geometry + deterministic exposure remain the engine. Traffic is part of driving
+duration. Optional weather preferences and ORS modeled cycling ascent extend ranking; missing
+weighted inputs block balanced selection. Protected /routes/predict returns full geometry with
+approved one-hour station forecasts, otherwise separately labeled provider data or unavailable.
+Foreign/synthetic data cannot be promoted by training, selection or cloud publication. Local UCI
+experiment trained on 420,768 real Beijing rows; not navigation-eligible. See ROUTE_FACTORS.md and
+LARGE_DATA_TRAINING.md. No endpoint, paid training or new idle infrastructure was created.
+
+
 ## Cognito registration and hosted Maps - 2026-10-11
 
 Public Cognito self-registration requested and enabled through CDK context enable_self_signup; confirmation email code before login, strong password and PKCE retained. Browser maps need independent referrer-restricted frontend key, not runtime secret. Public signup form verified, no account registration performed.

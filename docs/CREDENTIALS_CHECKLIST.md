@@ -1,5 +1,17 @@
 # Credentials and configuration checklist
 
+## Large datasets and route factors - 2026-10-11
+
+No SageMaker API key: use the existing IAM profile/execution role, never VITE_ secrets. Before
+paid training: Mumbai ml.m5.large quota>=1(currently0), Docker Linux engine, actual pinned ECR
+digest, exact S3/ECR/logs role grants, operator Create/Describe/StopTrainingJob and scoped PassRole,
+verified role trust(iam:GetRole denied), reviewed costs and separate training approval. Operational
+Delhi forecasts additionally need eligible measured history, baseline gates and inference-worker ARN.
+See LARGE_DATA_TRAINING.md for exact Console/CLI steps. Public noncommercial route weather needs
+no key; ENABLE_ROUTE_WEATHER opts in. Commercial weather requires a reviewed plan adapter.
+Existing provider secret references/Cognito remain; no new private value belongs in Amplify.
+
+
 ## Cognito registration and hosted Maps - 2026-10-11
 
 Self-registration now enabled in existing pool with email confirmation; user should click Sign in with Cognito then Sign up. No passwords/codes in chat. Hosted map missing VITE_GOOGLE_MAPS_API_KEY: add separate browser key to Amplify, exact website restriction https://main.d3txif33djiy59.amplifyapp.com/* and Maps JavaScript API enabled, redeploy. Server route key remains private. Maps billing controlled in Google, not AWS credits.

@@ -1,5 +1,16 @@
 # API contract — backend foundation and environmental datasets
 
+## Route factors and prediction comparison - 2026-10-11
+
+Request fields: weather_weight, terrain_weight, avoid_tolls/highways/ferries/steps. Nonnegative
+weights+exposure_weight<=1; mode restrictions validated. Typed optional weather/terrain response
+metadata; Google routing_source.traffic duration/historical-baseline seconds. JWT write-protected
+POST /api/v1/routes/predict extends CompareRequest with station_ids1..20 and optional model_version;
+returns full RouteComparison geometry plus forecasts, model versions and horizon1. Missing approved
+model/fresh observations503; invalid input422. Runtime OpenAPI/Postman index exported. Definitions
+and foreign/synthetic-model exclusions are in ROUTE_FACTORS.md and LARGE_DATA_TRAINING.md.
+
+
 ## Cognito registration and hosted Maps - 2026-10-11
 
 No HTTP schema changes. Cognito hosted Sign up now available with email confirmation; JWT scope enforcement unchanged. Frontend setup errors distinguish hosted Amplify variables from local env files.

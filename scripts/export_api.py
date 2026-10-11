@@ -9,11 +9,17 @@ GUIDE = """# Frontend integration — EcoRoute AI backend
 
 The React/Three.js frontend lives in frontend/; local UI: http://127.0.0.1:5173.
 Backend local base URL: http://127.0.0.1:8000. See frontend/README.md for PKCE and live-mode setup.
-AWS base URL: <VERIFIED_API_GATEWAY_URL> (not deployed).
+AWS base URL: https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com (Core runtime verified).
 Authoritative request/response schemas: [openapi.json](openapi.json), exported from the SAME
 runtime /openapi.json. Provider metadata and variable model metrics intentionally allow extra
 properties; stable fields have explicit types. Error schemas describe normalized backend
 errors; an upstream API Gateway rejection/throttle can have its own AWS error envelope.
+
+Route factors: see [ROUTE_FACTORS.md](ROUTE_FACTORS.md). Compare/preview requests accept weather_weight,
+terrain_weight and mode-specific avoidance flags in addition to exposure_weight. Optional weather,
+terrain and routing_source.traffic fields retain units/source/status. Protected POST /routes/predict
+returns full geometry using verified station predictions only; foreign/synthetic artifacts are blocked.
+Experimental training results and SageMaker prerequisites: [LARGE_DATA_TRAINING.md](LARGE_DATA_TRAINING.md).
 
 Use Cognito public client authorization-code flow with S256 PKCE. Configure an approved HTTPS
 callback using CDK callback_urls, request openid and ecoroute/read ecoroute/write scopes, validate

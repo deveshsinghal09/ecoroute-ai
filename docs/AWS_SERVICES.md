@@ -1,5 +1,15 @@
 # AWS service decisions and IAM boundaries
 
+## Route/ML integration update - 2026-10-11
+
+Existing SageMaker role/ECR/S3 preparation reused; local real-data training completed, cloud job
+NOT launched. Mumbai training quota=0, iam:GetRole denied, Docker engine unavailable. Exact steps
+and official $0.121/h rate in LARGE_DATA_TRAINING.md;15min runtime arithmetic=$0.03025 plus startup,
+storage, logs and taxes, not a hard cap. Route weather is opt-in,100/day30/hour/max3cells per
+comparison, no schedule. Existing Core updates cover request-only traffic/weather/terrain scoring.
+Google/ORS billing is separate from AWS credits. No SMS, hardware or Bedrock verification implied.
+
+
 ## Cognito registration and hosted Maps - 2026-10-11
 
 Core update enables email-verified self-registration; hosted form verified, actual email delivery/login not tested. Amplify browser Maps key absent; Google Maps basemap not verified. Server route providers already passed actual requests.

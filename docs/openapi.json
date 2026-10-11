@@ -3117,6 +3117,12 @@
                         "additionalProperties": true
                       }
                     },
+                    "weather": {
+                      "$ref": "#/components/schemas/RouteWeather"
+                    },
+                    "terrain": {
+                      "$ref": "#/components/schemas/RouteTerrain"
+                    },
                     "segments": {
                       "type": "array",
                       "items": {
@@ -4128,6 +4134,133 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DepartureAnalysis"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "x-ecoroute-scope": "ecoroute/write"
+      }
+    },
+    "/api/v1/routes/predict": {
+      "post": {
+        "tags": [
+          "station PM2.5 forecasting"
+        ],
+        "summary": "Predicted Route",
+        "operationId": "predicted_route_api_v1_routes_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictedRoute"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictedRouteComparison"
                 }
               }
             }
@@ -6829,6 +6962,40 @@
             "title": "Exposure Weight",
             "default": 0.5
           },
+          "weather_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Weather Weight",
+            "default": 0
+          },
+          "terrain_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Terrain Weight",
+            "default": 0
+          },
+          "avoid_tolls": {
+            "type": "boolean",
+            "title": "Avoid Tolls",
+            "default": false
+          },
+          "avoid_highways": {
+            "type": "boolean",
+            "title": "Avoid Highways",
+            "default": false
+          },
+          "avoid_ferries": {
+            "type": "boolean",
+            "title": "Avoid Ferries",
+            "default": false
+          },
+          "avoid_steps": {
+            "type": "boolean",
+            "title": "Avoid Steps",
+            "default": false
+          },
           "segment_length_m": {
             "type": "integer",
             "maximum": 1000.0,
@@ -6966,6 +7133,40 @@
             "minimum": 0.0,
             "title": "Exposure Weight",
             "default": 0.5
+          },
+          "weather_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Weather Weight",
+            "default": 0
+          },
+          "terrain_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Terrain Weight",
+            "default": 0
+          },
+          "avoid_tolls": {
+            "type": "boolean",
+            "title": "Avoid Tolls",
+            "default": false
+          },
+          "avoid_highways": {
+            "type": "boolean",
+            "title": "Avoid Highways",
+            "default": false
+          },
+          "avoid_ferries": {
+            "type": "boolean",
+            "title": "Avoid Ferries",
+            "default": false
+          },
+          "avoid_steps": {
+            "type": "boolean",
+            "title": "Avoid Steps",
+            "default": false
           },
           "segment_length_m": {
             "type": "integer",
@@ -7785,6 +7986,40 @@
             "title": "Exposure Weight",
             "default": 0.5
           },
+          "weather_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Weather Weight",
+            "default": 0
+          },
+          "terrain_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Terrain Weight",
+            "default": 0
+          },
+          "avoid_tolls": {
+            "type": "boolean",
+            "title": "Avoid Tolls",
+            "default": false
+          },
+          "avoid_highways": {
+            "type": "boolean",
+            "title": "Avoid Highways",
+            "default": false
+          },
+          "avoid_ferries": {
+            "type": "boolean",
+            "title": "Avoid Ferries",
+            "default": false
+          },
+          "avoid_steps": {
+            "type": "boolean",
+            "title": "Avoid Steps",
+            "default": false
+          },
           "segment_length_m": {
             "type": "integer",
             "maximum": 1000.0,
@@ -7847,6 +8082,159 @@
           "station_ids"
         ],
         "title": "PredictedDepartures"
+      },
+      "PredictedRoute": {
+        "properties": {
+          "origin": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Point"
+              },
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 3
+              }
+            ],
+            "title": "Origin"
+          },
+          "destination": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Point"
+              },
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 3
+              }
+            ],
+            "title": "Destination"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "walking",
+              "cycling",
+              "driving"
+            ],
+            "title": "Mode",
+            "default": "walking"
+          },
+          "departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Departure At"
+          },
+          "objective": {
+            "type": "string",
+            "enum": [
+              "fastest",
+              "lowest_exposure",
+              "balanced"
+            ],
+            "title": "Objective",
+            "default": "balanced"
+          },
+          "max_detour_percent": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Max Detour Percent",
+            "default": 25
+          },
+          "exposure_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Exposure Weight",
+            "default": 0.5
+          },
+          "weather_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Weather Weight",
+            "default": 0
+          },
+          "terrain_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Terrain Weight",
+            "default": 0
+          },
+          "avoid_tolls": {
+            "type": "boolean",
+            "title": "Avoid Tolls",
+            "default": false
+          },
+          "avoid_highways": {
+            "type": "boolean",
+            "title": "Avoid Highways",
+            "default": false
+          },
+          "avoid_ferries": {
+            "type": "boolean",
+            "title": "Avoid Ferries",
+            "default": false
+          },
+          "avoid_steps": {
+            "type": "boolean",
+            "title": "Avoid Steps",
+            "default": false
+          },
+          "segment_length_m": {
+            "type": "integer",
+            "maximum": 1000.0,
+            "minimum": 100.0,
+            "title": "Segment Length M",
+            "default": 250
+          },
+          "max_alternatives": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Max Alternatives",
+            "default": 2
+          },
+          "consent_to_store": {
+            "type": "boolean",
+            "const": true,
+            "title": "Consent To Store"
+          },
+          "station_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Station Ids"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{24}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "origin",
+          "destination",
+          "departure_at",
+          "consent_to_store",
+          "station_ids"
+        ],
+        "title": "PredictedRoute"
       },
       "PredictionRequest": {
         "properties": {
@@ -7975,6 +8363,40 @@
             "minimum": 0.0,
             "title": "Exposure Weight",
             "default": 0.5
+          },
+          "weather_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Weather Weight",
+            "default": 0
+          },
+          "terrain_weight": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Terrain Weight",
+            "default": 0
+          },
+          "avoid_tolls": {
+            "type": "boolean",
+            "title": "Avoid Tolls",
+            "default": false
+          },
+          "avoid_highways": {
+            "type": "boolean",
+            "title": "Avoid Highways",
+            "default": false
+          },
+          "avoid_ferries": {
+            "type": "boolean",
+            "title": "Avoid Ferries",
+            "default": false
+          },
+          "avoid_steps": {
+            "type": "boolean",
+            "title": "Avoid Steps",
+            "default": false
           },
           "segment_length_m": {
             "type": "integer",
@@ -8313,6 +8735,96 @@
         ],
         "title": "ValidationError"
       },
+      "RouteWeather": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "preference_cost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "temperature_c": {
+            "type": "number"
+          },
+          "precipitation_mm": {
+            "type": "number"
+          },
+          "wind_m_s": {
+            "type": "number"
+          },
+          "source": {
+            "type": "string"
+          },
+          "reported_at": {
+            "type": "string"
+          },
+          "collected_at": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "preference_cost"
+        ],
+        "additionalProperties": true
+      },
+      "RouteTerrain": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "ascent_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "descent_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "ascent_m",
+          "descent_m"
+        ],
+        "additionalProperties": true
+      },
       "ApiError": {
         "type": "object",
         "properties": {
@@ -8565,6 +9077,12 @@
               "additionalProperties": true
             }
           },
+          "weather": {
+            "$ref": "#/components/schemas/RouteWeather"
+          },
+          "terrain": {
+            "$ref": "#/components/schemas/RouteTerrain"
+          },
           "segments": {
             "type": "array",
             "items": {
@@ -8623,6 +9141,37 @@
           "recommended_route_ids"
         ],
         "additionalProperties": true
+      },
+      "PredictedRouteComparison": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/RouteComparison"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "station_forecasts": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "model_versions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "horizon_hours": {
+                "const": 1
+              }
+            },
+            "required": [
+              "station_forecasts",
+              "model_versions",
+              "horizon_hours"
+            ],
+            "additionalProperties": true
+          }
+        ]
       },
       "OwnedRecord": {
         "type": "object",

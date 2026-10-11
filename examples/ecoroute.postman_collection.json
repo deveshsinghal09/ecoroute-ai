@@ -885,6 +885,36 @@
       "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
     },
     {
+      "name": "POST /api/v1/routes/predict",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/routes/predict",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "routes",
+            "predict"
+          ],
+          "query": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origin\": {\n    \"longitude\": 77.2295,\n    \"latitude\": 28.6129\n  },\n  \"destination\": {\n    \"longitude\": 77.2167,\n    \"latitude\": 28.6315\n  },\n  \"departure_at\": \"{{departure_at}}\",\n  \"consent_to_store\": true,\n  \"station_ids\": [\n    \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n  ]\n}"
+        }
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
       "name": "POST /api/v1/devices/register",
       "request": {
         "method": "POST",
