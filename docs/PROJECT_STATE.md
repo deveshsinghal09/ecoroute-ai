@@ -1,5 +1,26 @@
 # EcoRoute AI project state — Phases 1–7
 
+## 2D/3D map rendering repair - 2026-10-12
+
+User reported unavailable rendering across devices. Fixed premature interpretation of Google
+UNINITIALIZED renderer state; synchronize after initial construction, rendering changes and tiles.
+Explicit 2D/3D controls: 3D selects roadmap, zooms to at least17 and requests50degree tilt;
+actual tilt events drive the selected state, and rotation is available. 2D remains usable on raster.
+Fit retains camera intent; no fabricated 3D buildings or altered road geometry.
+
+Validation:13 mocked Maps browser tests passed; production build passed; design detector no findings.
+Live Google tiles in local Edge at public Gateway of India coordinates (browser geolocation test
+input) verified vector renderer,50degree tilt, visible actual extruded buildings, then0degree 2D.
+Screenshot work/map-3d-fixed-live.png reviewed. No routes API invoked for this visual check.
+User approved Amplify publication. Existing dev-admin identity verified; amplify:ListJobs denied.
+Publishing through the connected main branch and checking the public website; deployment verification pending.
+No AWS/IAM/credential changes.
+Vite local frontend runs at127.0.0.1:5173. Backend not started for this map-only verification.
+Google WebGL/device and regional building coverage can still limit genuine3D; no universal support claim.
+Commands: npm run build; Playwright maps suite; explicit live map verification; git diff --check.
+Changed GoogleMap.tsx, Maps tests, verify-map script and the five maintained project docs.
+
+
 ## README and CI repair - 2026-10-11
 
 User subsequently authorized committing and pushing these changes under Devesh Singhal.

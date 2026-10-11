@@ -1,5 +1,12 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Map camera modes - 2026-10-12
+
+2D and 3D are Google camera modes on genuine geographic data. 3D chooses vector street map
+at close zoom, with actual tilt synchronization; raster fallback retains2D interaction.
+UNINITIALIZED is a loading state. No separate fabricated geometry or CSS perspective substitute.
+
+
 ## Repository overview diagrams
 
 The [README architecture](../README.md#architecture) pairs the supplied system overview image with an editable Mermaid diagram. Diagram source: [architecture.mmd](assets/architecture.mmd). Conditional paths are not deployment claims; use PROJECT_STATE.md for verification history.

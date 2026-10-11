@@ -1,5 +1,12 @@
 # Credentials and configuration checklist
 
+## Map view repair - 2026-10-12
+
+No additional AWS/provider secrets required. Existing Maps JavaScript browser key used locally.
+VITE_GOOGLE_MAP_ID is optional with explicit VECTOR rendering. Browser graphics acceleration
+and Google building coverage determine3D availability; vector maps can fall back to raster.
+
+
 ## Current-hour route fix - 2026-10-11
 
 Deployed and live-verified with existing dev-admin profile in ap-south-1.

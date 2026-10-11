@@ -4,7 +4,7 @@ const recording=JSON.parse(readFileSync('../examples/delhi-recorded-response.jso
 // Entire Maps SDK is mocked here. The separate verify-map script loads real tiles.
 const sdk=`
 window.mapEvidence={paths:[],fits:0,pins:[],cameras:[],options:null};
-class MockMap {constructor(el,options){this.el=el;this.options=options;this.listeners={};el.dataset.ready='true';window.mapEvidence.options=options;window.mapEvidence.map=this;this.pane=document.createElement('div');el.append(this.pane)} addListener(name,callback){(this.listeners[name]||=[]).push(callback);return{remove:()=>{this.listeners[name]=this.listeners[name].filter(c=>c!==callback)}}}fire(name,value){(this.listeners[name]||[]).forEach(fn=>fn(value))}fitBounds(){window.mapEvidence.fits++;this.fire('idle')}moveCamera(o){window.mapEvidence.cameras.push(o)}getRenderingType(){return 'VECTOR'}setMapTypeId(id){window.mapEvidence.mapType=id}getZoom(){return 15}setZoom(z){window.mapEvidence.zoom=z}setHeading(h){window.mapEvidence.heading=h}}
+class MockMap {constructor(el,options){this.el=el;this.options=options;this.listeners={};el.dataset.ready='true';window.mapEvidence.options=options;window.mapEvidence.map=this;this.pane=document.createElement('div');el.append(this.pane)} addListener(name,callback){(this.listeners[name]||=[]).push(callback);return{remove:()=>{this.listeners[name]=this.listeners[name].filter(c=>c!==callback)}}}fire(name,value){(this.listeners[name]||[]).forEach(fn=>fn(value))}fitBounds(){window.mapEvidence.fits++;this.fire('idle')}moveCamera(o){window.mapEvidence.cameras.push(o);if(o.tilt!==undefined){this.tilt=o.tilt;this.fire('tilt_changed')}}getRenderingType(){return this.rendering||'VECTOR'}getTilt(){return this.tilt||0}getHeading(){return window.mapEvidence.heading||0}setRenderingType(t){this.rendering=t;this.fire('renderingtype_changed');this.fire('idle')}setMapTypeId(id){window.mapEvidence.mapType=id}getZoom(){return 15}setZoom(z){window.mapEvidence.zoom=z}setHeading(h){window.mapEvidence.heading=h}}
 class OverlayView {setMap(map){if(this.map)this.onRemove();this.map=map;if(map){this.onAdd();this.draw()}}getPanes(){return{overlayMouseTarget:this.map.pane}}getProjection(){return{fromLatLngToDivPixel:p=>{window.mapEvidence.pins.push(p.value);return{x:180+(p.value.lng-77.2)*800,y:180+(p.value.lat-28.6)*800}}}}static preventMapHitsAndGesturesFrom(){}}
 window.google={maps:{Map:MockMap,OverlayView,RenderingType:{VECTOR:'VECTOR',RASTER:'RASTER'},LatLng:class{constructor(value){this.value=value}},LatLngBounds:class{extend(){}},Polyline:class{constructor(o){window.mapEvidence.paths.push(o.path)}addListener(){return{remove(){}}}setOptions(){}setMap(){}},event:{clearInstanceListeners(){},addListenerOnce(map,name,fn){map.addListener(name,fn)}}}};
 window.ecoGoogleReady();`;
@@ -57,10 +57,10 @@ test('map is public, tilted, controllable, and does not invent initial journey p
  const result=await page.evaluate(()=> (window as any).mapEvidence.options);
  expect(result.renderingType).toBe('VECTOR');expect(result.tilt).toBe(0);expect(result.center).toEqual({lat:0,lng:0});
  await expect(page.getByLabel('Origin',{exact:true})).toHaveValue('');await expect(page.getByLabel('Destination',{exact:true})).toHaveValue('');
- await page.getByLabel('Toggle tilted perspective').click();
+ await page.getByLabel('Show 3D map').click();
  expect(await page.evaluate(()=> (window as any).mapEvidence.cameras.at(-1).tilt)).toBe(50);
  await page.getByLabel('Toggle satellite imagery').click();
- expect(await page.evaluate(()=> (window as any).mapEvidence.mapType)).toBe('roadmap');
+ expect(await page.evaluate(()=> (window as any).mapEvidence.mapType)).toBe('hybrid');
 });
 
 for(const [label,mode] of [['Drive','driving'],['Walk','walking'],['Cycle','cycling']]){
@@ -122,4 +122,35 @@ test('location fields have no red outline and geolocation is requested only by i
  await expect(page.getByLabel('Origin',{exact:true})).toHaveValue('19.076000, 72.877700');
  await expect(page.locator('.journey-pin-origin')).toHaveCount(1);
  await expect(page.getByLabel('Destination',{exact:true})).toHaveValue('');
+});
+
+
+test('3D zooms into street geometry, rotates, and switches back to overhead 2D',async({page})=>{
+ await mockMap(page);await page.goto('/');await page.getByLabel('Show 3D map').click();
+ const camera=await page.evaluate(()=> (window as any).mapEvidence.cameras.at(-1));
+ expect(camera.zoom).toBeGreaterThanOrEqual(17);expect(camera.tilt).toBe(50);
+ await expect(page.getByLabel('Show 3D map')).toHaveAttribute('aria-pressed','true');
+ expect(await page.evaluate(()=> (window as any).mapEvidence.mapType)).toBe('roadmap');
+ await page.getByLabel('Rotate map',{exact:true}).click();
+ expect(await page.evaluate(()=> (window as any).mapEvidence.heading)).toBe(45);
+ await page.getByLabel('Show 2D map').click();
+ expect(await page.evaluate(()=> (window as any).mapEvidence.cameras.at(-1).tilt)).toBe(0);
+ await expect(page.getByLabel('Show 2D map')).toHaveAttribute('aria-pressed','true');
+});
+test('unknown initialization does not permanently disable 3D and late vector readiness is detected',async({page})=>{
+ await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk.replace("return this.rendering||'VECTOR'","return this.rendering||'UNINITIALIZED'")}));
+ await page.goto('/');await expect(page.locator('.journey-map-provenance')).toContainText('Preparing map views');
+ await page.evaluate(()=>{const m=(window as any).mapEvidence.map;m.rendering='VECTOR';m.fire('tilesloaded');});
+ await expect(page.locator('.journey-map-provenance')).toContainText('2D map');
+ await page.getByLabel('Show 3D map').click();await expect(page.getByLabel('Show 3D map')).toHaveAttribute('aria-pressed','true');
+});
+test('persistent raster fallback preserves 2D and explains recovery without claiming active 3D',async({page})=>{
+ await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk.replace("return this.rendering||'VECTOR'","return 'RASTER'")}));
+ await page.goto('/');await expect(page.getByLabel('Show 2D map')).toBeEnabled();
+ await page.getByLabel('Show 3D map').click();
+ await expect(page.getByRole('status')).toContainText('turn on browser graphics acceleration');
+ await expect(page.getByLabel('Show 3D map')).toHaveAttribute('aria-pressed','false');
+ await page.getByLabel('Toggle satellite imagery').click();
+ await page.getByLabel('Zoom map in').click();
+ expect(await page.evaluate(()=> (window as any).mapEvidence.zoom)).toBe(16);
 });

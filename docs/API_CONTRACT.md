@@ -1,5 +1,11 @@
 # API contract — backend foundation and environmental datasets
 
+## Geographic map views - 2026-10-12
+
+No REST schema changes. Map rendering uses explicit2D/3D camera controls, preserving routes
+and pins. Actual renderer/tilt state determines UI;3D does not change pollution resolution.
+
+
 ## Current-hour model coverage - 2026-10-11
 
 Route sampling accepts current-hour modeled Open-Meteo data as well as forecast

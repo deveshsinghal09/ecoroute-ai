@@ -180,3 +180,16 @@ Use public landmarks, not private home/work addresses, in verification commands.
 keys or raw error bodies are logged. Filtered results and screenshot stay under ignored work/.
 The configured local frontend API URL was corrected to http://127.0.0.1:8000 (a typo and mismatched
 quote prevented requests). Server-only keys were moved from frontend/.env.local to root .env.
+
+
+## 2D and 3D controls
+
+Choose 2D for overhead streets or satellite. Choose 3D for a vector street map:
+the camera moves to building-scale zoom and tilts; use Rotate to change heading.
+Satellite remains a separate imagery choice. Building detail depends on location coverage.
+The app waits for Google renderer initialization instead of declaring an initializing map unsupported.
+An optional Map ID is not required when VECTOR is explicitly requested.
+If Google still returns raster, enable graphics acceleration in Chrome/Edge Settings > System,
+restart the browser and retry. See Google's [rendering guide](https://developers.google.com/maps/documentation/javascript/map-rendering-type)
+and [browser support](https://developers.google.com/maps/documentation/javascript/webgl/support).
+No code can guarantee GPU-backed rendering on every device.

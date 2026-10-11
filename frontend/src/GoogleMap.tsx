@@ -62,16 +62,17 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
   const perspectiveRef = useRef(false);
   const [ready, setReady] = useState(false), [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0), [perspective, setPerspective] = useState(false);
-  const [vector, setVector] = useState(true), [satellite, setSatellite] = useState(true);
+  const [vector, setVector] = useState<boolean|null>(null), [satellite, setSatellite] = useState(true);
   const [picking, setPicking] = useState<'origin'|'destination'|null>(null);
   const [pinDetail, setPinDetail] = useState<{label:string; position:google.maps.LatLngLiteral}|null>(null);
+  const [viewMessage,setViewMessage]=useState('');
   const [locating,setLocating]=useState(false),[locationError,setLocationError]=useState('');
   const active = routes.find(route => route.route_id === selected && routePath(route).length >= 2)
     || routes.find(route => routePath(route).length >= 2);
 
   useEffect(() => {
     let mounted = true;
-    setReady(false); setError(''); fitted.current = '';
+    setReady(false); setError(''); setVector(null); setViewMessage(''); fitted.current = '';
     const authError = () => {setReady(false); setError('Google Maps could not authorize this website. Check Maps JavaScript API, billing and website restrictions.');};
     window.addEventListener('google-map-auth-error', authError);
     if (!mapsKey) {
@@ -89,14 +90,28 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
         cameraControl:false, clickableIcons:true, tiltInteractionEnabled:true,
         headingInteractionEnabled:true, gestureHandling:'cooperative', isFractionalZoomEnabled:true,
       });
-      setReady(true);
-      google.maps.event.addListenerOnce(map.current, 'tilesloaded', () => {if (mounted && host.current) host.current.dataset.tilesLoaded='true';});
-      map.current.addListener('renderingtype_changed', () => {
+      const syncRenderer = () => {
         if (!mounted || !map.current) return;
-        const available = map.current.getRenderingType() === google.maps.RenderingType.VECTOR;
+        const type=map.current.getRenderingType();
+        // UNINITIALIZED is a loading state, not evidence that WebGL failed.
+        if(type!==google.maps.RenderingType.VECTOR && type!==google.maps.RenderingType.RASTER)return;
+        const available=type===google.maps.RenderingType.VECTOR;
         setVector(available);
-        if (!available) {setPerspective(false); perspectiveRef.current = false;}
+        if(host.current)host.current.dataset.renderingType=available?'vector':'raster';
+        if(!available){setPerspective(false);perspectiveRef.current=false;}
+      };
+      map.current.addListener('renderingtype_changed', syncRenderer);
+      map.current.addListener('tilesloaded', () => {
+        if(mounted && host.current)host.current.dataset.tilesLoaded='true';
+        syncRenderer();
       });
+      map.current.addListener('tilt_changed', () => {
+        if(!mounted || !map.current)return;
+        const tilted=(map.current.getTilt()||0)>0;
+        setPerspective(tilted);perspectiveRef.current=tilted;
+        if(host.current)host.current.dataset.cameraTilt=String(map.current.getTilt()||0);
+      });
+      syncRenderer();setReady(true);
     }).catch(() => {if (mounted) setError('Google Maps could not load. Check your connection, key restrictions and billing, then retry.');});
     return () => {
       mounted = false;
@@ -143,8 +158,9 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
     const points = routes.flatMap(routePath);
     if (!points.length) {const chosen=[chosenLocations?.origin,chosenLocations?.destination].filter((p):p is google.maps.LatLngLiteral=>!!p);if(chosen.length){const bounds=new google.maps.LatLngBounds();chosen.forEach(p=>bounds.extend(p));map.current.fitBounds(bounds,80);return;}map.current.moveCamera({center:WORLD, zoom:2, tilt:0, heading:0}); return;}
     const bounds = new google.maps.LatLngBounds(); points.forEach(point => bounds.extend(point));
-    // fitBounds resets tilt and heading; restore the requested view after it finishes.
-    google.maps.event.addListenerOnce(map.current, 'idle', () => {map.current?.moveCamera({tilt:perspectiveRef.current ? 50 : 0, heading:0});});
+    // Preserve intent before fitBounds emits tilt_changed for its overhead reset.
+    const wantedTilt=perspectiveRef.current;
+    google.maps.event.addListenerOnce(map.current, 'idle', () => {map.current?.moveCamera({tilt:wantedTilt ? 50 : 0, heading:0});});
     map.current.fitBounds(bounds, {top:96, bottom:70, left:65, right:65});
   }
   useEffect(() => {
@@ -177,7 +193,28 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
       onChooseLocation?.('origin',point);map.current?.moveCamera({center:point,zoom:16,tilt:perspectiveRef.current?50:0});setLocating(false);
     },()=>{setLocating(false);setLocationError('Location access was unavailable. Choose a point or enter an address instead.');},{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
   }
-  function togglePerspective() {const next = !perspective; setPerspective(next); perspectiveRef.current = next; map.current?.moveCamera({tilt:next ? 50 : 0, heading:0});}
+  function chooseView(tilted:boolean) {
+    if(!map.current)return;
+    setViewMessage('');
+    if(!tilted){perspectiveRef.current=false;setPerspective(false);map.current.moveCamera({tilt:0,heading:0});return;}
+    // A world-scale camera cannot tilt. Use the supported street layer at a
+    // building-scale zoom, keeping the user's center, geometry and endpoints.
+    setSatellite(false);map.current.setMapTypeId('roadmap');
+    const applyTilt=()=>{
+      if(!map.current)return;
+      if(map.current.getRenderingType()!==google.maps.RenderingType.VECTOR){
+        setPerspective(false);perspectiveRef.current=false;
+        setViewMessage('2D remains available. To enable 3D, turn on browser graphics acceleration and reload the page.');
+        return;
+      }
+      perspectiveRef.current=true;
+      map.current.moveCamera({zoom:Math.max(17,map.current.getZoom()||2),tilt:50,heading:0});
+    };
+    if(map.current.getRenderingType()!==google.maps.RenderingType.VECTOR){
+      google.maps.event.addListenerOnce(map.current,'idle',applyTilt);
+      map.current.setRenderingType(google.maps.RenderingType.VECTOR);
+    }else applyTilt();
+  }
   function toggleSatellite() {setSatellite(!satellite); map.current?.setMapTypeId(satellite ? 'roadmap' : 'hybrid');}
   return <section className="google-map-area" aria-label="Geographic journey map">
     <div ref={host} className="google-map-host" aria-label="Journey map"/>
@@ -185,21 +222,24 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
       <div className="journey-map-toolbar">
         <div className="journey-map-location"><span className="signal-dot"/><span>{active?'Your journey':chosenLocations?.origin||chosenLocations?.destination?'Selected locations':'Explore the map'}<small>{satellite ? 'Satellite + streets' : 'Street map'}</small></span></div>
         <div className="journey-map-switches">
-          <button type="button" aria-label="Toggle tilted perspective" aria-pressed={perspective} disabled={!vector} onClick={togglePerspective}>{perspective ? '3D view' : '2D view'}</button>
+          <button type="button" aria-label="Show 2D map" aria-pressed={!perspective} onClick={()=>chooseView(false)}>2D</button>
+          <button type="button" aria-label="Show 3D map" aria-pressed={perspective} onClick={()=>chooseView(true)}>3D</button>
           <button type="button" aria-label="Toggle satellite imagery" aria-pressed={satellite} onClick={toggleSatellite}><Layers size={15}/><span>Satellite</span></button>
         </div>
       </div>
       <div className="journey-map-tools" aria-label="Map camera controls">
         <button aria-label="Zoom map in" onClick={() => map.current?.setZoom(Math.min(21, (map.current.getZoom() || 15) + 1))}><Plus size={19}/></button>
         <button aria-label="Zoom map out" onClick={() => map.current?.setZoom(Math.max(3, (map.current.getZoom() || 15) - 1))}><Minus size={19}/></button>
+        <button aria-label="Rotate map" disabled={!vector} onClick={()=>map.current?.setHeading(((map.current.getHeading()||0)+45)%360)}><RotateCcw size={19}/></button>
         <button aria-label="Point map north" onClick={() => map.current?.setHeading(0)}><Compass size={18}/></button>
         <button aria-label="Fit journey on map" onClick={fitJourney}><LocateFixed size={18}/></button>
       </div>
       {onChooseLocation && <div className="journey-map-picking"><button disabled={locating} aria-label="Use my location as start" onClick={useMyLocation}><LocateFixed size={14}/>{locating?'Locating…':'My location'}</button>{(['origin','destination'] as const).map(kind => <button key={kind} aria-pressed={picking === kind} onClick={() => setPicking(picking === kind ? null : kind)}><Crosshair size={14}/>{kind === 'origin' ? 'Choose start' : 'Choose destination'}</button>)}</div>}
       {picking && <p className="journey-map-hint" role="status">Click the map to choose your {picking === 'origin' ? 'start' : 'destination'}. <button onClick={() => setPicking(null)}>Cancel</button></p>}
+      {viewMessage&&<p className="journey-map-hint" role="status">{viewMessage}<button onClick={()=>setViewMessage('')}>Dismiss</button></p>}
       {locationError&&<p className="journey-map-hint" role="status">{locationError}<button onClick={()=>setLocationError('')}>Dismiss</button></p>}
       {pinDetail && <div className="journey-pin-detail"><strong>{pinDetail.label}</strong><span>{Math.abs(pinDetail.position.lat).toFixed(5)}° {pinDetail.position.lat>=0?'N':'S'} · {Math.abs(pinDetail.position.lng).toFixed(5)}° {pinDetail.position.lng>=0?'E':'W'}</span><button onClick={() => setPinDetail(null)} aria-label="Close location details">×</button></div>}
-      <div className="journey-map-provenance"><span>{active ? (live ? 'Returned road route' : 'Historical road route') : 'Choose a journey'}</span><small>{vector ? 'Tilted view · building detail depends on coverage' : '2D map · 3D rendering unavailable on this device'}</small></div>
+      <div className="journey-map-provenance"><span>{active ? (live ? 'Returned road route' : 'Historical road route') : 'Choose a journey'}</span><small>{vector===null?'Preparing map views…':perspective?'3D perspective · building detail depends on coverage':'2D map · streets and satellite'}</small></div>
     </>}
     {!ready && <div className="map-setup" role="status"><Compass size={28}/><strong>{error ? 'Connect your map' : 'Opening your map'}</strong><p>{error || 'Loading Google streets and satellite imagery…'}</p>{error && mapsKey && <button onClick={() => setAttempt(value => value + 1)}><RotateCcw size={15}/>Retry map</button>}</div>}
   </section>;
