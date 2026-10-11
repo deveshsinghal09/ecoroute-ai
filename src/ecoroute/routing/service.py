@@ -21,6 +21,24 @@ from ecoroute.storage import fingerprint
 logger = logging.getLogger("ecoroute.routing")
 
 
+def routing_secret_key(value: str) -> str:
+    """Accept Console key/value JSON or legacy plaintext; never expose bad values."""
+    if not isinstance(value, str) or not value.strip():
+        raise RoutingError("routing_secret_invalid")
+    value = value.strip()
+    if value.startswith(("{", "[", '"')):
+        try:
+            payload = json.loads(value)
+        except (ValueError, TypeError):
+            raise RoutingError("routing_secret_invalid") from None
+        if not isinstance(payload, dict) or not isinstance(payload.get("api_key"), str):
+            raise RoutingError("routing_secret_invalid")
+        value = payload["api_key"].strip()
+    if not value or any(c.isspace() for c in value):
+        raise RoutingError("routing_secret_invalid")
+    return value
+
+
 class DisabledProvider:
     name = "disabled"
 
@@ -265,7 +283,7 @@ def create_service(settings, store, objects):
                 return key
             try:
                 session = boto3.Session(profile_name=settings.aws_profile or None, region_name=settings.aws_region)
-                return session.client("secretsmanager", config=Config(connect_timeout=1, read_timeout=3, retries={"total_max_attempts": 1})).get_secret_value(SecretId=settings.google_routes_secret_arn)["SecretString"]
+                return routing_secret_key(session.client("secretsmanager", config=Config(connect_timeout=1, read_timeout=3, retries={"total_max_attempts": 1})).get_secret_value(SecretId=settings.google_routes_secret_arn)["SecretString"])
             except (ClientError, BotoCoreError, KeyError):
                 raise RoutingError("google_secret_unavailable") from None
         def cycling_key():
@@ -274,7 +292,7 @@ def create_service(settings, store, objects):
                 return key
             try:
                 session = boto3.Session(profile_name=settings.aws_profile or None, region_name=settings.aws_region)
-                return session.client("secretsmanager", config=Config(connect_timeout=1, read_timeout=3, retries={"total_max_attempts": 1})).get_secret_value(SecretId=settings.openrouteservice_secret_arn)["SecretString"]
+                return routing_secret_key(session.client("secretsmanager", config=Config(connect_timeout=1, read_timeout=3, retries={"total_max_attempts": 1})).get_secret_value(SecretId=settings.openrouteservice_secret_arn)["SecretString"])
             except (ClientError, BotoCoreError, KeyError):
                 raise RoutingError("cycling_secret_unavailable") from None
         cycling = OpenRouteCycling(cycling_key, reserve=reserve) if settings.cycling_provider == "openrouteservice" else None
