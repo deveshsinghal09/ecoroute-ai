@@ -1,5 +1,13 @@
 # Credentials and configuration checklist
 
+## Air-quality panel checks — 12 October 2026
+
+No new credentials required for Check route data: it checks an existing comparison locally.
+Check collected datasets separately requires a valid Cognito session with ecoroute/read and the
+existing API role DynamoDB Query permission for QUALITY#open_meteo. Guest401 is expected security
+behavior. No secrets requested and no IAM expansion performed for this interface update.
+
+
 ## Route contrast and sidebar - 2026-10-12
 
 No new credentials or permissions required. Existing restricted browser Maps key and Amplify

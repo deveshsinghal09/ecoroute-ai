@@ -10,6 +10,71 @@ window.google={maps:{Map:MockMap,OverlayView,RenderingType:{VECTOR:'VECTOR',RAST
 window.ecoGoogleReady();`;
 async function mockMap(page:Page){await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk}));}
 
+test('Air quality empty state explains how to choose a route instead of showing dashes',async({page})=>{
+ await mockMap(page);await page.goto('/');await page.getByRole('button',{name:'Air quality',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Choose a route first'})).toBeVisible();
+ await expect(page.locator('.air-quality-reading')).toHaveCount(0);
+ await expect(page.getByText('Source-dependent',{exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Choose a route',exact:true}).click();
+ await expect(page.getByLabel('Origin',{exact:true})).toBeVisible();
+});
+
+test('guest route data check works without requesting the protected dataset endpoint and clears on selection',async({page})=>{
+ await mockMap(page);let qualityRequests=0;
+ await page.route('**/api/v1/data/quality',r=>{qualityRequests++;return r.fulfill({status:401,json:{}});});
+ await page.route('**/api/v1/routes/preview',r=>r.fulfill({json:{...recording,persistence:'request_only'}}));
+ await page.goto('/');await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ for(const size of [{width:1280,height:720},{width:390,height:844}]){
+  await page.setViewportSize(size);await page.getByRole('button',{name:'Air quality',exact:true}).click();
+  await expect(page.locator('.air-quality-reading')).toContainText('69.2');
+  await expect(page.getByText('Whole journey',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Check route data',exact:true}).click();
+  await expect(page.locator('.air-quality-check')).toContainText('match the route’s exposure estimate');
+  await expect(page.locator('.air-quality-check')).toContainText('does not fetch new readings');
+  await expect.poll(()=>page.locator('.air-quality-check').evaluate(el=>{
+   const box=el.getBoundingClientRect(),panel=el.closest('.detail-panel')!.getBoundingClientRect();
+   return box.top>=panel.top&&box.bottom<=panel.bottom+1;
+  })).toBe(true);
+  expect(await page.locator('.air-quality-content').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+  await page.screenshot({path:`../work/air-quality-simple-${size.width}.png`});
+ }
+ expect(qualityRequests).toBe(0);
+ await page.getByRole('button',{name:'Journeys',exact:true}).click();await page.locator('.route-option').nth(1).click();
+ await page.getByRole('button',{name:'Air quality',exact:true}).click();await expect(page.locator('.air-quality-check')).toHaveCount(0);
+ await page.getByRole('button',{name:'Check route data',exact:true}).click();await expect(page.locator('.air-quality-check')).toContainText('match the route’s exposure estimate');
+});
+
+test('missing route pollution is clearly unavailable and the data check does not claim success',async({page})=>{
+ await mockMap(page);const data=structuredClone(recording);
+ for(const route of data.routes){route.estimated_pm25_exposure_ug_h_m3=null;route.pm25_coverage_fraction=0;route.segments=[];route.source_metadata=[];}
+ await page.route('**/api/v1/routes/preview',r=>r.fulfill({json:{...data,persistence:'request_only'}}));
+ await page.goto('/');await page.getByLabel('Origin',{exact:true}).fill('Gateway of India, Mumbai');await page.getByLabel('Destination',{exact:true}).fill('Marine Drive, Mumbai');
+ await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ await page.getByRole('button',{name:'Air quality',exact:true}).click();await expect(page.getByRole('heading',{name:'Air estimate unavailable'})).toBeVisible();
+ await expect(page.locator('.air-quality-content')).toContainText('Missing data does not mean clean air');await expect(page.locator('.air-quality-reading')).toHaveCount(0);
+ await page.getByRole('button',{name:'Check route data',exact:true}).click();await expect(page.locator('.air-quality-check')).toContainText('0 of 0');
+ await expect(page.locator('.air-quality-check')).toContainText('could not be verified');
+});
+
+test('signed-in dataset check renders a readable result and recovers from AWS failure without exposing provider text',async({page})=>{
+ await mockMap(page);
+ await page.addInitScript(()=>sessionStorage.setItem('ecoroute-pkce',JSON.stringify({verifier:'test-verifier',state:'test-state',created:Date.now()})));
+ await page.route('**/oauth2/token',r=>r.fulfill({json:{access_token:'test-only-token',expires_in:3600}}));
+ await page.route('**/api/v1/routes/compare',r=>r.fulfill({json:recording}));
+ let qualityCalls=0;
+ await page.route('**/api/v1/data/quality',r=>{qualityCalls++;expect(r.request().headers().authorization).toBe('Bearer test-only-token');return qualityCalls===1?r.fulfill({status:503,json:{error:{code:'storage_unavailable',message:'PRIVATE_PROVIDER_DETAIL'}}}):r.fulfill({json:{status:'available',reports:[{records:192,missing_or_rejected:0,flagged:0,raw_key:'PRIVATE_PATH'}],truncated:false}});});
+ await page.goto('/?code=test-code&state=test-state');await expect(page.locator('.notice')).toContainText('Signed in');
+ await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ await page.getByRole('button',{name:'Air quality',exact:true}).click();await page.getByText('About this estimate',{exact:true}).click();
+ await page.getByRole('button',{name:'Check collected datasets',exact:true}).click();await expect(page.locator('.air-quality-error')).toBeVisible();
+ await expect(page.locator('.air-quality-content')).not.toContainText('PRIVATE_PROVIDER_DETAIL');
+ await page.getByRole('button',{name:'Check collected datasets',exact:true}).click();await expect(page.locator('.air-quality-content')).toContainText('192 readings');
+ await expect(page.locator('.air-quality-error')).toHaveCount(0);await expect(page.locator('.air-quality-content')).not.toContainText('PRIVATE_PATH');
+ expect(qualityCalls).toBe(2);
+});
+
 test('request-only Insights invokes backend explanation and reports its real mode',async({page})=>{
  await page.setViewportSize({width:1280,height:720});await mockMap(page);const bodies:any[]=[];
  await page.route('**/api/v1/routes/preview',route=>{const body=route.request().postDataJSON();bodies.push(body);return route.fulfill({json:{...recording,persistence:'request_only',...(body.include_explanation?{explanation:{explanation:'Verified server-calculated explanation. '.repeat(25),mode:'gemini_arranged_approved_text',fallback_reason:null}}:{})}});});

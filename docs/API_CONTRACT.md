@@ -1,5 +1,13 @@
 # API contract — backend foundation and environmental datasets
 
+## Air-quality interface behavior — 12 October 2026
+
+Check route data operates on returned Route.segments, pm25_coverage_fraction and exposure metrics;
+it does not refresh providers. GET /api/v1/data/quality remains read-scope protected and reports
+collected datasets rather than route coverage. The UI calls it only for a signed-in user choosing
+Check collected datasets. No endpoint/request/response contract changed.
+
+
 ## Route colors - 2026-10-12
 
 UI assigns stable per-comparison colors by candidate order; colors do not imply data quality,

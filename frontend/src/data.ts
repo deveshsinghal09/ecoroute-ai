@@ -9,7 +9,7 @@ export interface Route {
   weather?:{status:string;temperature_c?:number;precipitation_mm?:number;wind_m_s?:number;preference_cost:number|null};
   terrain?:{status:string;ascent_m:number|null;descent_m:number|null};
   source_metadata?: unknown; warnings: string[]; recommendation_reason: string; routing_source: Record<string, unknown>;
-  segments: { duration_s: number; pm25_exposure_ug_h_m3: number | null; pollutants: Record<string, {value_ug_m3: number | null; source?: string; reported_at?: string}> }[];
+  segments: { duration_s: number; pm25_exposure_ug_h_m3: number | null; sample_at?:string; pollutants: Record<string, {value_ug_m3: number | null; source?: string; status?:string; reported_at?: string; collected_at?:string; resolution_km?:number|null; quality_flags?:string[]}> }[];
 }
 export interface Comparison { routes: Route[]; selected_route_id: string; candidate_count: number; recommended_route_ids: Record<string,string|null>; warnings: string[]; spatial_differentiation: string; persistence?:'request_only'; pollution_lookup?:string; explanation?:import('./routeInsight').RouteExplanation; resolved_origin?:Position; resolved_destination?:Position; }
 export const historical = recording.response as unknown as Comparison;

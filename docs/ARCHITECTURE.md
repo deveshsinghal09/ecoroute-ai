@@ -1,5 +1,13 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Route air-data checks in the browser — 12 October 2026
+
+AirQualityPanel checks the selected comparison’s existing segment data, coverage and exposure
+arithmetic without a new request or sign-in. This is a consistency check, not provider validation.
+GET /data/quality remains a separate Cognito-protected collected-dataset report; signed-in users
+may request a sanitized count summary. Missing route and missing pollution are distinct UI states.
+
+
 ## Route display identity - 2026-10-12
 
 Shared routeStyle palette keeps map, fallback geometry, legend and cards consistent. Outline

@@ -1,5 +1,34 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Air-quality panel and guest data check — 12 October 2026
+
+- Fixed the guest-facing data-quality action: it previously called protected GET /data/quality
+  with request() requiring Cognito. Guest route comparisons are allowed, but this dataset endpoint
+  correctly returns401. The main action is now Check route data: validates already-returned PM2.5
+  segment availability, duration/exposure arithmetic and collection-age metadata in the browser.
+  Clearly states it does not fetch new readings; it cannot certify sensors or provider accuracy.
+- No selected route now shows Choose a route first and a planner action, not dash-filled metrics.
+  Selected routes show a plain PM2.5 explanation, whole/partial travel-time coverage, and the actual
+  source type. Missing data is unavailable, never clean air. Source/resolution/download time and
+  confidence moved into About this estimate. Saved forecasts and stale downloads remain labeled.
+- Signed-in users can separately Check collected datasets, retaining the protected API and summarizing
+  counts without raw S3 keys/JSON. Friendly inline failure/retry; route check remains available.
+  A route change remounts the panel so old checks do not appear for another selection. Check results
+  scroll into view with reduced-motion support; existing panel dimensions/hidden scrollbars preserved.
+- Added AirQualityPanel.tsx, airQuality.ts, air-quality.css and9 helper tests; integrated in App.tsx.
+  Extended optional telemetry-free pollutant metadata types. Added4 Maps browser tests; mock Cognito
+  settings explicit in test-only config. No backend/REST schema/auth/IAM/resource changes.
+- Commands: npm test74 passed; npm run build passed; npm run test:e2e35 passed; full Maps26 passed;
+  final scroll follow-up2 targeted browser tests passed; git diff --check passed; design detector[].
+  Existing optional watch bundle-size warning remains. Screenshots laptop/mobile reviewed.
+- Read-only live checks: dev-admin non-root account112920804206 ap-south-1; /data/quality guest401;
+  exact DynamoDB quality partition query succeeded, latest report192 cleaned records,0 flagged.
+  Positive authenticated API check not performed without a user sign-in token. Optional role diagnostics
+  denied DescribeStackResource/GetFunctionConfiguration/SimulatePrincipalPolicy; no IAM expanded.
+- Publishing through existing Amplify Git integration. No new paid AWS services, credentials, provider
+  calls or fabricated data. Commit author:Devesh Raj; next meaningful author:Devesh Singhal.
+
+
 ## Insights final deployment verification — 12 October 2026
 
 - Latest implementation commit a377c2d passed GitHub CI run38181726347: frontend and backend check

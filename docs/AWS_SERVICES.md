@@ -1,5 +1,12 @@
 # AWS service decisions and IAM boundaries
 
+## Air-quality interface checks — 12 October 2026
+
+No new AWS resources. Guest route consistency checks run in the browser. Collected dataset reports
+continue using Cognito -> API Gateway -> API Lambda -> DynamoDB environmental metadata. Source data
+and AWS authorization remain unchanged; a successful metadata query is not proof of route coverage.
+
+
 Amplify route-contrast build verified publicly. Fresh compare returned429 at the daily allowance;
 limits unchanged. Latest UI commit974f7a4 passed both GitHub CI jobs.
 
