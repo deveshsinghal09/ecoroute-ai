@@ -10,6 +10,19 @@ window.google={maps:{Map:MockMap,OverlayView,RenderingType:{VECTOR:'VECTOR',RAST
 window.ecoGoogleReady();`;
 async function mockMap(page:Page){await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk}));}
 
+test('request-only Insights invokes backend explanation and reports its real mode',async({page})=>{
+ await mockMap(page);const bodies:any[]=[];
+ await page.route('**/api/v1/routes/preview',route=>{const body=route.request().postDataJSON();bodies.push(body);return route.fulfill({json:{...recording,persistence:'request_only',...(body.include_explanation?{explanation:{explanation:'Verified server-calculated explanation',mode:'gemini_arranged_approved_text',fallback_reason:null}}:{})}});});
+ await page.goto('/');await page.getByLabel('Origin',{exact:true}).fill('Gateway of India, Mumbai');await page.getByLabel('Destination',{exact:true}).fill('Marine Drive, Mumbai');
+ await page.getByRole('checkbox',{name:'Allow processing my locations and route. Google routes are not saved.'}).check();
+ await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ await page.getByRole('button',{name:'Insights',exact:true}).click();await page.getByRole('button',{name:'Explain this comparison'}).click();
+ await expect(page.locator('.explanation')).toContainText('Verified server-calculated explanation');
+ await expect(page.locator('.explanation')).toContainText('Gemini · grounded in server-calculated metrics');
+ expect(bodies).toHaveLength(2);expect(bodies[1].include_explanation).toBe(true);expect(bodies[1].consent_to_store).toBe(false);
+ expect(bodies[1].routes).toBeUndefined();expect(bodies[1].estimated_pm25_exposure_ug_h_m3).toBeUndefined();
+});
+
 test('route factor controls stay inside the planner and send compatible guest preferences',async({page})=>{
  await page.setViewportSize({width:1366,height:768});await mockMap(page);
  let submitted:any;
@@ -55,6 +68,7 @@ for(const [label,mode] of [['Drive','driving'],['Walk','walking'],['Cycle','cycl
   await page.route('**/api/v1/routes/preview',route=>{
    sent=route.request().postDataJSON();expect(route.request().headers().authorization).toBeUndefined();
    const response=structuredClone(recording);response.persistence='request_only';
+   if(sent.include_explanation)response.explanation={explanation:'Server deterministic fixture summary',mode:'deterministic',fallback_reason:'bedrock_disabled'};
    for(const r of response.routes)r.routing_source={provider:mode==='cycling'?'openrouteservice':'google_routes',fixture:true};
    return route.fulfill({json:response});
   });
