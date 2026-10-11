@@ -1,5 +1,9 @@
 # EcoRoute AI architecture â€” Phases 1â€“7
 
+## Uniform API key secret format — 2026-10-11
+
+Backend routing secret reader normalizes Console api_key JSON and legacy plaintext; schema errors sanitized. Change pending Lambda deployment.
+
 ## Core live verification — 2026-10-11
 
 Core deployed with exact Amplify origin and callback; public routes explicitly clear inherited JWT scopes. Private routes remain protected. Backend foundation verified live, domain providers unconfigured. See AMPLIFY_CONNECTION.md.

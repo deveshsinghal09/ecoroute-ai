@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+## Uniform API key secret format — 2026-10-11
+
+Current recommended secret format: use Key/value pairs api_key for OpenAQ, Gemini, Google Routes and OpenRouteService. Routing reader also accepts legacy plaintext; JSON support pending Lambda deployment. Names ecoroute/openaq, ecoroute/gemini, ecoroute/google-routes, ecoroute/openrouteservice. Enter values only in Console, never chat.
+
 ## Core live verification — 2026-10-11
 
 Core API and Cognito identifiers now real; Amplify Console public environment variables/rebuild required. Backend provider Secrets Manager references, verified Cognito user/scopes and optional device enrollment still needed. No private values requested. See AMPLIFY_CONNECTION.md.

@@ -1,5 +1,9 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Uniform API key secret format — 2026-10-11
+
+Routing Secrets Manager readers now accept Console JSON {api_key: string} and legacy raw plaintext. Invalid/empty/whitespace or malformed JSON fails with sanitized error before provider use.29secret-format/Google tests passed; Ruff passed. Initial pytest command named nonexistent test_cycling.py and did not run; reran actual files. Code not yet deployed to Lambda; deployment will follow known secret ARNs. User can store Google/OpenRouteService using Key/value pairs api_key. Existing plaintext stays compatible. No key read/logged or secret created by agent.
+
 ## Redeployment verification — 2026-10-11
 
 Amplify redeployment verified live: frontend200/JS200; bundle contains real AWS API URL, Cognito client/domain. API health200 with exact Amplify Allow-Origin; private wearable endpoint401 without token. Report work/amplify-redeployment-verification.json. This verifies configuration/assets/public API, not browser login or provider routing. live_domain_providers=false remains; no successful user authentication or pollution/ML/wearable event claimed. No new deployment/resource/test suite run this follow-up.

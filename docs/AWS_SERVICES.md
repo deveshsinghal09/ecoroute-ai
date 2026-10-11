@@ -1,5 +1,9 @@
 # AWS service decisions and IAM boundaries
 
+## Uniform API key secret format — 2026-10-11
+
+Secrets Manager routing credentials can use Console key/value api_key JSON; legacy plaintext retained. Local code verified, Lambda update pending.
+
 ## Core live verification — 2026-10-11
 
 Core now CREATE_COMPLETE with API/Cognito/Lambda/Scheduler/StepFunctions/SNS/SQS/CloudWatch resources. Data/ML/IoT reused. Health/auth-failure/CORS live tests passed; schedules disabled. Provider integrations/model/SMS/hardware not verified; CloudWatch log reads denied. Amplify separately user-created; see AMPLIFY_CONNECTION.md.
