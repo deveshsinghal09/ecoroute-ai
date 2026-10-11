@@ -1,5 +1,10 @@
 # Credentials and configuration checklist
 
+## Collector result verification - 2026-10-11
+
+Additional temporary read-only permissions proposed in config/iam-ingestion-diagnostics.json for exact S3 notification, SQS attributes, Worker config/mapping reads. Latest reads denied. Authorized administrator must attach separately; no secret value, wildcard or queue mutation. See INGESTION_RESULT_CHECK.md.
+
+
 ## Activation walkthrough - 2026-10-11
 
 Use AWS_ROUTE_AIR_SETUP.md for narrow IAM policy, collector test, user signup and public Amplify

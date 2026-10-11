@@ -1,5 +1,10 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Collector result verification - 2026-10-11
+
+Existing S3->SQS->cleaner chain remains the intended flow. Raw collector save is verified; curation is not. No direct cleaning bypass used to manufacture an end-to-end success. Narrow diagnostic policy is prepared, not applied.
+
+
 ## Activation walkthrough - 2026-10-11
 
 AWS_ROUTE_AIR_SETUP.md explains existing dataflow activation and hosted-vs-local configuration.

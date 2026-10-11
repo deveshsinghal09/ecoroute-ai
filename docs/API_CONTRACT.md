@@ -1,5 +1,10 @@
 # API contract — backend foundation and environmental datasets
 
+## Collector result verification - 2026-10-11
+
+No API contract change. Raw ingestion success does not establish available concentration/exposure. Curated coverage must be checked before route results can report full exposure; missing values remain unavailable.
+
+
 ## Activation walkthrough - 2026-10-11
 
 No HTTP contract changed. AWS_ROUTE_AIR_SETUP.md gives compare/selected-route air display semantics:

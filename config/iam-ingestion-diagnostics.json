@@ -1,0 +1,35 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InspectEnvironmentalBucketNotification",
+      "Effect": "Allow",
+      "Action": "s3:GetBucketNotification",
+      "Resource": "arn:aws:s3:::ecoroutedata-airdatad62c85d3-aqvlom4hqoks"
+    },
+    {
+      "Sid": "InspectEnvironmentalQueues",
+      "Effect": "Allow",
+      "Action": "sqs:GetQueueAttributes",
+      "Resource": [
+        "arn:aws:sqs:ap-south-1:112920804206:EcoRouteData-Tasks0BA6A452-MJCcBKBl8cek",
+        "arn:aws:sqs:ap-south-1:112920804206:EcoRouteData-DeadLettersBBF8BAAB-9ElUIh7JKGBG"
+      ],
+      "Condition": {"StringEquals": {"aws:RequestedRegion": "ap-south-1"}}
+    },
+    {
+      "Sid": "InspectCleaningWorkerConfiguration",
+      "Effect": "Allow",
+      "Action": "lambda:GetFunctionConfiguration",
+      "Resource": "arn:aws:lambda:ap-south-1:112920804206:function:EcoRouteCore-Worker11F36D0F-LhvCNZsSHtKA",
+      "Condition": {"StringEquals": {"aws:RequestedRegion": "ap-south-1"}}
+    },
+    {
+      "Sid": "InspectOneCleaningEventSourceMapping",
+      "Effect": "Allow",
+      "Action": "lambda:GetEventSourceMapping",
+      "Resource": "arn:aws:lambda:ap-south-1:112920804206:event-source-mapping:fc727491-cfeb-4961-a1f7-a0afee1219b6",
+      "Condition": {"StringEquals": {"aws:RequestedRegion": "ap-south-1"}}
+    }
+  ]
+}

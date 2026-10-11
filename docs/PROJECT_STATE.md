@@ -1,5 +1,10 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Collector result verification - 2026-10-11
+
+Collector Console success plus matching logs14:03:42UTC verified; cached=false/raw saved. Environmental FILES/QUALITY queries returned no rows and Worker logs no recent events. S3 notification/SQS attributes/Worker configuration/mapping reads denied, so downstream cause unknown. Prepared exact-resource read-only iam-ingestion-diagnostics.json; not attached/deployed. See INGESTION_RESULT_CHECK.md. No new collection, queue mutation or paid workflow; JSON/scope/diff checks only. Raw success is not curation proof.
+
+
 ## Route/air activation walkthrough - 2026-10-11
 
 Created AWS_ROUTE_AIR_SETUP.md with exact existing-resource Console/CLI steps. Latest diagnostic

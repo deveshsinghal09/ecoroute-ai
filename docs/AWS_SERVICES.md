@@ -1,5 +1,10 @@
 # AWS service decisions and IAM boundaries
 
+## Collector result verification - 2026-10-11
+
+Collector raw Open-Meteo save verified from Console result and CloudWatch. Downstream cleaning not verified: metadata empty, no Worker logs in queried window, diagnostic reads denied. No new resource/deployment or continuous workflow. See INGESTION_RESULT_CHECK.md.
+
+
 ## Activation walkthrough - 2026-10-11
 
 Exact service setup order is in AWS_ROUTE_AIR_SETUP.md. IAM collector invocation is still denied;
