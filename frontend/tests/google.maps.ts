@@ -148,9 +148,29 @@ test('persistent raster fallback preserves 2D and explains recovery without clai
  await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk.replace("return this.rendering||'VECTOR'","return 'RASTER'")}));
  await page.goto('/');await expect(page.getByLabel('Show 2D map')).toBeEnabled();
  await page.getByLabel('Show 3D map').click();
- await expect(page.getByRole('status')).toContainText('turn on browser graphics acceleration');
+ await expect(page.getByRole('status')).toContainText(/Google kept this map in 2D|Chrome cannot create a WebGL 2 context/,{timeout:12000});
  await expect(page.getByLabel('Show 3D map')).toHaveAttribute('aria-pressed','false');
  await page.getByLabel('Toggle satellite imagery').click();
  await page.getByLabel('Zoom map in').click();
  expect(await page.evaluate(()=> (window as any).mapEvidence.zoom)).toBe(16);
+});
+
+test('3D waits through an early raster idle and applies tilt when vector becomes ready',async({page})=>{
+ const delayed=sdk.replace("return this.rendering||'VECTOR'","return this.rendering||'RASTER'").replace("setRenderingType(t){this.rendering=t;this.fire('renderingtype_changed');this.fire('idle')}","setRenderingType(t){this.fire('idle');setTimeout(()=>{this.rendering=t;this.fire('renderingtype_changed');this.fire('idle')},500)}");
+ await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:delayed}));
+ await page.goto('/');await page.getByLabel('Show 3D map').click();
+ await expect(page.getByLabel('Show 3D map')).toHaveAttribute('aria-busy','true');
+ await expect(page.getByLabel('Show 3D map')).toHaveAttribute('aria-pressed','true');
+ await expect(page.getByLabel('Show 3D map')).toHaveAttribute('aria-busy','false');
+ await expect(page.locator('.journey-map-hint')).toHaveCount(0);
+ expect(await page.evaluate(()=> (window as any).mapEvidence.cameras.at(-1).tilt)).toBe(50);
+});
+test('choosing 2D cancels a pending renderer upgrade and never tilts later',async({page})=>{
+ const delayed=sdk.replace("return this.rendering||'VECTOR'","return this.rendering||'RASTER'").replace("setRenderingType(t){this.rendering=t;this.fire('renderingtype_changed');this.fire('idle')}","setRenderingType(t){this.fire('idle');setTimeout(()=>{this.rendering=t;this.fire('renderingtype_changed');this.fire('idle')},500)}");
+ await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:delayed}));
+ await page.goto('/');await page.getByLabel('Show 3D map').click();await page.getByLabel('Show 2D map').click();
+ await page.waitForTimeout(700);
+ await expect(page.getByLabel('Show 2D map')).toHaveAttribute('aria-pressed','true');
+ expect(await page.evaluate(()=> (window as any).mapEvidence.cameras.at(-1).tilt)).toBe(0);
+ await expect(page.locator('.journey-map-hint')).toHaveCount(0);
 });

@@ -1,5 +1,12 @@
 # Credentials and configuration checklist
 
+## Chrome graphics prerequisite - 2026-10-12
+
+No new credentials. This laptop's saved Chrome acceleration preference was false; user must
+turn on Use graphics acceleration when available at chrome://settings/system and Relaunch.
+Do not infer hardware failure from the first raster idle during an asynchronous upgrade.
+
+
 ## Map view repair - 2026-10-12
 
 No additional AWS/provider secrets required. Existing Maps JavaScript browser key used locally.

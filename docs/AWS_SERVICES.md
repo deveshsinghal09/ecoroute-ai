@@ -1,5 +1,11 @@
 # AWS service decisions and IAM boundaries
 
+## Chrome renderer follow-up - 2026-10-12
+
+Frontend-only asynchronous renderer fix published through Amplify main branch. No AWS resource
+or IAM change; user Chrome graphics acceleration requires a local setting/relaunch.
+
+
 ## Map rendering repair - 2026-10-12
 
 Frontend-only Google Maps change: no AWS resources, permissions, schedules or Lambda updates.

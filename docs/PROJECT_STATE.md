@@ -1,5 +1,24 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Chrome graphics and asynchronous renderer recovery - 2026-10-12
+
+User reported failure after Amplify map repair. Found this laptop's Chrome Local State
+hardware_acceleration_mode.enabled=false (only that setting inspected; no browsing data printed).
+User instructed to enable graphics acceleration and Relaunch via chrome://settings/system.
+No browser setting modified or user browser closed by the agent.
+
+Fixed additional startup race: first idle during renderer upgrade could still be raster.
+3D now waits for VECTOR on renderingtype_changed/tilesloaded/idle, with an8-second bounded
+loading state. Switching2D or imagery cancels pending3D; unmount clears timer. Timeout
+checks WebGL2 before explaining recovery, instead of always blaming graphics settings.
+15 mocked map tests passed; build passed. Isolated Chrome with real Google tiles:
+normal vector/50degree3D and0degree2D; deliberately --disable-webgl raster/2D retained.
+These are isolated browser tests, not verification of the user's relaunched Chrome session.
+Evidence work/chrome-map-verification.json; screenshots chrome-map-3d-live.png and
+chrome-map-webgl-disabled.png. Publishing through approved Amplify-connected main.
+No backend, IAM, key, traffic/pollution or new AWS resources changed.
+
+
 ## 2D/3D map rendering repair - 2026-10-12
 
 User reported unavailable rendering across devices. Fixed premature interpretation of Google

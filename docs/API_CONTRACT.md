@@ -1,5 +1,11 @@
 # API contract — backend foundation and environmental datasets
 
+## Camera readiness - 2026-10-12
+
+3D waits for confirmed vector readiness, not just the first idle.2D cancels pending requests.
+No API or route schema changes; renderer failure never fabricates buildings or road geometry.
+
+
 ## Geographic map views - 2026-10-12
 
 No REST schema changes. Map rendering uses explicit2D/3D camera controls, preserving routes

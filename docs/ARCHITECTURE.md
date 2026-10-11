@@ -1,5 +1,12 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Asynchronous map renderer recovery - 2026-10-12
+
+A3D request waits for actual VECTOR readiness across renderer/tiles/idle events. An8-second
+bounded timer reports failure with a WebGL2 diagnostic;2D selection cancels late tilt.
+Client GPU acceleration is an independent prerequisite, not controllable by backend APIs.
+
+
 ## Map camera modes - 2026-10-12
 
 2D and 3D are Google camera modes on genuine geographic data. 3D chooses vector street map

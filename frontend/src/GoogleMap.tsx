@@ -60,6 +60,8 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
   const host = useRef<HTMLDivElement>(null), map = useRef<google.maps.Map|null>(null);
   const lines = useRef<{route:Route; line:google.maps.Polyline}[]>([]), fitted = useRef('');
   const perspectiveRef = useRef(false);
+  const pending3D=useRef(false),switchTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);
+  const [switching3D,setSwitching3D]=useState(false);
   const [ready, setReady] = useState(false), [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0), [perspective, setPerspective] = useState(false);
   const [vector, setVector] = useState<boolean|null>(null), [satellite, setSatellite] = useState(true);
@@ -99,8 +101,10 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
         setVector(available);
         if(host.current)host.current.dataset.renderingType=available?'vector':'raster';
         if(!available){setPerspective(false);perspectiveRef.current=false;}
+        applyPending3D();
       };
       map.current.addListener('renderingtype_changed', syncRenderer);
+      map.current.addListener('idle', syncRenderer);
       map.current.addListener('tilesloaded', () => {
         if(mounted && host.current)host.current.dataset.tilesLoaded='true';
         syncRenderer();
@@ -114,7 +118,7 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
       syncRenderer();setReady(true);
     }).catch(() => {if (mounted) setError('Google Maps could not load. Check your connection, key restrictions and billing, then retry.');});
     return () => {
-      mounted = false;
+      mounted = false;pending3D.current=false;clearTimeout(switchTimer.current);
       if (map.current) google.maps.event.clearInstanceListeners(map.current);
       map.current = null; host.current?.replaceChildren();
       window.removeEventListener('google-map-auth-error', authError);
@@ -193,29 +197,40 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
       onChooseLocation?.('origin',point);map.current?.moveCamera({center:point,zoom:16,tilt:perspectiveRef.current?50:0});setLocating(false);
     },()=>{setLocating(false);setLocationError('Location access was unavailable. Choose a point or enter an address instead.');},{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
   }
+  function cancel3DSwitch(){
+    pending3D.current=false;clearTimeout(switchTimer.current);setSwitching3D(false);
+  }
+  function applyPending3D(){
+    if(!pending3D.current || !map.current || map.current.getRenderingType()!==google.maps.RenderingType.VECTOR)return;
+    // Rendering upgrades are asynchronous. The first idle may still be raster;
+    // wait for VECTOR instead of consuming a one-shot idle listener too early.
+    cancel3DSwitch();setViewMessage('');perspectiveRef.current=true;
+    map.current.moveCamera({zoom:Math.max(17,map.current.getZoom()||2),tilt:50,heading:0});
+  }
   function chooseView(tilted:boolean) {
     if(!map.current)return;
-    setViewMessage('');
+    cancel3DSwitch();setViewMessage('');
     if(!tilted){perspectiveRef.current=false;setPerspective(false);map.current.moveCamera({tilt:0,heading:0});return;}
-    // A world-scale camera cannot tilt. Use the supported street layer at a
-    // building-scale zoom, keeping the user's center, geometry and endpoints.
     setSatellite(false);map.current.setMapTypeId('roadmap');
-    const applyTilt=()=>{
-      if(!map.current)return;
-      if(map.current.getRenderingType()!==google.maps.RenderingType.VECTOR){
-        setPerspective(false);perspectiveRef.current=false;
-        setViewMessage('2D remains available. To enable 3D, turn on browser graphics acceleration and reload the page.');
-        return;
-      }
-      perspectiveRef.current=true;
-      map.current.moveCamera({zoom:Math.max(17,map.current.getZoom()||2),tilt:50,heading:0});
-    };
-    if(map.current.getRenderingType()!==google.maps.RenderingType.VECTOR){
-      google.maps.event.addListenerOnce(map.current,'idle',applyTilt);
-      map.current.setRenderingType(google.maps.RenderingType.VECTOR);
-    }else applyTilt();
+    pending3D.current=true;setSwitching3D(true);
+    switchTimer.current=setTimeout(()=>{
+      if(!pending3D.current)return;
+      applyPending3D();
+      if(!pending3D.current)return;
+      cancel3DSwitch();setPerspective(false);perspectiveRef.current=false;
+      const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl2');
+      const accelerated=!!gl;gl?.getExtension('WEBGL_lose_context')?.loseContext();
+      setViewMessage(accelerated
+        ? 'Google kept this map in 2D. Reload the page and retry 3D; browser or graphics-driver restrictions can prevent vector rendering.'
+        : 'Chrome cannot create a WebGL 2 context. Enable graphics acceleration in Chrome Settings → System, relaunch Chrome, then retry 3D.');
+    },8000);
+    applyPending3D();
+    if(pending3D.current){
+      try{map.current.setRenderingType(google.maps.RenderingType.VECTOR);}
+      catch{ /* Keep waiting for renderer events; the timeout gives recovery guidance. */ }
+    }
   }
-  function toggleSatellite() {setSatellite(!satellite); map.current?.setMapTypeId(satellite ? 'roadmap' : 'hybrid');}
+  function toggleSatellite() {cancel3DSwitch();setViewMessage('');setSatellite(!satellite); map.current?.setMapTypeId(satellite ? 'roadmap' : 'hybrid');}
   return <section className="google-map-area" aria-label="Geographic journey map">
     <div ref={host} className="google-map-host" aria-label="Journey map"/>
     {ready && <>
@@ -223,7 +238,7 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
         <div className="journey-map-location"><span className="signal-dot"/><span>{active?'Your journey':chosenLocations?.origin||chosenLocations?.destination?'Selected locations':'Explore the map'}<small>{satellite ? 'Satellite + streets' : 'Street map'}</small></span></div>
         <div className="journey-map-switches">
           <button type="button" aria-label="Show 2D map" aria-pressed={!perspective} onClick={()=>chooseView(false)}>2D</button>
-          <button type="button" aria-label="Show 3D map" aria-pressed={perspective} onClick={()=>chooseView(true)}>3D</button>
+          <button type="button" aria-label="Show 3D map" aria-pressed={perspective} aria-busy={switching3D} disabled={switching3D} onClick={()=>chooseView(true)}>{switching3D?'Loading 3D…':'3D'}</button>
           <button type="button" aria-label="Toggle satellite imagery" aria-pressed={satellite} onClick={toggleSatellite}><Layers size={15}/><span>Satellite</span></button>
         </div>
       </div>
