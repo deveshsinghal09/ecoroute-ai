@@ -1,5 +1,23 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Insights final deployment verification — 12 October 2026
+
+- Latest implementation commit a377c2d passed GitHub CI run38181726347: frontend and backend check
+  jobs both successful. Local results:382 backend passed,1 optional ML-container skip;65 frontend
+  unit tests passed;35 dashboard browser tests and22 mocked Maps tests passed; build/Ruff passed.
+- EcoRouteCore follow-up verified UPDATE_COMPLETE; API code matches reviewed asset
+  8cc18cd23585249e6b16c917eb5c21a25683a19e9a2ce88ced842df8c6ddcf50.zip.
+  Public health200, private endpoints401 with missing/invalid tokens, exact Amplify-origin CORS204.
+- Amplify serves index-BKYM3AvX.js. Published Insights verified at1280x720 and390x844 with the
+  actual saved historical comparison replay and mocked Maps SDK. Six readable paragraphs, minutes,
+  PM2.5 explanation and no horizontal overflow. Replay uses current explanation code; no fresh
+  provider comparisons, Gemini/Bedrock invocation, pollution readings or notifications claimed.
+- Both LLM-approved statements and fallback summaries now use everyday language; route scoring,
+  measurements, auth, IAM, resource counts and request allowances remain unchanged.
+- Evidence in ignored work/:insights-published-verification.json, insights-backend-final-verification.json,
+  insights-published-1280.png and insights-published-390.png. No new credentials required.
+- Verification documentation commit author:Mayank Gupta; next meaningful author:Devesh Raj.
+
 ## Insights coverage rounding and browser expectation follow-up — 12 October 2026
 
 Published historical replay revealed the actual second route has coverage0.9999999999999999.
