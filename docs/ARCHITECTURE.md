@@ -1,5 +1,13 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Environmental query correction - 2026-10-11
+
+AwsRepository omits an unspecified lower sort-key bound, using pk equality and sk <= end.
+Explicit date ranges retain BETWEEN. This avoids DynamoDB empty-key ValidationException in
+quality/station listings while preserving descending order, upper bounds, TTL filtering,
+bounded reads and truncation. No IAM expansion, public endpoint or storage schema change.
+
+
 
 Current explanation model: gemini-3.5-flash-lite (verified live through the deployed AWS API).
 Secrets Manager JSON accepts api_key, GEMINI_API_KEY or gemini_api_key (exactly one), or plaintext.

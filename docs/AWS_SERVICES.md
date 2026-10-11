@@ -1,5 +1,15 @@
 # AWS service decisions and IAM boundaries
 
+## Data quality fix - 2026-10-11
+
+Existing environmental table and API role Query grant were reviewed against deployed Core and
+CDKToolkit templates. IAM boundary allows Query on EcoRouteData tables in Mumbai. The failure
+was a rejected empty sort-key value, reproduced against real DynamoDB. No new service, policy,
+scheduled collection or additional recurring service charge; only the existing Lambda code
+asset is updated. Real CLI reads returned two cleaned reports (192 and 288 records).
+AWS key constraints: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Constraints.html
+
+
 
 Current explanation model: gemini-3.5-flash-lite (verified live through the deployed AWS API).
 Secrets Manager JSON accepts api_key, GEMINI_API_KEY or gemini_api_key (exactly one), or plaintext.

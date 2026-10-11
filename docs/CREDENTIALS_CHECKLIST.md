@@ -1,5 +1,16 @@
 # Credentials and configuration checklist
 
+## Data quality diagnostics - 2026-10-11
+
+No new credential or permission is needed for the query correction. dev-admin is the verified
+non-root devesh_eco IAM user in account 112920804206, region ap-south-1. Deployed Core imports
+the correct environmental table/bucket from EcoRouteData. API Query grants and workload
+boundary were reviewed. CLI API log filtering is denied; permissions were not broadened.
+Protected /api/v1/data/quality still requires a Cognito access token with ecoroute/read.
+For website verification, sign in using Connection settings -> Sign in with Cognito, then
+Air quality -> Check data quality. Never paste passwords or access tokens into chat.
+
+
 ## Gemini configuration verified - 2026-10-11
 
 The existing ecoroute/gemini secret uses field GEMINI_API_KEY; the deployed reader accepts it.

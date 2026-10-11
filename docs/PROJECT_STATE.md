@@ -1,5 +1,34 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Data quality query repair - 2026-10-11
+
+User reported storage_unavailable, request reference 52714503ddd74a5db081f0aa13042a67.
+The exact reference could not be read because CLI logs:FilterLogEvents is denied. Independently
+reproduced the failing endpoint query against real DynamoDB: sk BETWEEN empty string and ~
+raises ValidationException (empty key attribute). Corrected query succeeds on the same table.
+Deployed resource imports, API Query policy and workload boundary were reviewed; no additional
+IAM permission or resource rename is needed. Actual metadata contains two cleaned Open-Meteo
+reports: 192 records collected14:38:02Z and 288 records collected14:35:39Z on October11.
+Both report zero missing/rejected and flagged records at collection. OpenAQ station query
+succeeds but returns zero stations; this does not claim measured data availability.
+
+Modified environment/repository.py, main.py and tests/test_environment.py. Unspecified lower
+bounds use sk <= end; explicit ranges use BETWEEN. Preserves bounded reads, TTL/truncation
+and sorting. CloudWatch dependency_error now logs request ID, SDK operation and error code
+without provider messages, tokens or payloads. Endpoint response/authentication unchanged.
+Tests:82 passed across environment, routing, route_forecast and request_allowance; Ruff and
+git diff --check passed. Initial test-edit placement/import issue and wrong test filename
+were corrected before the passing run. Real AwsRepository queries confirmed metadata access.
+CDK synth/diff passed: six shared Lambda assets only; no IAM/environment/new-resource changes.
+Core deployment verified UPDATE_COMPLETE. Public health returns200; unauthenticated quality
+returns401 as required. Authenticated public-API verification still needs user sign-in.
+No Cognito session exists in the test browser; sign-in needs the user, not a token in chat.
+Commands: STS get-caller-identity, CloudFormation DescribeStacks/GetTemplate, SDK query before
+and after, pytest/Ruff, incremental Lambda source copy, CDK synth/diff/deploy and commit/push.
+Evidence: work/data-quality-live-query.json and work/data-quality-fix-synth.log (ignored).
+Maintained architecture/services/credentials/API documentation; no OpenAPI schema change.
+
+
 ## Final live Mumbai and Gemini verification - 2026-10-11
 
 **Backend and Amplify frontend deployed and verified with real route, forecast and Gemini requests.**

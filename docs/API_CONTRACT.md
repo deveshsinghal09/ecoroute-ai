@@ -1,5 +1,14 @@
 # API contract — backend foundation and environmental datasets
 
+## Stored ingestion quality reports - 2026-10-11
+
+GET /api/v1/data/quality?source=open_meteo (or openaq) remains Cognito-protected.
+Response schema is unchanged: status, reports, truncated, freshness_note. It returns quality
+metadata for stored ingestion, not route-specific transient forecasts or validated model
+accuracy. Zero missing/flagged records does not imply precise roadside air quality. No reports
+returns unavailable rather than invented readings. Empty lower sort-key bounds are now omitted.
+
+
 
 Current explanation model: gemini-3.5-flash-lite (verified live through the deployed AWS API).
 Secrets Manager JSON accepts api_key, GEMINI_API_KEY or gemini_api_key (exactly one), or plaintext.
