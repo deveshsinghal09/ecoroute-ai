@@ -1,5 +1,10 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Sidebar spacing and Insights cleanup - 2026-10-11
+
+Removed Sources & route limitations disclosure and Insights training evaluation/model check controls. Preserved provider attribution and coarse-model footnote. Sidebar cards now size to content, wrap labels and keep consistent padding without adding scrollbars. Production build passed; four Playwright layout checks passed at 1280x720, 1366x768, 1024x640 and 390x844. Visual screenshot reviewed. No backend or API changes; Amplify deployment not verified in this change.
+
+
 ## Current-hour pollution coverage repair - 2026-10-11
 
 Reproduced Gateway of India to Marine Drive, driving, departure22:52 IST: only
