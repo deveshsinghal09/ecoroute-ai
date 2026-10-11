@@ -1,5 +1,6 @@
 """Explicit bicycle routing; never relabel a car route as a cycle route."""
 from datetime import UTC, datetime
+import math
 
 import httpx
 
@@ -22,6 +23,10 @@ class OpenRouteCycling:
             raise RoutingError("cycling_key_missing")
         self.reserve()
         body = {"coordinates": [origin, destination], "units": "m", "instructions": False}
+        if request.terrain_weight:
+            body["elevation"] = True
+        if request.avoid_steps:
+            body["options"] = {"avoid_features": ["steps"]}
         if request.max_alternatives:
             body["alternative_routes"] = {"target_count": min(3, request.max_alternatives + 1)}
         try:
@@ -50,10 +55,19 @@ class OpenRouteCycling:
                 summary = feature["properties"]["summary"]
                 if isinstance(summary["distance"], bool) or isinstance(summary["duration"], bool):
                     raise ValueError()
+                ascent = feature["properties"].get("ascent")
+                descent = feature["properties"].get("descent")
+                def valid_height(value):
+                    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value >= 0
+                terrain = {"status": "available" if valid_height(ascent) and valid_height(descent) else "unavailable",
+                           "ascent_m": ascent if valid_height(ascent) else None,
+                           "descent_m": descent if valid_height(descent) else None,
+                           "source": "openrouteservice_elevation", "resolution": "not_supplied",
+                           "definition": "Modeled ascent per route kilometer is a preference proxy, not measured effort or health risk."}
                 result.append(validate_candidate({
                     "provider": self.name, "mode": "cycling",
                     "legs": [{"coordinates": feature["geometry"]["coordinates"], "duration_s": summary["duration"]}],
-                    "distance_m": summary["distance"],
+                    "distance_m": summary["distance"], "terrain": terrain,
                     "warnings": [
                         "Bicycle paths depend on OpenStreetMap coverage; review local access and safety.",
                         "At most three provider routes requested; alternatives are not guaranteed.",

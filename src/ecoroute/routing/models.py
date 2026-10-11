@@ -16,12 +16,24 @@ class CompareRequest(StrictModel):
     objective: Literal["fastest", "lowest_exposure", "balanced"] = "balanced"
     max_detour_percent: float = Field(default=25, ge=0, le=100)
     exposure_weight: float = Field(default=0.5, ge=0, le=1)
+    weather_weight: float = Field(default=0, ge=0, le=1)
+    terrain_weight: float = Field(default=0, ge=0, le=1)
+    avoid_tolls: bool = False
+    avoid_highways: bool = False
+    avoid_ferries: bool = False
+    avoid_steps: bool = False
     segment_length_m: int = Field(default=250, ge=100, le=1000)
     max_alternatives: int = Field(default=2, ge=0, le=5)
     consent_to_store: Literal[True]
 
     @model_validator(mode="after")
     def window(self):
+        if self.exposure_weight + self.weather_weight + self.terrain_weight > 1 + 1e-9:
+            raise ValueError("Exposure, weather and terrain weights must sum to at most one; remaining weight is travel time")
+        if self.mode != "driving" and any((self.avoid_tolls, self.avoid_highways, self.avoid_ferries)):
+            raise ValueError("Toll/highway/ferry preferences are supported only for driving")
+        if self.mode != "cycling" and (self.avoid_steps or self.terrain_weight):
+            raise ValueError("Step avoidance and terrain scoring currently require the cycling provider")
         self.departure_at = self.departure_at.astimezone(UTC)
         if (
             not datetime.now(UTC) - timedelta(minutes=5)

@@ -11,7 +11,7 @@ from ecoroute.models import StrictModel
 from ecoroute.ml.inference import LocalRegistry, MLService, MLUnavailable
 from ecoroute.ml.route_index import StationPredictionIndex
 from ecoroute.routing.api import service as routes_service
-from ecoroute.routing.models import DepartureRequest
+from ecoroute.routing.models import CompareRequest, DepartureRequest
 from ecoroute.routing.pollution import PollutionIndex
 from ecoroute.routing.service import RouteService
 
@@ -31,6 +31,11 @@ class BatchRequest(StrictModel):
 
 
 class PredictedDepartures(DepartureRequest):
+    station_ids: list[str] = Field(min_length=1, max_length=20)
+    model_version: str | None = Field(default=None, pattern=r"^[a-f0-9]{24}$")
+
+
+class PredictedRoute(CompareRequest):
     station_ids: list[str] = Field(min_length=1, max_length=20)
     model_version: str | None = Field(default=None, pattern=r"^[a-f0-9]{24}$")
 
@@ -134,6 +139,23 @@ def predicted_departures(
     engine=Depends(ml_service),
     routes=Depends(routes_service),
 ):
+    scoring, forecast, predictions, versions = prediction_scoring(body, engine, routes)
+    request = DepartureRequest(**body.model_dump(exclude={"station_ids", "model_version"}))
+    result = scoring.departure_analysis(user.subject, request)
+    result.update(
+        station_forecasts=forecast,
+        model_versions=versions,
+        horizon_hours=1,
+        forecast_issued_at=datetime.now(UTC).isoformat(),
+        warnings=result["warnings"] + [STATION_WARNING],
+    )
+    return result
+
+
+STATION_WARNING = "One-hour station predictions apply only within 1 km and 30 minutes of their valid time; unmatched segments use separately labelled provider coverage."
+
+
+def prediction_scoring(body, engine, routes):
     forecast = engine.batch(body.station_ids, model_version=body.model_version)
     predictions = [r["prediction"] for r in forecast["results"] if r["status"] == "available"]
     if not predictions:
@@ -143,21 +165,25 @@ def predicted_departures(
         routes.provider,
         routes.store,
         routes.objects,
+        weather=routes.weather,
         index_factory=lambda start, end: StationPredictionIndex(
             PollutionIndex.load(routes.objects, start, end), predictions
         ),
         cache_namespace="station-ml-" + "-".join(versions) + "-" + predictions[0]["issued_at"],
     )
-    request = DepartureRequest(**body.model_dump(exclude={"station_ids", "model_version"}))
-    result = scoring.departure_analysis(user.subject, request)
-    result.update(
-        station_forecasts=forecast,
-        model_versions=versions,
-        horizon_hours=1,
-        forecast_issued_at=datetime.now(UTC).isoformat(),
-        warnings=result["warnings"]
-        + [
-            "One-hour station predictions apply only within 1 km and 30 minutes of their valid time; unmatched segments use separately labelled provider coverage."
-        ],
-    )
+    return scoring, forecast, predictions, versions
+
+
+@router.post("/routes/predict")
+def predicted_route(
+    body: PredictedRoute,
+    user: Principal = Depends(require("write")),
+    engine=Depends(ml_service),
+    routes=Depends(routes_service),
+):
+    scoring, forecast, predictions, versions = prediction_scoring(body, engine, routes)
+    request = CompareRequest(**body.model_dump(exclude={"station_ids", "model_version"}))
+    result = scoring.compare(user.subject, request)
+    result.update(station_forecasts=forecast, model_versions=versions, horizon_hours=1,
+                  warnings=result["warnings"] + [STATION_WARNING])
     return result

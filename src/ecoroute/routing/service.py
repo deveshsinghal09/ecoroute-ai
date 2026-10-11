@@ -16,6 +16,7 @@ from ecoroute.routing.cycling import GoogleModeRouting, OpenRouteCycling
 from ecoroute.routing.models import CompareRequest, RoutingError
 from ecoroute.routing.pollution import PollutionIndex, rank_routes, score_exposure
 from ecoroute.routing.providers import AmazonLocation, OsrmProvider, in_delhi
+from ecoroute.routing.weather import RouteWeather, attach_weather
 from ecoroute.storage import fingerprint
 
 logger = logging.getLogger("ecoroute.routing")
@@ -50,7 +51,8 @@ class DisabledProvider:
 
 
 class RouteService:
-    def __init__(self, provider, store, objects, *, index_factory=None, cache_namespace="routing-v1"):
+    def __init__(self, provider, store, objects, *, index_factory=None, cache_namespace="routing-v1", weather=None):
+        self.weather = weather
         self.cache_namespace = cache_namespace
         self.provider, self.store, self.objects = provider, store, objects
         self.index_factory = index_factory or (
@@ -79,6 +81,8 @@ class RouteService:
             raise RoutingError("cycling_provider_not_configured", 422)
         if hasattr(self.provider, "validate_mode"):
             self.provider.validate_mode(request)
+        if self.provider.name != "google_routes" and any((request.avoid_tolls, request.avoid_highways, request.avoid_ferries, request.avoid_steps, request.terrain_weight)):
+            raise RoutingError("preferences_not_supported_by_configured_provider", 422)
         validate_location = getattr(self.provider, "validate_location", in_delhi)
         origin = validate_location(self.provider.resolve(request.origin))
         destination = validate_location(self.provider.resolve(request.destination))
@@ -98,6 +102,7 @@ class RouteService:
             score_exposure(c, segments(c, request.departure_at, request.segment_length_m), index)
             for c in candidates
         ]
+        attach_weather(scored, request, self.weather)
         result = rank_routes(scored, request)
         ids = {r["candidate_key"]: uuid.uuid4().hex for r in scored}
         for r in scored:
@@ -322,4 +327,10 @@ def create_service(settings, store, objects):
             session.client("geo-places", config=config),
             reserve=reserve,
         )
-    return RouteService(provider, store, objects)
+    def weather_reserve():
+        try:
+            objects.reserve("route_weather", daily=100, hourly=30)
+        except BudgetExceeded:
+            raise ValueError("weather_request_budget_exhausted") from None
+    weather = RouteWeather(reserve=weather_reserve) if settings.enable_route_weather else None
+    return RouteService(provider, store, objects, weather=weather)

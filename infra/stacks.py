@@ -99,7 +99,7 @@ class MlStack(Stack):
 
 class CoreStack(Stack):
     def __init__(self, scope, name, *, data, asset_path, callback_urls=None, frontend_origins=None,
-                 google_routes_secret_arn=None, cycling_secret_arn=None, enable_guest_routes=False, enable_self_signup=False, provider_secret_arn=None, gemini_secret_arn=None, gemini_model_id=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
+                 google_routes_secret_arn=None, cycling_secret_arn=None, enable_guest_routes=False, enable_self_signup=False, enable_route_weather=False, provider_secret_arn=None, gemini_secret_arn=None, gemini_model_id=None, ingestion_interval_minutes=60, enable_location=False, ml_inference_arn=None, enable_workflows=False, bedrock_model_arn=None, sms_topic_arns=None, backend_origin=None, **kwargs):
         super().__init__(scope, name, **kwargs)
         frontend_origins = frontend_origins or []
         if not isinstance(frontend_origins, list):
@@ -201,6 +201,7 @@ class CoreStack(Stack):
         if enable_guest_routes and not google_routes_secret_arn:
             raise ValueError("Guest routes require a request-only Google provider secret")
         environment["ENABLE_GUEST_ROUTES"] = str(enable_guest_routes).lower()
+        environment["ENABLE_ROUTE_WEATHER"] = str(enable_route_weather).lower()
         if enable_location:
             for service, action in (("geo-routes", "CalculateRoutes"), ("geo-places", "Geocode")):
                 api_role.add_to_policy(iam.PolicyStatement(actions=[service + ":" + action],

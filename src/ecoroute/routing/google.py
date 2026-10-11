@@ -69,13 +69,17 @@ class GoogleRoutes:
         }
         if request.mode == "driving":
             body.update(routingPreference="TRAFFIC_AWARE", departureTime=request.departure_at.astimezone(UTC).isoformat().replace("+00:00", "Z"))
+            body["routeModifiers"] = {"avoidTolls": request.avoid_tolls, "avoidHighways": request.avoid_highways, "avoidFerries": request.avoid_ferries}
         data = self.call("https://routes.googleapis.com/directions/v2:computeRoutes", body,
-                         "routes.duration,routes.distanceMeters,routes.polyline.geoJsonLinestring,routes.warnings")
+                         "routes.duration,routes.staticDuration,routes.distanceMeters,routes.polyline.geoJsonLinestring,routes.warnings")
         result = []
         try:
             for raw in data.get("routes", [])[:request.max_alternatives + 1]:
                 duration = raw["duration"]
                 if not isinstance(duration, str) or not duration.endswith("s"):
+                    raise ValueError()
+                static = raw.get("staticDuration")
+                if static is not None and (not isinstance(static, str) or not static.endswith("s") or float(static[:-1]) <= 0):
                     raise ValueError()
                 geometry = raw["polyline"]["geoJsonLinestring"]
                 if geometry["type"] != "LineString":
@@ -94,7 +98,12 @@ class GoogleRoutes:
                     "distance_m": raw["distanceMeters"], "warnings": warnings,
                     "routing_source": {"provider": self.name, "fixture": False,
                                        "attribution": "Google Maps", "persistence": "request_only",
-                                       "collected_at": datetime.now(UTC).isoformat()},
+                                       "collected_at": datetime.now(UTC).isoformat(),
+                                       "traffic": {"status": "traffic_aware" if request.mode == "driving" else "not_applicable",
+                                                   "duration_s": float(duration[:-1]),
+                                                   "historical_baseline_duration_s": float(static[:-1]) if static else None,
+                                                   "difference_from_historical_s": float(duration[:-1]) - float(static[:-1]) if static and request.mode == "driving" else None,
+                                                   "definition": "Google duration uses requested departure/traffic; staticDuration includes historical traffic, not free-flow travel. Traffic is already included in the time score."}},
                 }, origin, destination))
         except (KeyError, TypeError, ValueError):
             raise RoutingError("google_route_schema_changed", 502) from None
