@@ -1,5 +1,51 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Verified Mumbai forecast / Gemini compatibility follow-up - 2026-10-11
+
+Core initial update independently verified UPDATE_COMPLETE via CloudFormation/GetTemplate.
+Real Gateway of India->Marine Drive comparison at16:42UTC: two Google routes4191m/1089s and
+6119m/1195s. Actual OpenMeteo CAMS48.2ug/m3; exposure14.5805/15.999722ug*h/m3, coverage1,
+low confidence, per-segment sum verified. This is a request-time forecast, not measured air.
+Gemini initially fell back. Local key/model diagnostics: ListModels200,2.5Flash GenerateContent404;
+3.5FlashLite200/STOP includes text plus thoughtSignature. Official docs restrict2.5 to existing
+active users and recommend3.5FlashLite/3.8Flash for new projects. Parser now permits and discards
+signature metadata; only approved statement IDs can be shown. Deployment context switched to
+verified available gemini-3.5-flash-lite; second Core diff code+model only, no IAM/resource change.
+Structured allowlisted fallback reasons distinguish secret, access, model, provider quota and
+invalid response. Final cloud LLM/provider mode and frontend publish verification pending.
+Tests:342full backend passed/1Docker skip before diagnostic changes; subsequent51targeted passed,
+53frontend unit passed; dashboard13+mockMaps10passed; build/Ruff/OpenAPI export/diffpassed.
+Initial concurrency exhausted RAM; sequential rerun passed. C: became full during second synth;
+automatic approval review rejected recursive generated-asset cleanup (blocked by policy). User
+freed space manually; no assets deleted by agent. Resynth succeeded; second deployment in progress.
+Added forecast.py/test_route_forecast.py, routeInsight.ts/test; existing code/docs updated and
+OpenAPI schemas exported without replacing completed guide/examples. Separate author commits.
+
+
+## Mumbai coverage and request-only Insights repair - 2026-10-11
+
+User reported Gateway of India -> Marine Drive, 11 October 21:43 IST, coverage0/null exposure.
+Only Delhi curated forecasts existed. Existing Insights skipped every Google request-only result,
+even when authenticated; configuring a Gemini key alone could not reach that code path.
+Added opt-in runtime RouteForecast: reuse strict OpenMeteo adapter/normalization, supplement only
+missing PM2.5 cells, maximum3cells/4second start deadline/2second provider timeout/no retries.
+Fresh curated rows take precedence; warm Lambda public grid cache lasts1hour/max64cells. Global
+DynamoDB atomic counters cap route_air100/day30/hour. Request forecasts are transient, not silently
+represented as curated S3 objects. Existing ingestion/S3/SQS/cleaner remains unchanged; no schedules.
+API compare/preview include_explanation defaultsfalse. On explicit Explain, frontend refreshes
+server-scored routes, sends no client-provided measurements, preserves selected index and discards
+responses after selection changes. Only approved statement IDs can reach Gemini/Bedrock; no place
+names, geometry or health records forwarded. Actual mode/fallback reason displayed. Google routes
+remain request-only; no private records become public. User requested Gemini100/hour: cloud ceiling
+100/hour AND100/day; provider plan quotas can be lower. Local defaults20/day5/hour retained.
+Gemini supports Console JSON api_key or plaintext; stable2.5Flash disables thinking for bounded
+statement ordering. No new AWS service/IAM scope/secret/continuous workflow. Deployment pending.
+Validation: targeted102backend+9newpassed; full backend342passed/1Docker skip on sequential rerun;
+frontend53passed single-worker/buildpassed. Initial concurrent full run exhausted memory; initial
+browser3failures were old assertions/mock contracts and are repaired. CDK first diff rejected quoted
+string context; corrected invocation pending. Live verification and frontend publish pending.
+
+
 ## Selected-route sidebar correction - 2026-10-11
 
 User saw identical PM2.5/coverage after selecting an alternative. Existing state already derived

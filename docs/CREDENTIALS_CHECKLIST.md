@@ -1,5 +1,23 @@
 # Credentials and configuration checklist
 
+
+Current explanation model: gemini-3.5-flash-lite (verified local provider200/STOP; cloud update pending).
+Signature metadata is discarded; only approved statement IDs are accepted. Cloud Gemini allowance
+is100/hour AND100/day globally, not per user; actual Google project/model quotas remain independent.
+See PROJECT_STATE.md for live Mumbai exposure arithmetic and deployment evidence.
+
+
+## Mumbai forecast / Insights configuration - 2026-10-11
+
+No new credentials: public noncommercial OpenMeteo CAMS needs no key; uses existing Lambda egress
+and scoped DynamoDB UpdateItem counters. Existing GEMINI_SECRET_ARN and GEMINI_MODEL_ID remain
+server-only. Gemini reader accepts plaintext or JSON api_key. Cloud ENABLE_ROUTE_AIR=true for
+Google configuration; local live tests require explicit ENABLE_ROUTE_AIR=true. Cloud Gemini
+GEMINI_HOURLY_LIMIT=100/GEMINI_DAILY_LIMIT=100 requested by user; this does not increase Google's
+actual project quota or use AWS credits. CLI dev-admin non-root identity verified; GetFunctionConfiguration
+for API Lambda denied. No extra IAM granted; CDK/GetTemplate/public API verification used instead.
+
+
 ## Selected-route UI - 2026-10-11
 
 No new credential/IAM setting required. Sidebar change consumes existing route response and clears

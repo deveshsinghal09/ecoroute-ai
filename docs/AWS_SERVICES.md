@@ -1,5 +1,23 @@
 # AWS service decisions and IAM boundaries
 
+
+Current explanation model: gemini-3.5-flash-lite (verified local provider200/STOP; cloud update pending).
+Signature metadata is discarded; only approved statement IDs are accepted. Cloud Gemini allowance
+is100/hour AND100/day globally, not per user; actual Google project/model quotas remain independent.
+See PROJECT_STATE.md for live Mumbai exposure arithmetic and deployment evidence.
+
+
+## Bounded request-time pollution and Insights - 2026-10-11
+
+Reuse API Gateway/Lambda, DynamoDB atomic request counters and Secrets Manager Gemini reference.
+No additional service, IAM permission, endpoint infrastructure, scheduler, SMS or training job.
+Existing S3/SQS ingestion remains intact. Forecast gap filling uses public noncommercial OpenMeteo
+API under its terms; cache public grid data in warm process only. Cloud route_air100/day30/hour;
+Gemini100/hour AND100/day. Small additional Lambda/DynamoDB requests fit the existing bounded
+serverless deployment; Google Routes/Gemini plan charges are external to AWS credits and AWS
+Budgets. Explain makes another genuine routing request, using coordinates when already resolved.
+
+
 ## Selected-route frontend state - 2026-10-11
 
 Only React sidebar state/presentation changed; existing API Gateway/Lambda/curated forecast route

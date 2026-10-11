@@ -1,5 +1,26 @@
 # API contract — backend foundation and environmental datasets
 
+
+Current explanation model: gemini-3.5-flash-lite (verified local provider200/STOP; cloud update pending).
+Signature metadata is discarded; only approved statement IDs are accepted. Cloud Gemini allowance
+is100/hour AND100/day globally, not per user; actual Google project/model quotas remain independent.
+See PROJECT_STATE.md for live Mumbai exposure arithmetic and deployment evidence.
+
+
+## Optional inline grounded explanation - 2026-10-11
+
+POST /api/v1/routes/compare (JWT) and /routes/preview (enabled Google guest request-only flow)
+accept include_explanation:boolean=false. True adds explanation: {mode, explanation,
+fallback_reason, supporting_metrics, usage, ranking_changed:false}. These are fresh server-scored
+metrics, not client-supplied values. Gemini only arranges approved statement IDs; mode confirms
+actual validated provider use, otherwise deterministic fallback states allowance/unavailability.
+Comparison pollution_lookup: disabled|not_needed|forecast_cache|provider_forecast|request_deadline|
+request_allowance|provider_unavailable. Lookup status is not proof of complete route coverage;
+use pm25_coverage_fraction and null/full exposure. Request-time forecasts preserve source,
+collection/valid timestamps,45kmresolution and low confidence; raw_key empty means not archived.
+Existing endpoints and JWT protection of owned/private data remain unchanged.
+
+
 ## Frontend selected-route metric binding - 2026-10-11
 
 No endpoint/schema change. Sidebar binds to selected Route duration_s/distance_m,

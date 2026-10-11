@@ -1,5 +1,16 @@
 # Frontend integration — EcoRoute AI backend
 
+## Missing coverage and request-only LLM integration - 2026-10-11
+
+A dash means unavailable, not zero. Air-quality sidebar is derived from selected full-route
+exposure/route duration; incomplete PM2.5 coverage means full exposure and mean are null.
+Compare/preview include_explanation=true is an explicit billable request, never automatic polling.
+Explain refreshes genuine server routes and returns comparison.explanation; no client-provided
+pollution metric, place name or route geometry is sent to the LLM. Render returned mode/fallback
+reason; Gemini_arranged_approved_text confirms validated Gemini use, not model-created measurements.
+Do not put GEMINI_API_KEY in Amplify VITE variables. Preserve source attribution/coarse-grid warning.
+
+
 Selected-route instruments: bind all figures to the clicked route_id. Show route duration/distance,
 mean PM2.5 concentration, total concentration-time exposure and completeness separately. When
 spatial_differentiation=not_resolved_same_model_cell, matching concentrations are expected; do not

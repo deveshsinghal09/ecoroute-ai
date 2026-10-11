@@ -7014,6 +7014,11 @@
             "type": "boolean",
             "const": true,
             "title": "Consent To Store"
+          },
+          "include_explanation": {
+            "type": "boolean",
+            "title": "Include Explanation",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -7186,6 +7191,11 @@
             "type": "boolean",
             "const": true,
             "title": "Consent To Store"
+          },
+          "include_explanation": {
+            "type": "boolean",
+            "title": "Include Explanation",
+            "default": false
           },
           "departures": {
             "items": {
@@ -8039,6 +8049,11 @@
             "const": true,
             "title": "Consent To Store"
           },
+          "include_explanation": {
+            "type": "boolean",
+            "title": "Include Explanation",
+            "default": false
+          },
           "departures": {
             "items": {
               "type": "string",
@@ -8202,6 +8217,11 @@
             "type": "boolean",
             "const": true,
             "title": "Consent To Store"
+          },
+          "include_explanation": {
+            "type": "boolean",
+            "title": "Include Explanation",
+            "default": false
           },
           "station_ids": {
             "items": {
@@ -8416,6 +8436,11 @@
             "type": "boolean",
             "const": false,
             "title": "Consent To Store",
+            "default": false
+          },
+          "include_explanation": {
+            "type": "boolean",
+            "title": "Include Explanation",
             "default": false
           }
         },
@@ -9132,6 +9157,12 @@
           },
           "cache_hit": {
             "type": "boolean"
+          },
+          "pollution_lookup": {
+            "type": "string"
+          },
+          "explanation": {
+            "$ref": "#/components/schemas/Explanation"
           }
         },
         "required": [

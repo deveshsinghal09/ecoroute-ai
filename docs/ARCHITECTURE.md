@@ -1,5 +1,25 @@
 # EcoRoute AI architecture — Phases 1–7
 
+
+Current explanation model: gemini-3.5-flash-lite (verified local provider200/STOP; cloud update pending).
+Signature metadata is discarded; only approved statement IDs are accepted. Cloud Gemini allowance
+is100/hour AND100/day globally, not per user; actual Google project/model quotas remain independent.
+See PROJECT_STATE.md for live Mumbai exposure arithmetic and deployment evidence.
+
+
+## Request-time forecast and explanation path - 2026-10-11
+
+Curated S3/DynamoDB observations/forecasts remain first choice. ENABLE_ROUTE_AIR enables bounded
+OpenMeteo CAMS fallback for missing segment cells. Public forecast rows are normalized by the
+existing provider adapter and joined by the existing PollutionIndex. Warm-process grid cache is
+not durable/distributed; global route_air allowances are atomic DynamoDB counters. No personal
+route persistence or raw/curated writes are added. Max3cells means long journeys may still have
+incomplete coverage; provider/date/unit/outage/allowance failures stay null, never invented.
+Compare/preview include_explanation=true invokes the existing grounded arranger only after server
+scoring. Frontend Explain refreshes request-only routes because Google geometry is not stored.
+The returned comparison and explanation share the same metrics; LLM only orders approved text.
+
+
 ## Selected-route metric presentation - 2026-10-11
 
 JourneyMetrics renders only selected Route props; it holds no cached pollution state. Selecting
