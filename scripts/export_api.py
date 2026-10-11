@@ -158,6 +158,17 @@ See DEMO_READINESS.md for repeatable benchmark, curl, deployment and cleanup ins
 examples/delhi-recorded-response.json contains an actual historical public-landmark comparison;
 its response member follows RouteComparison. File metadata marks it historical, not current.
 
+## Planner behavior
+
+Leave now resolves departure_at at submission; optional Plan a departure preserves UTC conversion
+and the 48-hour API window. Priority sliders apply only to Balanced; pure objectives omit unused
+weather/climbing costs. Changed inputs mark returned routes as needing comparison again.
+within_detour_limit=false alternatives display an extra-time warning; max_detour_percent refers
+to time. Weather and climbing status describes the last returned comparison, not newly edited
+settings. Zero pollution weight permits ranking on other enabled factors without inventing
+missing concentrations or exposure. Lowest exposure still requires complete pollutant coverage.
+Endpoint and authentication schemas are unchanged. See ROUTE_CONTROL_AUDIT.md for verification.
+
 ## Endpoint index
 
 Every request body/parameter/response JSON schema is in openapi.json at the listed operation.
