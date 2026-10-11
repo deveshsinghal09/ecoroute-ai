@@ -88,6 +88,16 @@ def test_stage_tagging_permission_matches_live_denial_without_global_resource():
                                 "arn:aws:apigateway:us-east-1::/apis/example/stages")
 
 
+def test_access_log_delivery_admin_permissions_are_regional_not_runtime():
+    selected = policies(ACCOUNT, REGION)
+    statement = next(s for s in selected["EcoRouteExecuteCompute"]["Statement"]
+                     if "logs:CreateLogDelivery" in s["Action"])
+    assert statement["Resource"] == "*"
+    assert statement["Condition"] == {"StringEquals": {"aws:RequestedRegion": REGION}}
+    assert "logs:PutResourcePolicy" in statement["Action"]
+    assert "logs:CreateLogDelivery" not in actions(selected[BOUNDARY])
+
+
 def test_bootstrap_removes_admin_and_cross_account_deployment_grants():
     keys = ("FileAssetsBucketKmsKeyId", "Qualifier", "TrustedAccounts", "TrustedAccountsForLookup",
             "CloudFormationExecutionPolicies", "PublicAccessBlockConfiguration", "UseExamplePermissionsBoundary",

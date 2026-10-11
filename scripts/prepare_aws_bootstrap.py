@@ -112,6 +112,11 @@ def policies(account, region):
               "logs:TagLogGroup logs:UntagLogGroup logs:TagResource logs:UntagResource "
               "logs:ListTagsForResource", logs, regional),
         allow("logs:DescribeLogGroups", "*", regional),
+        # HTTP API access-log delivery setup requires account-level actions.
+        # Runtime roles do not receive these administration permissions.
+        allow("logs:CreateLogDelivery logs:GetLogDelivery logs:UpdateLogDelivery "
+              "logs:DeleteLogDelivery logs:ListLogDeliveries logs:PutResourcePolicy "
+              "logs:DescribeResourcePolicies", "*", regional),
         allow("cognito-idp:CreateUserPool", "*", {"StringEquals": {
             "aws:RequestedRegion": region, "aws:RequestTag/Project": "ecoroute-ai"}}),
         allow("cognito-idp:DescribeUserPool cognito-idp:UpdateUserPool cognito-idp:DeleteUserPool "
