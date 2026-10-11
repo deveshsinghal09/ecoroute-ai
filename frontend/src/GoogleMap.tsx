@@ -4,6 +4,7 @@ import {Compass, Crosshair, Layers, LocateFixed, Minus, Plus, RotateCcw} from 'l
 import type {Route} from './data';
 import {routePath} from './mapGeometry';
 import './journey-map.css';
+import {routeColor} from './routeStyle';
 
 export const mapsKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 const mapId = import.meta.env.VITE_GOOGLE_MAP_ID || '';
@@ -58,7 +59,7 @@ interface Props {
 export default function GoogleMap({routes, selected, onSelect, live=false,
   originLabel='Start', destinationLabel='Destination', chosenLocations, onChooseLocation}:Props) {
   const host = useRef<HTMLDivElement>(null), map = useRef<google.maps.Map|null>(null);
-  const lines = useRef<{route:Route; line:google.maps.Polyline}[]>([]), fitted = useRef('');
+  const lines = useRef<{route:Route; line:google.maps.Polyline;halo:google.maps.Polyline;index:number}[]>([]), fitted = useRef('');
   const perspectiveRef = useRef(false);
   const pending3D=useRef(false),switchTimer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined);
   const [switching3D,setSwitching3D]=useState(false);
@@ -127,21 +128,22 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
 
   useEffect(() => {
     if (!ready || !map.current) return;
-    const overlays = routes.filter(route => routePath(route).length >= 2).map(route => {
-      const line = new google.maps.Polyline({map:map.current, path:routePath(route), strokeColor:'#6d7d83', strokeOpacity:0.85, strokeWeight:5, zIndex:1});
-      line.addListener('click', () => onSelect(route.route_id)); return {route, line};
+    const overlays = routes.flatMap((route,index) => {
+      const path=routePath(route);if(path.length<2)return [];
+      const halo=new google.maps.Polyline({map:map.current,path,strokeColor:'#ffffff',strokeOpacity:.95,strokeWeight:10,zIndex:index*2+1,clickable:false});
+      const line=new google.maps.Polyline({map:map.current,path,strokeColor:routeColor(index),strokeOpacity:1,strokeWeight:6,zIndex:index*2+2});
+      line.addListener('click',()=>onSelect(route.route_id));return [{route,line,halo,index}];
     });
     lines.current = overlays;
-    return () => {overlays.forEach(({line}) => {google.maps.event.clearInstanceListeners(line); line.setMap(null);}); lines.current = [];};
+    return () => {overlays.forEach(({line,halo}) => {google.maps.event.clearInstanceListeners(line); line.setMap(null);halo.setMap(null);}); lines.current = [];};
   }, [ready, routes, onSelect]);
 
   useEffect(() => {
-    lines.current.forEach(({route, line}) => line.setOptions({
-      strokeColor:route.route_id === active?.route_id ? '#f47732' : '#8fa4ac',
-      strokeOpacity:route.route_id === active?.route_id ? 1 : 0.75,
-      strokeWeight:route.route_id === active?.route_id ? 8 : 5,
-      zIndex:route.route_id === active?.route_id ? 3 : 1,
-    }));
+    lines.current.forEach(({route,line,halo,index})=>{
+      const chosen=route.route_id===active?.route_id;
+      halo.setOptions({strokeWeight:chosen?13:10,zIndex:chosen?31:index*2+1});
+      line.setOptions({strokeColor:routeColor(index),strokeOpacity:1,strokeWeight:chosen?9:6,zIndex:chosen?32:index*2+2});
+    });
   }, [ready, routes, active?.route_id]);
 
   useEffect(() => {
@@ -242,6 +244,7 @@ export default function GoogleMap({routes, selected, onSelect, live=false,
           <button type="button" aria-label="Toggle satellite imagery" aria-pressed={satellite} onClick={toggleSatellite}><Layers size={15}/><span>Satellite</span></button>
         </div>
       </div>
+      {routes.length>0&&<nav className="journey-map-legend" aria-label="Route colors">{routes.map((route,index)=><button key={route.route_id} type="button" aria-label={`Show route ${index+1}`} aria-pressed={route.route_id===active?.route_id} onClick={()=>onSelect(route.route_id)}><span style={{background:routeColor(index)}} aria-hidden="true"/>Route {index+1}{route.route_id===active?.route_id&&<span className="route-legend-selected">Selected</span>}</button>)}</nav>}
       <div className="journey-map-tools" aria-label="Map camera controls">
         <button aria-label="Zoom map in" onClick={() => map.current?.setZoom(Math.min(21, (map.current.getZoom() || 15) + 1))}><Plus size={19}/></button>
         <button aria-label="Zoom map out" onClick={() => map.current?.setZoom(Math.max(3, (map.current.getZoom() || 15) - 1))}><Minus size={19}/></button>

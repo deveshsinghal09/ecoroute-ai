@@ -1,5 +1,26 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Route visibility, sidebar readability and CI ownership repair - 2026-10-12
+
+Stable route palette (orange, blue, violet, teal) shared by Google map, projected fallback and
+route-card dots. Real Google paths have white outlines for contrast; selected route is thicker.
+Numbered map legend supports selection without relying on color alone. Coordinates unchanged.
+Left rail uses opaque light/dark surfaces, larger numbers and11-12px labels, stronger contrast,
+consistent padding and content-sized cards. Compact screens prioritize metrics over decorative
+brand tagline. No scrollbars added. Shared-grid warning retained with shorter wording.
+
+Local checks:55 frontend unit tests,29 dashboard browser tests and16 mocked Maps tests passed;
+build and Ruff passed, design detector no findings. Font-ready card/viewport bounds and label
+contrast >=4.5 verified at1280x720,1366x768,1024x640,390x844. Screenshots reviewed.
+Commands: npm test/build/test:e2e; Playwright maps config; Ruff; gh run view --log-failed.
+GitHub latest failure38169842031: container root wrote private artifacts, then host runner could
+not edit manifest. Container smoke now runs with host UID/GID on Linux, preserving private file
+permissions and synthetic-model refusal checks. Fix commit65dd44a pushed; hosted checks pending.
+No Docker daemon available locally, so container execution must be verified on the hosted runner.
+UI publication through existing Amplify main branch approved; deployment verification pending.
+No provider secrets, AWS resources, route calculations or REST schema changed.
+
+
 ## Chrome graphics and asynchronous renderer recovery - 2026-10-12
 
 User reported failure after Amplify map repair. Found this laptop's Chrome Local State
@@ -15,7 +36,10 @@ checks WebGL2 before explaining recovery, instead of always blaming graphics set
 normal vector/50degree3D and0degree2D; deliberately --disable-webgl raster/2D retained.
 These are isolated browser tests, not verification of the user's relaunched Chrome session.
 Evidence work/chrome-map-verification.json; screenshots chrome-map-3d-live.png and
-chrome-map-webgl-disabled.png. Publishing through approved Amplify-connected main.
+chrome-map-webgl-disabled.png. Amplify commit6a8bd53 deployed: asset index-BFNlzpu0.js verified. Public site in isolated Chrome
+loaded real Google tiles with vector/50degree3D and switched to2D. Evidence:
+work/chrome-amplify-recovery.json. User Chrome relaunch still required; isolated test does not
+change the confirmed disabled graphics preference in the existing user profile.
 No backend, IAM, key, traffic/pollution or new AWS resources changed.
 
 

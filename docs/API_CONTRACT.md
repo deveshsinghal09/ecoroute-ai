@@ -1,5 +1,11 @@
 # API contract — backend foundation and environmental datasets
 
+## Route colors - 2026-10-12
+
+UI assigns stable per-comparison colors by candidate order; colors do not imply data quality,
+medical safety or lower pollution. Legend and cards track selected route_id. No API schema change.
+
+
 ## Camera readiness - 2026-10-12
 
 3D waits for confirmed vector readiness, not just the first idle.2D cancels pending requests.

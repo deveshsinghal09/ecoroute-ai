@@ -1,5 +1,12 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Route display identity - 2026-10-12
+
+Shared routeStyle palette keeps map, fallback geometry, legend and cards consistent. Outline
+polylines use identical provider coordinates; no offset or fabricated alternative path. Selection
+changes stroke weight and legend state, not route color or exposure calculations.
+
+
 ## Asynchronous map renderer recovery - 2026-10-12
 
 A3D request waits for actual VECTOR readiness across renderer/tiles/idle events. An8-second

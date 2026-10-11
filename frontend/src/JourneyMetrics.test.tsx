@@ -16,7 +16,7 @@ describe('selected route instruments',()=>{
     const a=renderToStaticMarkup(<JourneyMetrics route={route()} routeIndex={0} live sharedForecast/>);
     const b=renderToStaticMarkup(<JourneyMetrics route={route({duration_s:720,estimated_pm25_exposure_ug_h_m3:16})} routeIndex={1} live sharedForecast/>);
     expect(a).toContain('data-testid="selected-pm25">80.0');expect(b).toContain('data-testid="selected-pm25">80.0');
-    expect(b).toContain('data-testid="selected-exposure">16.00');expect(b).toContain('PM2.5 may match across routes.');
+    expect(b).toContain('data-testid="selected-exposure">16.00');expect(b).toContain('Shared grid: PM2.5 can match.');
   });
   it('keeps missing concentrations unavailable and renders real zero values',()=>{
     const missing=renderToStaticMarkup(<JourneyMetrics route={route({estimated_pm25_exposure_ug_h_m3:null,pm25_coverage_fraction:0})} routeIndex={1} live sharedForecast/>);

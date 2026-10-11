@@ -6,7 +6,7 @@ const sdk=`
 window.mapEvidence={paths:[],fits:0,pins:[],cameras:[],options:null};
 class MockMap {constructor(el,options){this.el=el;this.options=options;this.listeners={};el.dataset.ready='true';window.mapEvidence.options=options;window.mapEvidence.map=this;this.pane=document.createElement('div');el.append(this.pane)} addListener(name,callback){(this.listeners[name]||=[]).push(callback);return{remove:()=>{this.listeners[name]=this.listeners[name].filter(c=>c!==callback)}}}fire(name,value){(this.listeners[name]||[]).forEach(fn=>fn(value))}fitBounds(){window.mapEvidence.fits++;this.fire('idle')}moveCamera(o){window.mapEvidence.cameras.push(o);if(o.tilt!==undefined){this.tilt=o.tilt;this.fire('tilt_changed')}}getRenderingType(){return this.rendering||'VECTOR'}getTilt(){return this.tilt||0}getHeading(){return window.mapEvidence.heading||0}setRenderingType(t){this.rendering=t;this.fire('renderingtype_changed');this.fire('idle')}setMapTypeId(id){window.mapEvidence.mapType=id}getZoom(){return 15}setZoom(z){window.mapEvidence.zoom=z}setHeading(h){window.mapEvidence.heading=h}}
 class OverlayView {setMap(map){if(this.map)this.onRemove();this.map=map;if(map){this.onAdd();this.draw()}}getPanes(){return{overlayMouseTarget:this.map.pane}}getProjection(){return{fromLatLngToDivPixel:p=>{window.mapEvidence.pins.push(p.value);return{x:180+(p.value.lng-77.2)*800,y:180+(p.value.lat-28.6)*800}}}}static preventMapHitsAndGesturesFrom(){}}
-window.google={maps:{Map:MockMap,OverlayView,RenderingType:{VECTOR:'VECTOR',RASTER:'RASTER'},LatLng:class{constructor(value){this.value=value}},LatLngBounds:class{extend(){}},Polyline:class{constructor(o){window.mapEvidence.paths.push(o.path)}addListener(){return{remove(){}}}setOptions(){}setMap(){}},event:{clearInstanceListeners(){},addListenerOnce(map,name,fn){map.addListener(name,fn)}}}};
+window.google={maps:{Map:MockMap,OverlayView,RenderingType:{VECTOR:'VECTOR',RASTER:'RASTER'},LatLng:class{constructor(value){this.value=value}},LatLngBounds:class{extend(){}},Polyline:class{constructor(o){this.options=o;window.mapEvidence.paths.push(o.path);(window.mapEvidence.lines||=[]).push(this)}addListener(){return{remove(){}}}setOptions(o){Object.assign(this.options,o)}setMap(map){this.options.map=map}},event:{clearInstanceListeners(){},addListenerOnce(map,name,fn){map.addListener(name,fn)}}}};
 window.ecoGoogleReady();`;
 async function mockMap(page:Page){await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk}));}
 
@@ -173,4 +173,23 @@ test('choosing 2D cancels a pending renderer upgrade and never tilts later',asyn
  await expect(page.getByLabel('Show 2D map')).toHaveAttribute('aria-pressed','true');
  expect(await page.evaluate(()=> (window as any).mapEvidence.cameras.at(-1).tilt)).toBe(0);
  await expect(page.locator('.journey-map-hint')).toHaveCount(0);
+});
+
+test('alternative colors match cards and map legend, persist across selection, and keep genuine geometry',async({page})=>{
+ await mockMap(page);await page.route('**/api/v1/routes/preview',route=>route.fulfill({json:recording}));
+ await page.goto('/');await page.getByLabel('Origin',{exact:true}).fill('India Gate');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place');
+ await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();
+ await expect(page.getByLabel('Route colors')).toBeVisible();
+ const lines=()=>page.evaluate(()=> (window as any).mapEvidence.lines.filter((l:any)=>l.options.map&&l.options.strokeColor!=='#ffffff').map((l:any)=>({color:l.options.strokeColor,width:l.options.strokeWeight,path:l.options.path})));
+ const initial=await lines();expect(initial).toHaveLength(2);expect(initial[0].color).not.toBe(initial[1].color);
+ expect(initial[0].path[0]).toEqual({lat:recording.routes[0].geometry.coordinates[0][1],lng:recording.routes[0].geometry.coordinates[0][0]});
+ const color=await page.locator('.route-option').nth(1).locator('.route-dot').evaluate(el=>getComputedStyle(el).backgroundColor);
+ const legend=await page.getByLabel('Show route 2',{exact:true}).locator('span').first().evaluate(el=>getComputedStyle(el).backgroundColor);expect(color).toBe(legend);
+ await page.getByLabel('Show route 2',{exact:true}).click();
+ await expect(page.getByLabel('Show route 2',{exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(page.locator('.selected-route-context')).toContainText('Route 2 selected');
+ const changed=await lines();expect(changed.map((l:any)=>l.color)).toEqual(initial.map((l:any)=>l.color));
+ expect(changed[1].width).toBeGreaterThan(changed[0].width);
+ expect(changed.map((l:any)=>l.path)).toEqual(initial.map((l:any)=>l.path));
+ await page.screenshot({path:'../work/route-colors-fixed.png'});
 });

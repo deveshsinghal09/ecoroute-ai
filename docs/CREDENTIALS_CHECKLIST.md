@@ -1,5 +1,11 @@
 # Credentials and configuration checklist
 
+## Route contrast and sidebar - 2026-10-12
+
+No new credentials or permissions required. Existing restricted browser Maps key and Amplify
+hosting configuration remain sufficient. Linux container CI runs as host UID/GID for private artifacts.
+
+
 ## Chrome graphics prerequisite - 2026-10-12
 
 No new credentials. This laptop's saved Chrome acceleration preference was false; user must

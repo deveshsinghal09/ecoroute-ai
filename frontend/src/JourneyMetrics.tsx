@@ -15,7 +15,7 @@ export default function JourneyMetrics({route,routeIndex,live,sharedForecast}:{r
       <div className="air-ring"><svg viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="76" fill="none" stroke="#919d9f" strokeWidth="2" strokeDasharray="1 5"/><circle cx="90" cy="90" r="65" fill="none" stroke="#bbc3c4" strokeWidth="1" strokeDasharray="1 4"/><path d="M90 14 A76 76 0 0 1 166 90" fill="none" stroke="#e95e23" strokeWidth="3" strokeDasharray="1 5"/></svg><div><strong data-testid="selected-pm25">{number(concentration)}</strong><span>µg/m³</span></div></div>
       <p>Route-weighted concentration</p>
       <span className="small-badge">{live?'Returned route data':'Recorded forecast'}</span>
-      {route&&sharedForecast&&concentration!==null&&<p className="shared-forecast-note">Same forecast cell: PM2.5 may match across routes.</p>}
+      {route&&sharedForecast&&concentration!==null&&<p className="shared-forecast-note">Shared grid: PM2.5 can match.</p>}
     </section>
     <section className="coverage-instrument selected-route-exposure" aria-label="Selected route exposure">
       <div className="instrument-label">Your route<br/>exposure.</div>
@@ -25,7 +25,7 @@ export default function JourneyMetrics({route,routeIndex,live,sharedForecast}:{r
       <p>Estimated PM2.5 exposure</p>
       <div className="selected-coverage-row"><span>Data coverage</span><strong data-testid="selected-coverage">{coverage??'—'}{coverage!==null?'%':''}</strong></div>
       <div className="coverage-track" aria-hidden="true"><i style={{width:`${coverage||0}%`}}/></div>
-      <span className="rail-small">{route?.estimated_pm25_exposure_ug_h_m3==null?'Full exposure unavailable without complete data.':'Concentration × travel time. Longer trips can mean more exposure.'}</span>
+      <span className="rail-small">{route?.estimated_pm25_exposure_ug_h_m3==null?'Complete pollution coverage is needed.':'Exposure = PM2.5 × time.'}</span>
     </section>
   </>;
 }

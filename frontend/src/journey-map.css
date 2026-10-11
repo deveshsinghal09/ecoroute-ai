@@ -21,3 +21,10 @@
 @media(max-width:1100px){.journey-map-picking{flex-wrap:wrap;max-width:calc(100% - 36px)}.journey-map-picking button{padding:8px;font-size:10px}}
 
 .brand-panel .location>span:nth-child(2){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.brand-panel .rail-small{overflow-wrap:anywhere}
+
+/* Numbered route colors remain stable when the selected route changes. */
+.journey-map-legend{position:absolute;top:82px;left:18px;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 110px)}
+.journey-map-legend button{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #b8c6cd;border-radius:8px;background:#fffaf4;color:#243744;font-size:11px;font-weight:650;box-shadow:0 2px 8px #152a3426}
+.journey-map-legend button[aria-pressed=true]{border:2px solid #243744;padding:6px 8px}
+.journey-map-legend button>span:first-child{width:20px;height:5px;border-radius:3px;flex-shrink:0}
+.route-legend-selected{font-size:10px;font-weight:700}

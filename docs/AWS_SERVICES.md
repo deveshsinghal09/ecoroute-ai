@@ -1,5 +1,11 @@
 # AWS service decisions and IAM boundaries
 
+## Readability publication - 2026-10-12
+
+Frontend route colors and sidebar contrast published via Amplify-connected main branch; no
+backend deployment or new resources. CI container ownership repair uses GitHub runner Docker.
+
+
 ## Chrome renderer follow-up - 2026-10-12
 
 Frontend-only asynchronous renderer fix published through Amplify main branch. No AWS resource
