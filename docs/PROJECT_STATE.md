@@ -1,5 +1,9 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Frontend reported deployed; stale bootstrap upload detected � 2026-10-11
+
+User reports Amplify frontend deployment; public URL requested for verification. Amplify ListApps denied to CLI, so hosting status not independently verified. CDKToolkit UPDATE_COMPLETE, but GetTemplate proves account-level mapping statement still only GetEventSourceMapping, missing Update/Delete. Core remains DELETE_FAILED; no further cleanup attempted. Generated distinctly named ignored work/EcoRouteBootstrap-mapping-lifecycle.json from current reviewed generator to prevent stale upload. Console update of Compute policy remains required. Backend API base URL still unavailable; production frontend needs VITE_API_BASE_URL and exact backend CORS/Cognito callback settings once known. No secrets shared/uploaded, no new resources or tests run this turn.
+
 ## Mapping cleanup correction — 2026-10-11
 
 Latest: CDKToolkit UPDATE_COMPLETE/GetEventSourceMapping installed verified. Core cleanup requested after saving work/core-rollback-failed-inventory.json; DELETE_FAILED on lambda:DeleteEventSourceMapping Resource*. Added Get/Update/DeleteEventSourceMapping regional account-level grants to CFN execution policy only. These can manage mappings across Mumbai; not claimed project-ARN restricted and not given to runtime/human roles. Creation remains function-constrained. Console template regenerated;19targeted tests, Ruff and cfn-lint pass. Data/ML/IoT unchanged; retained pools untouched; no API URL. Next Console update is required because CLI cannot change execution policy. No further cloud retry until installed.

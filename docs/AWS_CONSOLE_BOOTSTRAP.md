@@ -1,5 +1,7 @@
 # EcoRoute one-time Console setup — 2026-10-11
 
+Latest upload filename: work/EcoRouteBootstrap-mapping-lifecycle.json. Installed template was stale (only mapping read exception). Use this distinctly named current file for CDKToolkit update; expect Compute policy Modify only.
+
 ## Mapping cleanup correction — 2026-10-11
 
 Current file extends the mapping Resource* exception to Get/Update/DeleteEventSourceMapping with Mumbai condition. Update CDKToolkit; expect Modify EcoRouteExecuteCompute only. Current Core DELETE_FAILED; agent will retry cleanup after policy update. This permits regional mapping management, not runtime access. Do not force-delete protected pools or other stacks.
