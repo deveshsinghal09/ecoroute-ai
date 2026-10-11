@@ -36,6 +36,8 @@ const routingMessages:Record<string,string> = {
   routing_secret_invalid:'The backend routing credential has an unsupported format. Store the key as plaintext or JSON with an api_key field in Secrets Manager.',
   google_quota_exceeded:'Google routing has reached its request quota. Wait before trying again or review the Google API quota.',
   location_request_budget_exhausted:'EcoRoute has reached its routing request allowance. Wait for the next allowance window before comparing again.',
+  location_hourly_budget_exhausted:'EcoRoute has reached its hourly routing allowance. Wait for the next hourly window before comparing again.',
+  location_daily_budget_exhausted:'EcoRoute has reached its daily routing allowance. It resets at 05:30 IST; repeated clicks will not restore it.',
   storage_unavailable:'The backend cannot access its AWS data store. Check the API Lambda permissions and configured resource names.',
   cycling_secret_unavailable:'The backend cannot read its cycling credential from AWS Secrets Manager. Check the API Lambda role and secret reference.',
   cycling_provider_unavailable:'The cycling provider did not respond successfully. Wait a moment and retry.',
@@ -76,7 +78,9 @@ async function send<T>(path:string,body:unknown,token:string|undefined,cognito:b
         const id=body?.error?.request_id; if(typeof id==='string'&&/^[a-f0-9]{32}$/.test(id))reference=id;
       } catch { /* Non-JSON failures use the HTTP status. */ }
       const message=routingMessages[code] || messages[response.status] || 'The request failed. Try again later.';
-      throw new Error(message+(response.status>=500&&reference?` Reference: ${reference}.`:''));
+      const retry=Number(response.headers?.get('Retry-After'));
+      const wait=response.status===429&&Number.isInteger(retry)&&retry>0&&retry<=86400?` Try again in about ${Math.ceil(retry/60)} minute${Math.ceil(retry/60)===1?'':'s'}.`:'';
+      throw new Error(message+wait+(response.status>=500&&reference?` Reference: ${reference}.`:''));
     }
     return await response.json();
   } catch (error) { if (error instanceof TypeError || (error instanceof DOMException && error.name==='AbortError')) throw new Error('Cannot reach the backend. Check its address, connection and CORS configuration.'); throw error; }

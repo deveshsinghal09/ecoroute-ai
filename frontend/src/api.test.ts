@@ -65,4 +65,10 @@ describe('API connection and guest authorization', () => {
     try{await api.request('/routes/preview',{},false);throw new Error('Expected failure');}
     catch(error){expect((error as Error).message).toBe('This service is not configured or temporarily unavailable.');}
   });
+
+  it('distinguishes an hourly allowance and explains the validated retry interval',async()=>{
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({error:{code:'location_hourly_budget_exhausted'}}),{status:429,headers:{'Retry-After':'120'}}));
+    await expect(api.request('/routes/preview',{},false)).rejects.toThrow('hourly routing allowance');
+    await expect(api.request('/routes/preview',{},false)).rejects.toThrow('Try again in about 2 minutes.');
+  });
 });
