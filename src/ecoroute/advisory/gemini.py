@@ -1,0 +1,68 @@
+"""Server-only Gemini transport; only approved statement IDs can reach the UI."""
+import json
+import re
+
+import httpx
+
+
+class Gemini:
+    def __init__(self, settings, client=None):
+        self.settings = settings
+        self.client = client
+
+    def key(self):
+        value = self.settings.gemini_api_key.get_secret_value()
+        if value:
+            return value
+        if not self.settings.gemini_secret_arn:
+            raise ValueError("gemini_key_missing")
+        from ecoroute.advisory.notifications import aws_client
+        response = aws_client(self.settings, "secretsmanager").get_secret_value(
+            SecretId=self.settings.gemini_secret_arn)
+        value = json.loads(response["SecretString"])["api_key"]
+        if not isinstance(value, str) or not value:
+            raise ValueError("gemini_key_missing")
+        return value
+
+    def arrange(self, system, facts, statements):
+        model = self.settings.gemini_model_id
+        if not re.fullmatch(r"gemini-[a-zA-Z0-9.-]{1,100}", model):
+            raise ValueError("gemini_model_invalid")
+        payload = {
+            "systemInstruction": {"parts": [{"text": system}]},
+            "contents": [{"role": "user", "parts": [{"text": json.dumps({
+                "facts": facts, "approved_statements": statements})}]}],
+            "generationConfig": {"temperature": 0, "maxOutputTokens": 512,
+                "responseMimeType": "application/json", "responseSchema": {
+                    "type": "OBJECT", "properties": {"statement_ids": {
+                        "type": "ARRAY", "items": {"type": "STRING", "enum": list(statements)}}},
+                    "required": ["statement_ids"]}},
+        }
+        def send(client):
+            with client.stream("POST", "https://generativelanguage.googleapis.com/v1beta/models/"
+                               + model + ":generateContent", json=payload,
+                               headers={"x-goog-api-key": self.key()}) as response:
+                if response.status_code != 200:
+                    raise ValueError("gemini_unavailable")
+                chunks, size = [], 0
+                for chunk in response.iter_bytes():
+                    size += len(chunk)
+                    if size > 65536:
+                        raise ValueError("gemini_response_too_large")
+                    chunks.append(chunk)
+                result = json.loads(b"".join(chunks))
+            candidates = result.get("candidates", [])
+            if len(candidates) != 1 or candidates[0].get("finishReason") != "STOP":
+                raise ValueError("gemini_incomplete_or_blocked")
+            parts = candidates[0]["content"]["parts"]
+            if len(parts) != 1 or set(parts[0]) != {"text"}:
+                raise ValueError("gemini_invalid_content")
+            usage = result.get("usageMetadata", {})
+            usage = {k: v for k, v in usage.items() if k in {
+                "promptTokenCount", "candidatesTokenCount", "totalTokenCount"}
+                and type(v) is int and v >= 0}
+            return json.loads(parts[0]["text"]), usage
+        if self.client is not None:
+            return send(self.client)
+        with httpx.Client(timeout=8, follow_redirects=False, trust_env=False) as client:
+            return send(client)

@@ -45,6 +45,12 @@ class Settings(BaseSettings):
     bedrock_model_id: str = ""
     bedrock_daily_limit: int = Field(default=20, ge=1, le=100)
     bedrock_hourly_limit: int = Field(default=5, ge=1, le=20)
+    enable_gemini: bool = False
+    gemini_api_key: SecretStr = SecretStr("")
+    gemini_secret_arn: str = ""
+    gemini_model_id: str = ""
+    gemini_daily_limit: int = Field(default=20, ge=1, le=100)
+    gemini_hourly_limit: int = Field(default=5, ge=1, le=20)
     enable_sms: bool = False
     sns_allowed_topic_arns: list[str] = []
     sms_monthly_spend_limit_usd: float = Field(default=1, gt=0, le=5)
@@ -56,6 +62,14 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def configuration_guard(self):
+        if self.enable_gemini and self.enable_bedrock:
+            raise ValueError("Choose one explanation provider: Gemini or Bedrock")
+        if self.enable_gemini:
+            import re
+            if not re.fullmatch(r"gemini-[a-zA-Z0-9.-]{1,100}", self.gemini_model_id):
+                raise ValueError("Gemini requires an explicit supported model ID")
+            if not (self.gemini_api_key.get_secret_value() or self.gemini_secret_arn):
+                raise ValueError("Gemini requires a backend key or Secrets Manager reference")
         if self.enable_bedrock and not self.bedrock_model_id:
             raise ValueError("Bedrock requires a reviewed model ID")
         if (self.enable_bedrock or self.enable_sms) and self.ecoroute_profile == "local" and not (self.aws_profile and self.expected_aws_account_id):

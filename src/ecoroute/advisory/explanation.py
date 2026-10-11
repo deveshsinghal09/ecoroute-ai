@@ -62,30 +62,36 @@ def explain(routes, settings, repo, client=None):
             statement += " " + fact["recommendation_reason"]
         statements[alias] = statement
     order, mode, reason, usage = list(statements), "deterministic", "bedrock_disabled", None
-    if settings.enable_bedrock and settings.bedrock_model_id:
+    if settings.enable_gemini or (settings.enable_bedrock and settings.bedrock_model_id):
+        provider = "gemini" if settings.enable_gemini else "bedrock"
         try:
-            repo.reserve("bedrock", settings.bedrock_daily_limit, settings.bedrock_hourly_limit)
-            if client is None:
-                from ecoroute.advisory.notifications import aws_client
-                client = aws_client(settings, "bedrock-runtime")
             # Opaque server route IDs are omitted from the prompt as well.
             facts = [{k: v for k, v in m.items() if k not in {"route_id", "baseline_route_id"}} for m in metrics]
-            result = client.converse(modelId=settings.bedrock_model_id,
-                system=[{"text": SYSTEM_PROMPT}],
-                messages=[{"role": "user", "content": [{"text": json.dumps({"facts": facts, "approved_statements": statements})}]}],
-                inferenceConfig={"maxTokens": 256, "temperature": 0})
-            content = result["output"]["message"]["content"]
-            if len(content) != 1 or set(content[0]) != {"text"}:
-                raise ValueError("invalid content")
-            answer = json.loads(content[0]["text"])
+            if provider == "gemini":
+                from ecoroute.advisory.gemini import Gemini
+                repo.reserve("gemini", settings.gemini_daily_limit, settings.gemini_hourly_limit)
+                answer, usage = (client or Gemini(settings)).arrange(SYSTEM_PROMPT, facts, statements)
+            else:
+                repo.reserve("bedrock", settings.bedrock_daily_limit, settings.bedrock_hourly_limit)
+                if client is None:
+                    from ecoroute.advisory.notifications import aws_client
+                    client = aws_client(settings, "bedrock-runtime")
+                result = client.converse(modelId=settings.bedrock_model_id,
+                    system=[{"text": SYSTEM_PROMPT}],
+                    messages=[{"role": "user", "content": [{"text": json.dumps({"facts": facts, "approved_statements": statements})}]}],
+                    inferenceConfig={"maxTokens": 256, "temperature": 0})
+                content = result["output"]["message"]["content"]
+                if len(content) != 1 or set(content[0]) != {"text"}:
+                    raise ValueError("invalid content")
+                answer, usage = json.loads(content[0]["text"]), result.get("usage")
             ids = answer.get("statement_ids")
             if set(answer) != {"statement_ids"} or not isinstance(ids, list) or len(ids) != len(statements) or any(not isinstance(i, str) for i in ids) or set(ids) != set(statements):
                 raise ValueError("ungrounded response")
-            order, mode, reason, usage = ids, "bedrock_arranged_approved_text", None, result.get("usage")
+            order, mode, reason = ids, provider + "_arranged_approved_text", None
         except BudgetExceeded:
-            reason = "bedrock_request_limit"
+            reason, usage = provider + "_request_limit", None
         except Exception:
             # Never return model free text or provider exceptions, including denied access.
-            reason = "bedrock_unavailable_or_invalid_output"
+            reason, usage = provider + "_unavailable_or_invalid_output", None
     return {"mode": mode, "fallback_reason": reason, "explanation": " ".join(statements[i] for i in order),
             "supporting_metrics": metrics, "usage": usage, "ranking_changed": False}
