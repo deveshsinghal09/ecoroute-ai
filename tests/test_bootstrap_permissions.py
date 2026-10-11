@@ -98,6 +98,16 @@ def test_access_log_delivery_admin_permissions_are_regional_not_runtime():
     assert "logs:CreateLogDelivery" not in actions(selected[BOUNDARY])
 
 
+def test_mapping_lifecycle_matches_live_handler_authorization():
+    selected = policies(ACCOUNT, REGION)
+    statement = next(s for s in selected["EcoRouteExecuteCompute"]["Statement"]
+                     if "lambda:GetEventSourceMapping" in s["Action"] and s["Resource"] == "*")
+    assert set(statement["Action"]) == {"lambda:GetEventSourceMapping",
+        "lambda:UpdateEventSourceMapping", "lambda:DeleteEventSourceMapping"}
+    assert statement["Condition"] == {"StringEquals": {"aws:RequestedRegion": REGION}}
+    assert "lambda:DeleteEventSourceMapping" not in actions(selected[BOUNDARY])
+
+
 def test_bootstrap_removes_admin_and_cross_account_deployment_grants():
     keys = ("FileAssetsBucketKmsKeyId", "Qualifier", "TrustedAccounts", "TrustedAccountsForLookup",
             "CloudFormationExecutionPolicies", "PublicAccessBlockConfiguration", "UseExamplePermissionsBoundary",
