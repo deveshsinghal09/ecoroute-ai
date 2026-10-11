@@ -1,0 +1,28 @@
+.connection-drawer.account-drawer{width:440px;background:#fffaf4;color:#25343c;padding:64px 28px 28px;box-shadow:-12px 0 48px #16232d24}
+.account-drawer .drawer-close{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#f0e8df;color:#25343c;right:22px;top:20px}
+.account-drawer .overline{color:#754127;font-size:10px;letter-spacing:.1em}
+.account-drawer h2{font-size:30px;font-weight:650;letter-spacing:-.03em;line-height:1.2;margin:8px 0 26px}
+.account-connection{font-size:13px;line-height:1.55}
+.account-identity{display:flex;align-items:center;gap:12px}
+.account-avatar{display:grid;place-items:center;flex-shrink:0;width:48px;height:48px;border:1px solid #e4c9b1;border-radius:16px;background:#ffe7d4;color:#8b3c14}
+.account-identity strong{display:block;font-size:16px;line-height:1.35;font-weight:650}
+.account-identity span:not(.account-avatar){display:block;color:#52616a;font-size:12px;line-height:1.5;margin-top:4px}
+.account-intro{margin:20px 0 18px;color:#42545f;line-height:1.65}
+.account-sign-in{width:100%;min-height:48px;font-size:14px;border-radius:12px;background:#bd420f;color:#fff}
+.account-auth-provider{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px 0 0;color:#52616a;font-size:11px}
+.account-auth-provider svg{flex-shrink:0}
+.account-feedback{padding:12px;background:#f3e8dd;border-radius:10px;color:#5d3825;overflow-wrap:anywhere;margin:16px 0 0}
+.account-data-mode{border-top:1px solid #e4d8cb;margin-top:26px;padding-top:22px}
+.account-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.account-section-heading h3{margin:0;font-size:14px;font-weight:650}
+.account-section-heading>span{font-size:11px;color:#52616a}
+.account-data-mode .mode-switch{background:#ede8e2;border:1px solid #e1d6ca;margin:12px 0 10px;padding:4px;gap:4px}
+.account-data-mode .mode-switch button{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;padding:11px 8px;min-height:40px;color:#42545f}
+.account-data-mode .mode-switch button.selected{background:#25343c;color:#fff}
+.account-data-mode>p{margin:0;font-size:12px;line-height:1.65;color:#52616a}
+@media(max-width:480px){.connection-drawer.account-drawer{width:100%;padding:64px 22px 24px}.account-drawer h2{font-size:28px}.account-section-heading{flex-wrap:wrap}}
+
+.account-brand{display:flex;align-items:center;gap:10px;margin:2px 0 20px;font-size:24px;font-weight:750;line-height:1.2;letter-spacing:-.035em;color:#25343c}
+.account-brand-mark{color:#df5518;font-size:36px;line-height:1;font-weight:500}
+.account-brand em{font-style:normal;color:#a33c13;font-weight:650;letter-spacing:-.02em}
+.account-drawer h2{margin-top:0}

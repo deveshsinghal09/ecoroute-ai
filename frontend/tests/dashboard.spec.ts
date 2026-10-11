@@ -39,7 +39,7 @@ test('live mode clears preview and guest routing never authenticates private fea
   await page.route('**/api/v1/routes/preview',route=>route.fulfill({status:503,headers:{'Access-Control-Allow-Origin':'*'},json:{error:{code:'google_routes_key_missing'}}}));
   await page.goto('/');await page.getByRole('button',{name:'Connection settings'}).click();
   await page.getByRole('button',{name:'Live services',exact:true}).click();
-  await page.getByRole('button',{name:'Sign in with Cognito'}).click();
+  await page.getByRole('button',{name:'Sign in securely'}).click();
   await expect(page.getByRole('status')).toContainText('Sign-in setup is incomplete');
   await page.getByRole('button',{name:'Close dialog'}).click();
   await page.getByRole('button',{name:'Open journey planner'}).click();
@@ -59,16 +59,15 @@ test('mobile layout and reduced motion',async({page})=>{
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await expect(page.locator('.city-backdrop')).toHaveAttribute('href','/assets/ecoroute-city-clear.png');await page.screenshot({path:'../work/frontend-mobile.png',fullPage:true});
 });
-test('backend connection failure is actionable',async({page})=>{
-  await page.route('**/api/v1/**',route=>route.abort());
+test('sign-in configuration errors are visible inside the account panel',async({page})=>{
   await page.goto('/');await page.getByRole('button',{name:'Connection settings'}).click();
-  await page.getByRole('button',{name:'Check backend connection'}).click();
-  await expect(page.getByRole('status')).toContainText('Cannot reach the backend');
+  await page.getByRole('button',{name:'Sign in securely'}).click();
+  await expect(page.getByRole('dialog').locator('.account-feedback')).toContainText('Sign-in setup is incomplete');
 });
 test('dialog keeps keyboard focus and returns it on Escape',async({page})=>{
   await page.goto('/');await page.getByRole('button',{name:'Connection settings'}).click();
   await expect(page.getByRole('button',{name:'Close dialog'})).toBeFocused();
-  await page.keyboard.press('Shift+Tab');await expect(page.getByRole('button',{name:'Check backend connection'})).toBeFocused();
+  await page.keyboard.press('Shift+Tab');await expect(page.getByRole('button',{name:'Live services',exact:true})).toBeFocused();
   await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Close dialog'})).toBeFocused();
   await page.keyboard.press('Escape');await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Connection settings'})).toBeFocused();

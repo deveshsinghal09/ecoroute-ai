@@ -1761,3 +1761,15 @@ BLE/ADB has no AWS cost. See LIVE_WATCH_SETUP.md for exact prerequisites, revoca
 - Enlarged the concentration dial responsively, separated the PM2.5 heading and caption, and centered the content group with equal top/bottom space inside the existing card dimensions.
 - Six responsive browser checks passed, including top/bottom balance, equal metric-card heights, long values and numeric/unit containment. Production build passed. Local only; no commit or deployment.
 - Deployment authorized by user: these local refinements are being published through the existing Amplify main-branch integration; live publication will be verified separately.
+
+### Account panel polish — 2026-10-12 (local review)
+- Replaced the developer-facing connection copy with a reusable AccountConnection panel: guest/signed-in status, prominent secure sign-in, data view selector and concise privacy guidance.
+- API endpoint, historical source details and API-only health verification are in a collapsed details section. Cognito actions, private-record authentication and preview/live switching retain their existing behavior.
+- Dialog focus handling now includes summary controls and excludes hidden elements, so collapsed details do not break keyboard focus containment.
+- Production build, 55 frontend unit tests and 16 account/dashboard browser checks passed. Desktop and mobile screenshots reviewed. No commit, push or deployment; user requested local review first.
+
+### Account panel publication — 2026-10-12
+- User authorized Amplify deployment of the account panel. Removed the requested privacy paragraph and technical connection/details section, including the diagnostic-only action and unused props/styles.
+- Account panel now carries an EcoRoute AI wordmark and orange arrow with a prominent sign-in action, visible guest/signed-in state and data view controls. Auth/consent enforcement remains in the backend and existing APIs.
+- Production build and 55 unit tests passed; responsive account and dashboard verification is recorded in the browser test results. Publication will use the existing GitHub-connected Amplify main branch.
+- All 16 account/dashboard browser checks passed, including responsive layout, error visibility, data-mode switching and keyboard focus containment.
