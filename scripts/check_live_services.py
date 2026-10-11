@@ -53,12 +53,15 @@ def pipeline(session):
     identity = session.client("sts").get_caller_identity()
     if identity["Account"] != "112920804206" or identity["Arn"].endswith(":root"):
         raise ValueError("Expected non-root EcoRoute account required")
-    event = {"source": "open_meteo", "request": {"latitude": 28.6139, "longitude": 77.209}}
+    # Explicitly request the forward-forecast profile, with no historical date window.
+    event = {"source": "open_meteo", "request": {
+        "latitude": 28.6139, "longitude": 77.209, "start": None, "end": None}}
     response = session.client("lambda").invoke(FunctionName=COLLECTOR,
         InvocationType="RequestResponse", Payload=json.dumps(event).encode())
     if response.get("FunctionError"):
         return {"pipeline": "collector_failed", "details": "inspect collector logs locally"}
-    raw = json.loads(response["Payload"].read()).get("raw_key")
+    collected = json.loads(response["Payload"].read())
+    raw = collected.get("raw_key")
     if not isinstance(raw, str) or not raw.startswith("raw/source=open_meteo/"):
         return {"pipeline": "invalid_collector_response"}
     ddb = session.client("dynamodb")
@@ -70,10 +73,12 @@ def pipeline(session):
             report = json.loads(row["payload"]["S"])
             if report.get("raw_key") == raw:
                 return {"pipeline": "curated_metadata_verified", "raw_key": raw,
+                        "cached": collected.get("cached"),
                         "records": report.get("records"), "quality": report.get("status"),
                         "curated_files": len(report.get("curated_keys", []))}
         time.sleep(5)
-    return {"pipeline": "raw_saved_cleaning_not_verified", "raw_key": raw}
+    return {"pipeline": "raw_saved_cleaning_not_verified", "raw_key": raw,
+            "cached": collected.get("cached")}
 
 
 def main():
