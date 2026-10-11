@@ -3,7 +3,8 @@
 ## Map rendering repair - 2026-10-12
 
 Frontend-only Google Maps change: no AWS resources, permissions, schedules or Lambda updates.
-Live2D/3D verified locally; Amplify publication of this change is not yet verified.
+Amplify publication and live Google 2D/3D verified on public site for commit ee09af3.
+CLI build-status read denied; deployed assets and actual browser renderer/tilt verified instead.
 
 
 ## Current-hour coverage deployment - 2026-10-11

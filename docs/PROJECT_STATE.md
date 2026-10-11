@@ -13,7 +13,10 @@ Live Google tiles in local Edge at public Gateway of India coordinates (browser 
 input) verified vector renderer,50degree tilt, visible actual extruded buildings, then0degree 2D.
 Screenshot work/map-3d-fixed-live.png reviewed. No routes API invoked for this visual check.
 User approved Amplify publication. Existing dev-admin identity verified; amplify:ListJobs denied.
-Publishing through the connected main branch and checking the public website; deployment verification pending.
+Published main commit ee09af3 through Amplify. Public build index-tkYnUNmB.js verified.
+Deployed browser check loaded real Google tiles: vector/50degree 3D, rotation, then0degree 2D.
+Evidence: work/map-amplify-verification.json and work/map-3d-amplify-live.png.
+GitHub backend CI remains separate and is not claimed passing; previous container test had host file ownership failure.
 No AWS/IAM/credential changes.
 Vite local frontend runs at127.0.0.1:5173. Backend not started for this map-only verification.
 Google WebGL/device and regional building coverage can still limit genuine3D; no universal support claim.

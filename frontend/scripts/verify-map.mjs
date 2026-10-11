@@ -5,7 +5,7 @@ import {mkdir} from 'node:fs/promises';
 const browser=await chromium.launch({channel:'msedge',headless:true});
 try {
   const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});
-  await page.goto('http://127.0.0.1:5173/');
+  await page.goto(process.env.MAP_VERIFY_URL||'http://127.0.0.1:5173/');
   const host=page.getByLabel('Journey map',{exact:true});
   try {await host.waitFor({state:'visible',timeout:20000});await page.waitForFunction(()=>document.querySelector('.google-map-host')?.getAttribute('data-tiles-loaded')==='true',{},{timeout:20000});} catch { /* Report safely below. */ }
   let threeD=false,twoD=false,renderer='unknown',tilt=0;
