@@ -17,9 +17,11 @@ Used Impeccable clarify/craft guidance; detector0findings. Commands: frontend Vi
 production build/pass, dashboard browser13passed, map browser9passed, diff/pass. Initial browser
 JSON import needed type:json attribute; corrected run passed. Inspected mobile screenshot; existing
 Three chunk warning remains. No backend/CDK/IAM/service change or new provider calls for fixtures.
-Code committed/pushed; Amplify publication still requires live verification. Maintained five docs
-and frontend integration semantics. Real cloud comparison must still confirm alternative selection
-when newly served bundle is available. No backend test/synth repeated for frontend-only change.
+Code committed/pushed; new Amplify bundle and actual browser selection verified. Live Delhi
+Route1(7.5min/2.8km/exposure8.69)->Route2(9.5min/3.4km/exposure10.92ug*h/m3); PM2.5 stays
+69.2ug/m3 and coverage100%because both share CAMS cell. Screenshot in ignored work/. React
+best-practices review passed: derived props, stable selection callback, accessible selection/state,
+no added requests/storage. Maintained five docs/frontend integration. No backend/synth rerun.
 
 
 ## Routing allowance correction - 2026-10-11

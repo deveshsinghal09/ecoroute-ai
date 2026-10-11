@@ -5,7 +5,7 @@
 Only React sidebar state/presentation changed; existing API Gateway/Lambda/curated forecast route
 response is reused. No AWS stack, IAM, schedule, SMS or training change. Local tests use recorded
 road fixtures/artificial UI metrics, with no real provider invocation. Amplify source pushed;
-publication verification pending. Matching coarse forecasts are preserved rather than invented.
+new bundle and live route selection verified. Matching coarse forecasts are preserved rather than invented.
 
 
 Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify

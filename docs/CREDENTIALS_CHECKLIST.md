@@ -4,8 +4,7 @@
 
 No new credential/IAM setting required. Sidebar change consumes existing route response and clears
 old summaries on selection. Same-cell forecasts may share concentrations. Missing geographic data
-remains unavailable; provider coverage/refresh prerequisites are unchanged. Publication is through
-existing Amplify branch; committed UI changes require served-bundle verification before claiming live.
+remains unavailable; provider coverage/refresh prerequisites are unchanged. New bundle and real selection were verified on the existing Amplify branch; no new credential setup.
 
 
 Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
