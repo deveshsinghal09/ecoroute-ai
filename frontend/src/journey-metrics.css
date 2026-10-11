@@ -1,0 +1,30 @@
+/* Selected-route instruments preserve the silver, charcoal and transit-orange rail. */
+.selected-route-context{display:flex;flex-direction:column;gap:3px;margin:9px 0 0;text-align:center;line-height:1.35;color:#202628}
+.selected-route-context strong{font-size:11px;font-weight:650}
+.selected-route-context span{font-size:10px}
+.air-instrument.selected-route-air .shared-forecast-note{font-size:10px;line-height:1.4;margin:9px 0 0;color:#354247;text-wrap:pretty}
+.coverage-instrument.selected-route-exposure .exposure-unit{display:block;font-size:11px;margin:2px 0 8px;color:#f3f4ef}
+.selected-coverage-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;margin-top:13px;color:#f3f4ef}
+.selected-coverage-row strong{font-size:15px;font-weight:600}
+.coverage-instrument.selected-route-exposure .coverage-track{margin:6px 0 9px}
+.coverage-instrument.selected-route-exposure .rail-small{font-size:10px;line-height:1.45;color:#d1dbdc}
+@media(min-width:741px){
+  .air-instrument.selected-route-air{flex:1.2;padding:12px 9px}
+  .selected-route-air .air-ring{height:clamp(80px,12vh,120px)}
+  .coverage-instrument.selected-route-exposure{flex:1.1;padding:14px}
+  .coverage-instrument.selected-route-exposure>strong{font-size:34px;line-height:1.05;letter-spacing:-.03em}
+  .selected-route-exposure .round-orange{width:26px;height:26px;margin:8px 0 5px}
+}
+@media(min-width:741px) and (max-height:700px){
+  .selected-route-context{margin-top:6px}
+  .air-instrument.selected-route-air .air-ring{height:74px}
+  .air-instrument.selected-route-air .shared-forecast-note{font-size:9px;margin-top:5px}
+  .selected-route-exposure .round-orange{display:none}
+  .selected-coverage-row{margin-top:8px}
+  .coverage-instrument.selected-route-exposure .instrument-label{font-size:16px}
+}
+@media(max-width:740px){
+  .air-instrument.selected-route-air,.coverage-instrument.selected-route-exposure{min-height:290px}
+  .selected-route-air .air-ring{height:100px}
+  .selected-route-context strong{font-size:12px}
+}

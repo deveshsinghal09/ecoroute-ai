@@ -1,4 +1,25 @@
 import { test, expect } from '@playwright/test';
+import recording from '../../examples/delhi-recorded-response.json' with {type:'json'};
+
+test('route selection updates sidebar exposure and context without inventing different concentrations',async({page})=>{
+  await page.goto('/');await page.getByRole('button',{name:'Open journey planner'}).click();
+  const routes=recording.response.routes;
+  await expect(page.getByTestId('selected-exposure')).toHaveText(routes[0].estimated_pm25_exposure_ug_h_m3.toFixed(2));
+  const initialPM=await page.getByTestId('selected-pm25').innerText();
+  await page.locator('.route-option').nth(1).press('Enter');
+  await expect(page.locator('.route-option').nth(1)).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('.selected-route-context')).toContainText('Route 2 selected');
+  await expect(page.getByTestId('selected-exposure')).toHaveText(routes[1].estimated_pm25_exposure_ug_h_m3.toFixed(2));
+  await expect(page.getByTestId('selected-pm25')).toHaveText(initialPM);
+  await expect(page.locator('.shared-forecast-note')).toBeVisible();
+  await page.getByRole('button',{name:'Explore recorded routes'}).click();
+  await page.getByRole('button',{name:'Insights',exact:true}).click();
+  await page.getByRole('button',{name:'Explain this comparison'}).click();
+  await expect(page.locator('.explanation')).toBeVisible();
+  await page.locator('.route-map polyline').nth(1).dispatchEvent('click');
+  await expect(page.locator('.selected-route-context')).toContainText('Route 2 selected');
+  await expect(page.locator('.explanation')).toHaveCount(0);
+});
 test('historical dashboard, route geometry and honest unavailable features',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto('/');await page.getByRole('button',{name:'Open journey planner'}).click();await expect(page.getByRole('heading',{name:'Your next journey'})).toBeVisible();
