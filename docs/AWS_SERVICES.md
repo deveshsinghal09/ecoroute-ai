@@ -1,5 +1,16 @@
 # AWS service decisions and IAM boundaries
 
+## Verified Core update - 2026-10-11
+
+Core UPDATE_COMPLETE, Data no changes. Live Google driving/walking and ORS cycling returned200
+with real geometry and Open-Meteo weather; cycling elevation and driving traffic metadata verified.
+PM2.5 coverage0/full exposure null: no pollution improvement claimed. Backend health/OpenAPI200,
+private ML endpoints401 without token. Amplify200/served bundle contains route preferences and
+actual local training evidence. No SageMaker job or endpoint. Optional ML role reuse/name changes
+and bounded operator/workflow-boundary permission proposals remain defined, not deployed.
+See latest PROJECT_STATE.md and LARGE_DATA_TRAINING.md for exact evidence/blockers.
+
+
 ## Route/ML integration update - 2026-10-11
 
 Existing SageMaker role/ECR/S3 preparation reused; local real-data training completed, cloud job
