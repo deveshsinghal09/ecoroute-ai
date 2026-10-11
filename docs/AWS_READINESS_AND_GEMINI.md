@@ -147,7 +147,13 @@ Use **SageMaker AI → Training → Training jobs** and **CloudWatch → Log gro
 if needed; completed jobs do not keep an endpoint running. Retained S3/ECR artifacts still cost storage.
 Do not create a SageMaker Studio domain or notebook just to obtain the execution role.
 
-## Concrete deployment proposal — not approved or executed
+## Concrete deployment proposal — approved, prerequisites pending
+
+User explicitly approved CDK bootstrap and this $5–20/month bounded serverless proposal on
+2026-10-11 after IAM, quota and billing checks pass. This approval persists: do not request the
+same deployment approval again. No provisioning has executed because the scoped execution-policy
+ARN, readable permissions/quotas and verified billing/budget gates remain unresolved. Paid
+SageMaker training, SMS sends, continuous schedules and idle compute/databases are not approved.
 
 Selected config: [hackathon.aws.json](../config/hackathon.aws.json). Lambda backend, private S3/
 CloudFront static hosting, DynamoDB, no idle database/container service. Use `enable_workflows=true`

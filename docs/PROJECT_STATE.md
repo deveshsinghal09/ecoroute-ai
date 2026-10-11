@@ -2,6 +2,13 @@
 
 ## AWS readiness, Gemini and SageMaker preparation — 2026-10-11
 
+Deployment authorization update: user approved the reviewed $5–20/month serverless deployment
+and bootstrap after IAM/quota/billing checks pass. Approval is recorded and must not be requested
+again for that scope. No paid action followed: reviewed execution-policy ARN is absent, diagnostic
+permissions/quotas are denied, budget/credit gates are unverified and bootstrap is missing.
+Paid SageMaker jobs, real SMS, active continuous schedules and idle compute/database services
+remain excluded. Three implementation/documentation commits were pushed to origin/main.
+
 Latest request retains SageMaker and selects Gemini instead of Bedrock for explanations.
 Reused the backend, ingestion, training/inference modules and CDK stacks. Created no AWS
 resource, secret, budget, training job, endpoint, notification or deployed URL.
