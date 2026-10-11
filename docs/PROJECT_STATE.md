@@ -1,5 +1,32 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Routing allowance correction - 2026-10-11
+
+Reproduced live429/location_request_budget_exhausted. Old cloud allowance100daily/30hourly counts
+provider calls, not comparisons; typed endpoints can consume2Places+1Routes calls. Read access
+to BUDGET#location is denied, so exact counter totals were not claimed or reset. Found real bug:
+sequential DynamoDB reservations charged daily counter before an hourly rejection. Both updates
+now commit in one TransactWriteItems request using existing scoped UpdateItem permissions.
+Local SQLite already rolls back both changes. New failures identify hour/day and Retry-After.
+
+Cloud hourly allowance raised30->100; daily ceiling remains100 and prior usage is preserved.
+CDK Core diff contains six shared Lambda asset updates, API/disabled-workflow-stage hourly env,
+and CORS exposure of Retry-After. No IAM widening/new services/schedules/SMS/ML activation. Initial
+Core deployment UPDATE_COMPLETE and a live Delhi comparison returned200/two routes/full coverage.
+Zero-argument BudgetExceeded compatibility issue found by broad tests was corrected; final
+code-only Core update independently verified UPDATE_COMPLETE with expected asset. Actual Amplify
+form returned2routes/fullPM2.5coverage after deployment. Published bundle contains new hourly/day
+wait messages. Browser proof remains in ignored work/routing-allowance-browser-verified.jpg.
+
+Created tests/test_request_allowance.py; changed repository/routing exception+service/main/CDK,
+frontend safe retry messages/tests and docs. Tests:103targeted backend,49frontend, then full backend
+initial2failures(default exception argument), repaired rerun333passed/1Docker skip. Ruff/build/
+CDK synth+diff/pass. Linux183.7MiB asset built with pinned dependencies. Ordinary transactional
+DynamoDB writes remain bounded; Google/ORS charges and browser-map usage are separate from AWS
+credits. Existing counters were not erased/refunded; limits are global across users and reset on
+UTC hour/day boundaries (daily05:30IST). See GOOGLE_MAPS_SETUP.md for provider accounting.
+
+
 ## Outside-Delhi verification follow-up - 2026-10-11
 
 User confirmed the deployed Drive comparison now works. Real Mumbai Gateway of India->Marine

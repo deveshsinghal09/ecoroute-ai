@@ -1,5 +1,18 @@
 # EcoRoute AI architecture — Phases 1–7
 
+Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
+retry messages served and browser comparison returned2routes with full forecast coverage.
+
+
+## Atomic provider allowances - 2026-10-11
+
+Environmental repository reserves UTC daily/hourly counters with one DynamoDB transaction.
+Rejected hourly checks cannot charge daily allowance. Existing UpdateItem IAM grants authorize
+transaction Update actions; no new role permissions. Cloud route caps100daily/100hourly; local
+settings retain100/30 defaults. Responses distinguish hour/day and expose Retry-After through
+exact-origin CORS. Counters are shared across providers/users and count API calls, not journeys.
+
+
 ## Outside-Delhi verification follow-up - 2026-10-11
 
 User confirmed the deployed Drive comparison now works. Real Mumbai Gateway of India->Marine

@@ -1,5 +1,18 @@
 # Credentials and configuration checklist
 
+Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
+retry messages served and browser comparison returned2routes with full forecast coverage.
+
+
+## Route allowance configuration - 2026-10-11
+
+Allowance429 is an application safeguard, not proof of invalid credentials or Google quota.
+AWS LOCATION_DAILY_LIMIT=100 and LOCATION_HOURLY_LIMIT=100; local defaults100/30. Existing scoped
+DynamoDB UpdateItem permits transactional reservations. Exact BUDGET#location reads remain denied;
+no credential/IAM change or counter deletion/reset performed. Google billing/free allowances are
+independent of AWS credits. UTC day reset05:30IST; two named places can consume3provider calls.
+
+
 ## Outside-Delhi verification follow-up - 2026-10-11
 
 User confirmed the deployed Drive comparison now works. Real Mumbai Gateway of India->Marine
@@ -400,7 +413,7 @@ actual service entitlement, bootstrap execution boundary and costs still gate de
 | AWS_PROFILE=dev-admin; AWS_REGION=ap-south-1; EXPECTED_AWS_ACCOUNT_ID | Required real local routing; identifiers non-secret | Existing CLI profile verified via STS; identifiers in ignored .env, credentials in protected CLI files/cache; STS no direct charge |
 | ENABLE_AWS_LOCATION | Optional local flag, required AWS adapter; non-secret | Set true only after the two actions in iam/location-read.json are granted by an authorized IAM operator; see ROUTING.md Console steps and billed demo command |
 | ROUTING_PROVIDER; OSRM_BASE_URL | Optional fallback; non-secret | Default aws. Explicit osrm requires an operator-approved HTTPS origin with verified road profile/terms; no AWS IAM needed; provider hosting/request fees may apply; recorded fixture CLI needs no URL |
-| LOCATION_DAILY_LIMIT; LOCATION_HOURLY_LIMIT | Spending safeguard; non-secret | Defaults100/30, configure lower locally; API Lambda receives these limits; DDB conditional UpdateItem on environmental table reserves attempts; quotas are not dollar caps |
+| LOCATION_DAILY_LIMIT; LOCATION_HOURLY_LIMIT | Spending safeguard; non-secret | Local defaults100/30; AWS100/100; DynamoDB transactional Update actions reserve both counters together using existing UpdateItem permissions; quotas are not dollar caps |
 | OpenAQ replacement key | Mandatory only for OpenAQ; secret | Revoke the chat-exposed key at provider account/API keys, create a replacement, save OPENAQ_API_KEY only in ignored .env; verify with one bounded station-discovery command above; never print the key or paste it into chat |
 
 Preserve an existing .env. No request to paste any secret is part of setup. No key disclosed in

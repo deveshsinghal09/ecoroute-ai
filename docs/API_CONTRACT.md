@@ -1,5 +1,18 @@
 # API contract — backend foundation and environmental datasets
 
+Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
+retry messages served and browser comparison returned2routes with full forecast coverage.
+
+
+## Routing rate-limit responses - 2026-10-11
+
+429 retains error.code/request_id. Known exhausted windows use location_hourly_budget_exhausted
+or location_daily_budget_exhausted and numeric Retry-After seconds. Unknown-window fallback remains
+location_request_budget_exhausted. Retry-After is exposed through exact-origin CORS; frontend
+renders only a validated positive integer<=86400 as approximate wait minutes. No automatic retry
+or provider-body exposure. Allowances count shared provider calls, not returned route candidates.
+
+
 ## Outside-Delhi verification follow-up - 2026-10-11
 
 User confirmed the deployed Drive comparison now works. Real Mumbai Gateway of India->Marine

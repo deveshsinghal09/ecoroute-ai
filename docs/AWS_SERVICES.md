@@ -1,5 +1,18 @@
 # AWS service decisions and IAM boundaries
 
+Final allowance release verified: Core UPDATE_COMPLETE, deployed100daily/100hourly, new Amplify
+retry messages served and browser comparison returned2routes with full forecast coverage.
+
+
+## Routing allowance runtime update - 2026-10-11
+
+Existing Core Lambda code/environment and API Gateway exposed headers updated. DynamoDB now
+atomically reserves both counters, preventing rejected hourly attempts from consuming daily slots.
+Hourly cap100/daily cap100; daily allowance unchanged. Transactions use two bounded Update actions
+and existing IAM; transactional write pricing applies. No new service, continuous workflow or
+unbounded allowance. Google/ORS and Maps browser billing are independent; AWS Budgets is no cap.
+
+
 ## Outside-Delhi verification follow-up - 2026-10-11
 
 User confirmed the deployed Drive comparison now works. Real Mumbai Gateway of India->Marine

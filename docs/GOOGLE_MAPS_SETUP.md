@@ -1,5 +1,17 @@
 # Google Maps + Routes setup
 
+## Hackathon routing allowance
+
+AWS backend now allows100provider calls/hour with the same100/day cap, shared by all users.
+A comparison with two place names usually uses2Places searches+1Routes call; selecting map
+coordinates avoids those place searches. This is not100comparisons/day. Daily/hourly slots are
+reserved atomically; rejected hourly attempts no longer consume daily slots. Existing counted
+usage is preserved, not reset. UTC boundaries reset windows: daily00:00UTC/05:30IST. The response
+identifies the exhausted window and Retry-After. Local defaults remain100/day and30/hour.
+Google Cloud provider quotas/free allowances and billable browser Maps loads are separate; these
+AWS application counters are not dollar caps and AWS credits do not cover Google charges.
+
+
 Updated 2026-10-11. Real Google map tiles, Places geocoding, driving/walking routes and
 openrouteservice cycling verified locally. Browser guest comparison returned three Google routes
 and two map pins. No AWS action or deployment performed.
@@ -74,7 +86,7 @@ sources remain distinct. Publish appropriate Terms and Privacy pages before publ
 ## Cost controls
 Google billing is separate from AWS credits. Each text comparison can use two Places searches and
 one Routes request; coordinates skip Places. Map loads have their own billing. Existing application
-limits LOCATION_DAILY_LIMIT=100 and LOCATION_HOURLY_LIMIT=30 bound server provider requests;
+Local defaults LOCATION_DAILY_LIMIT=100 and LOCATION_HOURLY_LIMIT=30 bound server provider requests; AWS uses100daily/100hourly for bounded hackathon usage;
 they do not cap browser map loads. Set Google API quotas and billing alerts before enabling keys.
 Alerts do not hard-cap spend. Avoid automatic polling. Current SKU/rates depend on account eligibility,
 region and requested features: verify in Google Cloud Billing before live testing.
