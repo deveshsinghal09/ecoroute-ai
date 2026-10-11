@@ -247,3 +247,32 @@ test('departure defaults to a fresh leave-now value and scheduled dates reach th
  await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
  await expect.poll(()=>sent.departure_at).toBe(expected);
 });
+
+test('planner keeps consent gating and replaces red click outlines with keyboard-visible neutral focus',async({page})=>{
+ await mockMap(page);let requests=0;
+ await page.route('**/api/v1/routes/preview',r=>{requests++;return r.fulfill({json:recording});});
+ await page.goto('/');
+ const city=page.getByRole('button',{name:'City overview',exact:true});await city.click();
+ expect(await city.evaluate(el=>getComputedStyle(el).outlineStyle)).toBe('none');
+ const checkbox=page.getByRole('checkbox',{name:'Allow processing my locations and route. Google routes are not saved.'});
+ await expect(checkbox).toBeVisible();await expect(checkbox).not.toBeChecked();
+ await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('button',{name:'Compare routes',exact:true}).click();
+ await expect(page.getByRole('status')).toContainText('Confirm location processing');expect(requests).toBe(0);
+ const preference=page.getByLabel('Route preference',{exact:true});
+ await preference.click();await page.keyboard.press('Home');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
+ await expect(preference).toHaveValue('fastest');
+ const focus=await preference.evaluate(el=>({color:getComputedStyle(el).outlineColor,width:getComputedStyle(el).outlineWidth}));
+ expect(focus.color).toBe('rgb(54, 84, 101)');expect(focus.width).toBe('2px');
+ await checkbox.check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();
+ await expect(page.locator('.route-option')).toHaveCount(2);expect(requests).toBe(1);
+});
+
+for(const viewport of [{width:1280,height:720},{width:1024,height:640}]){
+ test(`compare action remains fully inside the planner at ${viewport.width}x${viewport.height}`,async({page})=>{
+  await page.setViewportSize(viewport);await mockMap(page);await page.goto('/');await page.evaluate(()=>document.fonts.ready);
+  const button=await page.getByRole('button',{name:'Compare routes',exact:true}).boundingBox(),panel=await page.locator('.detail-panel').boundingBox();
+  expect(button!.y+button!.height).toBeLessThanOrEqual(panel!.y+panel!.height-5);
+  await expect(page.getByRole('checkbox',{name:'Allow processing my locations and route. Google routes are not saved.'})).toBeVisible();
+ });
+}
