@@ -5313,6 +5313,520 @@
         "x-ecoroute-scope": "ecoroute/read"
       }
     },
+    "/api/v1/wearables/health-connect/status": {
+      "get": {
+        "tags": [
+          "private local Health Connect"
+        ],
+        "summary": "Status",
+        "operationId": "status_api_v1_wearables_health_connect_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthConnectStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Phone response invalid/unreachable or timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Phone response invalid/unreachable or timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "x-ecoroute-scope": "ecoroute/read",
+        "x-ecoroute-local-pairing": true,
+        "description": "Owner-only phone bridge read. Cognito ecoroute/read or an expiring local pairing bearer; explicit session consent for records. Local pairing is restricted to loopback and approved origins."
+      }
+    },
+    "/api/v1/wearables/health-connect/data": {
+      "get": {
+        "tags": [
+          "private local Health Connect"
+        ],
+        "summary": "Data",
+        "operationId": "data_api_v1_wearables_health_connect_data_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "default": 7,
+              "title": "Days"
+            }
+          },
+          {
+            "name": "cached",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Cached"
+            }
+          },
+          {
+            "name": "consent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Consent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthConnectData"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Phone response invalid/unreachable or timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Phone response invalid/unreachable or timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-ecoroute-scope": "ecoroute/read",
+        "x-ecoroute-local-pairing": true,
+        "description": "Owner-only phone bridge read. Cognito ecoroute/read or an expiring local pairing bearer; explicit session consent for records. Local pairing is restricted to loopback and approved origins."
+      }
+    },
+    "/api/v1/wearables/health-connect/summary": {
+      "get": {
+        "tags": [
+          "private local Health Connect"
+        ],
+        "summary": "Summary",
+        "operationId": "summary_api_v1_wearables_health_connect_summary_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "default": 7,
+              "title": "Days"
+            }
+          },
+          {
+            "name": "selected_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Selected Date"
+            }
+          },
+          {
+            "name": "timezone_name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "default": "UTC",
+              "title": "Timezone Name"
+            }
+          },
+          {
+            "name": "cached",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Cached"
+            }
+          },
+          {
+            "name": "consent",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Consent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthConnectSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Normalized error; endpoint-dependent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Phone response invalid/unreachable or timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Phone response invalid/unreachable or timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        },
+        "x-ecoroute-scope": "ecoroute/read",
+        "x-ecoroute-local-pairing": true,
+        "description": "Owner-only phone bridge read. Cognito ecoroute/read or an expiring local pairing bearer; explicit session consent for records. Local pairing is restricted to loopback and approved origins."
+      }
+    },
     "/api/v1/ai/explain-route": {
       "post": {
         "tags": [
@@ -6229,6 +6743,25 @@
         ],
         "title": "BatchRequest"
       },
+      "BloodPressureValue": {
+        "properties": {
+          "systolic": {
+            "type": "number",
+            "title": "Systolic"
+          },
+          "diastolic": {
+            "type": "number",
+            "title": "Diastolic"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "systolic",
+          "diastolic"
+        ],
+        "title": "BloodPressureValue"
+      },
       "CompareRequest": {
         "properties": {
           "origin": {
@@ -6534,6 +7067,506 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "HealthConnectData": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "empty"
+            ],
+            "title": "Status"
+          },
+          "retrieval": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "phone_cache"
+            ],
+            "title": "Retrieval"
+          },
+          "full_window": {
+            "type": "boolean",
+            "title": "Full Window"
+          },
+          "days": {
+            "type": "integer",
+            "title": "Days"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fetched At"
+          },
+          "payload_generated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload Generated At"
+          },
+          "last_synchronization_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synchronization At"
+          },
+          "records": {
+            "items": {
+              "$ref": "#/components/schemas/HealthRecord"
+            },
+            "type": "array",
+            "title": "Records"
+          },
+          "skipped_records": {
+            "type": "integer",
+            "title": "Skipped Records"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "retrieval",
+          "full_window",
+          "days",
+          "fetched_at",
+          "payload_generated_at",
+          "last_synchronization_at",
+          "records",
+          "skipped_records",
+          "warnings"
+        ],
+        "title": "HealthConnectData"
+      },
+      "HealthConnectStatus": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "connected",
+            "title": "Status",
+            "default": "connected"
+          },
+          "phone_reachable": {
+            "type": "boolean",
+            "const": true,
+            "title": "Phone Reachable",
+            "default": true
+          },
+          "last_synchronization_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synchronization At"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fetched At"
+          },
+          "authentication": {
+            "type": "string",
+            "enum": [
+              "local_pairing",
+              "cognito"
+            ],
+            "title": "Authentication"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fetched_at",
+          "authentication"
+        ],
+        "title": "HealthConnectStatus"
+      },
+      "HealthConnectSummary": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "empty"
+            ],
+            "title": "Status"
+          },
+          "selected_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Selected Date"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fetched At"
+          },
+          "payload_generated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload Generated At"
+          },
+          "last_synchronization_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synchronization At"
+          },
+          "retrieval": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "phone_cache"
+            ],
+            "title": "Retrieval"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/HealthMetrics"
+          },
+          "calorie_basis": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "total",
+                  "active"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calorie Basis"
+          },
+          "sleep_sessions": {
+            "items": {
+              "$ref": "#/components/schemas/HealthRecord"
+            },
+            "type": "array",
+            "title": "Sleep Sessions"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "skipped_records": {
+            "type": "integer",
+            "title": "Skipped Records"
+          },
+          "medical_assessment": {
+            "type": "boolean",
+            "const": false,
+            "title": "Medical Assessment",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "selected_date",
+          "timezone",
+          "fetched_at",
+          "payload_generated_at",
+          "last_synchronization_at",
+          "retrieval",
+          "metrics",
+          "calorie_basis",
+          "sleep_sessions",
+          "warnings",
+          "skipped_records"
+        ],
+        "title": "HealthConnectSummary"
+      },
+      "HealthMetric": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "$ref": "#/components/schemas/BloodPressureValue"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "unavailable",
+              "partial"
+            ],
+            "title": "Status",
+            "default": "unavailable"
+          },
+          "timestamp": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timestamp"
+          },
+          "source_applications": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Applications",
+            "default": []
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale",
+            "default": false
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "unit"
+        ],
+        "title": "HealthMetric"
+      },
+      "HealthMetrics": {
+        "properties": {
+          "heart_rate": {
+            "$ref": "#/components/schemas/HealthMetric"
+          },
+          "blood_pressure": {
+            "$ref": "#/components/schemas/HealthMetric"
+          },
+          "oxygen_saturation": {
+            "$ref": "#/components/schemas/HealthMetric"
+          },
+          "steps": {
+            "$ref": "#/components/schemas/HealthMetric"
+          },
+          "sleep": {
+            "$ref": "#/components/schemas/HealthMetric"
+          },
+          "calories_burned": {
+            "$ref": "#/components/schemas/HealthMetric"
+          },
+          "resting_heart_rate": {
+            "$ref": "#/components/schemas/HealthMetric"
+          },
+          "respiratory_rate": {
+            "$ref": "#/components/schemas/HealthMetric"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "heart_rate",
+          "blood_pressure",
+          "oxygen_saturation",
+          "steps",
+          "sleep",
+          "calories_burned",
+          "resting_heart_rate",
+          "respiratory_rate"
+        ],
+        "title": "HealthMetrics"
+      },
+      "HealthRecord": {
+        "properties": {
+          "measurement_type": {
+            "type": "string",
+            "enum": [
+              "heart_rate",
+              "blood_pressure",
+              "oxygen_saturation",
+              "steps",
+              "sleep",
+              "active_calories",
+              "total_calories",
+              "resting_heart_rate",
+              "respiratory_rate"
+            ],
+            "title": "Measurement Type"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "$ref": "#/components/schemas/BloodPressureValue"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "bpm",
+              "mmHg",
+              "%",
+              "count",
+              "s",
+              "kcal",
+              "breaths/min"
+            ],
+            "title": "Unit"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "source_application": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Application"
+          },
+          "recording_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recording Method"
+          },
+          "resolution": {
+            "type": "string",
+            "enum": [
+              "sample",
+              "bucket_average",
+              "interval",
+              "session"
+            ],
+            "title": "Resolution"
+          },
+          "quality": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quality",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "measurement_type",
+          "value",
+          "unit",
+          "timestamp",
+          "resolution"
+        ],
+        "title": "HealthRecord"
       },
       "Measurement": {
         "properties": {

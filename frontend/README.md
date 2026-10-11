@@ -1,5 +1,16 @@
 # EcoRoute city dashboard
 
+## Health Connect in Wearable
+
+Existing watch and wearable controls are preserved. The new Health Connect panel reads only
+through the backend; no phone IP/token is included in the browser bundle. For local use before
+Cognito setup, generate the private eight-hour pairing key using scripts/health_connect.py,
+restart backend, enter the key and explicitly allow the session. Browser time zone/date select
+daily totals. Manual refresh/default-off60/120second polling; disconnect/section change clears
+records and credentials from memory. Other APIs still require their existing authentication.
+[Setup, schema and actual phone verification](../docs/HEALTH_CONNECT.md). This displays records,
+not a continuous sensor stream; there is no fabricated fallback or inferred health score.
+
 React + TypeScript + Vite + Three.js. User-authorized frontend addition after Phase7; no cloud
 deployment is implied. The supplied Axle image/video inspired the layout, not its branding or
 statistics. The interactive city is an original illustrative scene, not a geographic Delhi model.

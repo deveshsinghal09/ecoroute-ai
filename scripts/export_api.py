@@ -29,6 +29,10 @@ PreviewRequest (consent_to_store=false) and only request-only Google/optional OR
 It never creates journeys, route caches or saved coordinates, and shares global provider budgets.
 The AWS public POST route is defined only with CDK enable_guest_routes=true plus a Google secret.
 Cognito remains mandatory for every existing private route, location, health, wearable and alert API.
+Three NEW local phone-bridge GETs under /wearables/health-connect/ also accept an expiring,
+read-only local pairing bearer. It is restricted to the backend's loopback address, approved
+origins and configured phone owner; it never signs in to other APIs. Explicit consent=true
+is required for data and summary. See HEALTH_CONNECT.md. No pairing key belongs in VITE_ env.
 Local /api/v1/ready is public; deployed API Gateway requires the ecoroute/read scope for it.
 
 ## Geometry, units and confidence
@@ -38,6 +42,13 @@ stay in browser memory; no anonymous health API or cloud upload exists. BLE time
 receipt time, not device observation time. GET /wearables/latest is still authenticated and maps
 only non-synthetic available fields as a manual snapshot. Unknown vendor packets are not decoded;
 the Noise adapter remains blocked pending a verified SDK/export. See LIVE_WATCH_SETUP.md.
+Health Connect reads the Android app's documented local JSON API server-side. Fresh days1–30
+reads are distinct from cached/incremental /latest. Eight summary metrics have explicit
+available/unavailable states, units, record timestamps, source packages, resolution and warnings.
+The browser sends its IANA timezone and selected calendar date; daily counts are not prorated
+across midnight. Overlapping counts/projected future energy intervals produce unavailable totals.
+Sleep is a union of recorded session intervals ending on the selected day, including any awake
+time; not a scored or diagnosed sleep assessment. No raw health records are persisted/uploaded.
 
 GeoJSON geometry is {\"type\":\"LineString\",\"coordinates\":[[longitude,latitude],...]} in WGS84.
 These are provider road routes, not straight-line substitutes. JSON Point inputs instead use
@@ -77,6 +88,8 @@ Backend errors: {\"error\":{\"code\":\"validation_error\",\"request_id\":\"opaqu
 401 missing/invalid bearer;403 scope/consent;404 absent/other owner's record;409 idempotency/state;
 413 body over256KiB;422 validation/unsupported route;429 request budget;500 unexpected failure;
 503 dependency/auth/provider/model unavailable. /ready503 uses {\"status\":\"not_ready\"}.
+Phone-bridge responses additionally use502 for invalid/failed provider responses and504 for
+timeouts. Missing readings return null with unavailable status, never synthetic zero values.
 Idempotency-Key is required for trip/device registration; same body replays200, changed body409.
 Route compare/exposure results are bounded; segment/history queries paginate. Respect truncated
 and next_offset/next_cursor; unavailable is NOT a zero concentration or a safety guarantee.
@@ -185,7 +198,10 @@ def export(root):
             successful = next((v for k, v in operation["responses"].items() if k.startswith("2")), None)
             response = successful["content"]["application/json"]["schema"] if successful else {}
             response_name = response.get("$ref", "inline object").split("/")[-1] if successful else "ApiError"
-            guide += f"| {method.upper()} {path} | {operation.get('x-ecoroute-scope') or 'public (configuration-dependent)'} | {body_name}; {', '.join(p['name'] for p in parameters) or 'no parameters'} | {response_name}; pointer paths/{path.replace('/', '~1')}/{method}/responses | {'legacy unavailable/retired' if operation.get('deprecated') else 'configuration-dependent'} |\n"
+            access = operation.get('x-ecoroute-scope') or 'public (configuration-dependent)'
+            if operation.get("x-ecoroute-local-pairing"):
+                access += " or scoped local pairing bearer"
+            guide += f"| {method.upper()} {path} | {access} | {body_name}; {', '.join(p['name'] for p in parameters) or 'no parameters'} | {response_name}; pointer paths/{path.replace('/', '~1')}/{method}/responses | {'legacy unavailable/retired' if operation.get('deprecated') else 'configuration-dependent'} |\n"
             url = "{{base_url}}" + path
             for parameter in parameters:
                 if parameter["in"] == "path":

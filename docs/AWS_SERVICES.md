@@ -1,5 +1,15 @@
 # AWS service decisions and IAM boundaries
 
+## Local Health Connect bridge — 2026-10-11
+
+This phone-data integration introduces no AWS service, IAM grant, resource or paid workload.
+Local FastAPI accesses the trusted LAN phone server; React receives owner-authorized summaries.
+Existing AWS IoT/Cognito/S3/DynamoDB definitions are preserved but are not used by the new
+read-only bridge. No health record is uploaded. An expiring local loopback pairing key handles
+only these three read endpoints while Cognito is deferred. This LAN integration cannot run
+inside Lambda/Fargate against the user's private phone IP; future cloud use needs a secure
+outbound companion bridge and existing ownership/consent controls. No public tunnel is added.
+
 Current setup (2026-10-11): user reports creating the USD50/month budget. No application service
 or bootstrap was deployed by us. [Scoped Console bootstrap](AWS_CONSOLE_BOOTSTRAP.md) defines one
 private asset S3 bucket/ECR repository, five CDK roles, six managed policies and SSM version.

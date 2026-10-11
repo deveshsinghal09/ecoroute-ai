@@ -1108,6 +1108,114 @@
       "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
     },
     {
+      "name": "GET /api/v1/wearables/health-connect/status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/health-connect/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "health-connect",
+            "status"
+          ],
+          "query": []
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/wearables/health-connect/data",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/health-connect/data",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "health-connect",
+            "data"
+          ],
+          "query": [
+            {
+              "key": "days",
+              "value": "1",
+              "disabled": true
+            },
+            {
+              "key": "cached",
+              "value": "True",
+              "disabled": true
+            },
+            {
+              "key": "consent",
+              "value": "True",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
+      "name": "GET /api/v1/wearables/health-connect/summary",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/wearables/health-connect/summary",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "wearables",
+            "health-connect",
+            "summary"
+          ],
+          "query": [
+            {
+              "key": "days",
+              "value": "1",
+              "disabled": true
+            },
+            {
+              "key": "selected_date",
+              "value": "DEVELOPMENT_PLACEHOLDER",
+              "disabled": true
+            },
+            {
+              "key": "timezone_name",
+              "value": "DEVELOPMENT_PLACEHOLDER",
+              "disabled": true
+            },
+            {
+              "key": "cached",
+              "value": "True",
+              "disabled": true
+            },
+            {
+              "key": "consent",
+              "value": "True",
+              "disabled": true
+            }
+          ]
+        },
+        "header": []
+      },
+      "description": "User-triggered example; replace placeholders. See OpenAPI response schemas."
+    },
+    {
       "name": "POST /api/v1/ai/explain-route",
       "request": {
         "method": "POST",

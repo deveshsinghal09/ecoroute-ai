@@ -1,5 +1,56 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Actual Health Connect phone bridge — 2026-10-11
+
+Extended existing FastAPI/React wearable integration, without cloud services or infrastructure
+changes. User deferred Cognito and chose browser timezone: three owner-only, read-only bridge
+endpoints accept Cognito or an expiring local pairing bearer restricted to loopback/approved
+origins. Existing private APIs remain protected. Session consent is mandatory for records;
+revocation/unmount cancels pending reads and clears browser values. Phone token/configuration
+stay backend-only. No health records are persisted, uploaded, or logged as request bodies.
+
+New adapter normalizes the actual documented nine arrays into eight summary metrics with
+UTC-aware times, units, source packages, bucket-average provenance and explicit unavailable
+states. Exact duplicates removed; ambiguous overlapping/cross-midnight counts and future
+projected calories never masquerade as actual totals. Sleep is a session interval union,
+not a fabricated score. Windows tzdata supports browser IANA zones/DST. Fresh/full and
+cached/incremental payloads are distinct. No synthetic app fallback or unsupported Noise
+sensor decoding was added. The existing 3D watch displays only available mapped records.
+
+Live phone app1.9.22: /ping,/health and fresh seven-day root read HTTP200. One steps and five
+total-calorie records normalized (six records, zero skipped). Today's steps available; calories
+unavailable because the selected interval is unfinished/projected. HR, BP, SpO2, sleep, resting
+HR and respiratory rate absent. Last sync not supplied. Backend status/data/summary HTTP200
+with local pairing, missing bearer401, missing consent403. Actual browser steps matched the
+backend and the 3D watch rendered the same reading; no private value appears in this report.
+This confirms phone records, not direct live smartwatch sensing or full metric coverage.
+
+Files: src/ecoroute/wearable/health_connect*.py; scripts/health_connect.py;
+frontend/src/wearable/HealthConnectPanel.tsx, healthConnectData.ts, health-connect.css and tests;
+updated configuration/runtime/router/contracts/watch/API client and tzdata dependencies.
+Exported updated OpenAPI/endpoint index/Postman collection (46 operations). Updated README,
+frontend README and five maintained documents; setup/semantics in HEALTH_CONNECT.md.
+
+Executed: scripts/health_connect.py --configure-local --base-url <private LAN URL> --check;
+redacted live phone/backend probes; actual browser verification; pytest -q (289passed,
+1skipped,3 existing warnings before final targeted refinements); final focused Health Connect/
+contract pytest (43passed); Ruff src/scripts/tests passed; frontend Vitest (42passed); frontend
+production build passed with existing lazy Three.js chunk-size warning. Browser suite22passed,
+1 initial Edge ERR_INSUFFICIENT_RESOURCES navigation failure; that check passed on focused rerun.
+All3 new Health Connect browser checks passed, including final date-state changes;8 existing
+Google Maps fixture regression checks passed. Detector no findings; finish review found no
+blocker and its date/freshness feedback was applied. Mobile fixture and actual desktop/watch
+screenshots are ignored local artifacts; no public health-data screenshot is committed.
+Initial actual-browser probe found frontend5173 stopped (connection refused); restarted only
+the local frontend and the subsequent actual-data browser check succeeded.
+
+No AWS authenticated action, deployment, training, notification, or paid provider generation
+this integration. Local backend8000/frontend5173 running. Remaining: copy private pairing key
+into Wearable and consent; keep phone server reachable; populate missing metrics through actual
+source apps; enable the phone token privately if its HTTP authentication is switched on; renew
+local key (default8hours) when expired. Future cloud usage requires Cognito and an outbound
+companion bridge, not exposing the phone HTTP server. Other ongoing AWS preparation preserved.
+
 ## Budget created; scoped Console bootstrap prepared — 2026-10-11
 
 User confirms creation of EcoRoute-Gross-Usage; last Console review shows USD50/month,

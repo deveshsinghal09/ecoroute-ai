@@ -1,5 +1,17 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Private local Health Connect extension — 2026-10-11
+
+Existing Wearable sidebar -> authenticated loopback FastAPI phone-bridge GETs -> fixed-target
+private Android HTTP API -> normalized in-memory records/summary -> existing watch plus eight
+metric rows. Fresh root reads use days1–30; explicit phone-cache reads cannot establish daily
+totals. Owner binding and session consent apply before phone calls. An expiring local read-only
+key permits this specific bridge while Cognito is deferred; it does not bypass existing JWT
+APIs. Cognito ecoroute/read can later access the configured owning user's local bridge.
+No S3/DynamoDB/cloud resource or permanent health storage is used. AWS profile rejects LAN
+configuration. Browser time zone defines calendar days; missing data stays unavailable.
+See [HEALTH_CONNECT.md](HEALTH_CONNECT.md) for trust boundaries and normalization limitations.
+
 Scoped bootstrap (2026-10-11): [AWS_CONSOLE_BOOTSTRAP.md](AWS_CONSOLE_BOOTSTRAP.md) connects an
 authorized Console operator to the existing CDK app through constrained publishing/deployment
 roles, four execution policies and an enforced application-role permissions boundary. All12

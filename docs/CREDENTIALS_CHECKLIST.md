@@ -1,5 +1,18 @@
 # Credentials and configuration checklist
 
+## Local phone records before AWS setup — 2026-10-11
+
+HEALTH_CONNECT_BASE_URL (private phone LAN IP/port) and HEALTH_CONNECT_OWNER_SUB are required;
+HEALTH_CONNECT_TOKEN is a sensitive server-only Bearer value when Android HTTP authentication
+is enabled. No phone token is currently required by the tested running server. Configure these
+in ignored root .env, never VITE_ variables. The CLI generates a strong sensitive
+HEALTH_CONNECT_LOCAL_ACCESS_TOKEN plus HEALTH_CONNECT_LOCAL_ACCESS_EXPIRES_AT (default8hours)
+for loopback-only read access while Cognito is deferred. Copy its ignored private pairing file
+into the Wearable password field; do not send values in chat. CLI --check prints no readings
+or secrets. No AWS account/permission is needed for these local reads. Later Cognito needs the
+real owner sub/read scope; the local key never grants deployed or other private API access.
+See [exact setup/verification](HEALTH_CONNECT.md#first-local-connection-without-cognito).
+
 Current prerequisite (2026-10-11): user-created budget is reported USD50/month; CLI read remains
 denied. An authorized IAM/CloudFormation Console operator must install the prepared scoped
 bootstrap in credited account112920804206, Mumbai. See [AWS_CONSOLE_BOOTSTRAP.md](AWS_CONSOLE_BOOTSTRAP.md)

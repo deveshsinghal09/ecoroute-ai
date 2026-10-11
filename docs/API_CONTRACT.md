@@ -1,5 +1,17 @@
 # API contract — backend foundation and environmental datasets
 
+## Owner-only Health Connect GETs — 2026-10-11
+
+Added /api/v1/wearables/health-connect/status, /data and /summary. Bearer required; owner-bound
+Cognito ecoroute/read or expiring local loopback pairing key. Data/summary additionally require
+consent=true. Existing private endpoint authentication is unchanged. days1–30(default7),
+explicit cached flag, summary selected_date and IANA timezone_name; browser sends its own zone.
+Eight metrics return typed value/unit/status/time/source/resolution/warnings; unavailable=null,
+not a zero reading. Daily overlap/future projection/cross-midnight ambiguity is explicit.
+No-store responses, no permanent health storage. Errors additionally include502/504 for phone
+responses/timeouts. Runtime OpenAPI and Postman now contain46 operations. Exact models and
+local setup are in [HEALTH_CONNECT.md](HEALTH_CONNECT.md) and the exported full contract.
+
 AWS preparation (2026-10-11): budget creation is user-confirmed; bootstrap/backend remain
 undeployed. New scoped deployment IAM and optional workload boundary introduce no REST operation
 in this change. Cognito ownership/consent checks remain required on private deployed APIs.

@@ -1,5 +1,15 @@
 # EcoRoute AI
 
+## Actual Health Connect phone data
+
+The Wearable section can read the installed Android Health Connect to Webhook app through the
+existing local backend. No Cognito/AWS setup is needed for its expiring, loopback-only pairing
+mode; health reads remain authenticated and consent-based. Run scripts/health_connect.py
+--configure-local --base-url http://PHONE_LAN_IP:8787 --check, restart local servers, then enter
+the private work/health-connect-pairing.txt key in Wearable. Do not paste tokens into chat.
+The browser's time zone controls daily summaries. Missing readings stay unavailable and
+ambiguous/projected totals are not guessed. [Full setup and limitations](docs/HEALTH_CONNECT.md).
+
 Start AWS configuration with the [ordered Console and PowerShell guide](docs/AWS_SETUP_FROM_ZERO.md).
 It reuses the existing IAM profile and CDK resources, documents the required permissions
 and distinguishes credential setup from approved provisioning and feature activation.
