@@ -53,6 +53,7 @@ class EnvironmentalWorkflow(Construct):
         for task in stages[1:]:
             chain = chain.next(task)
         self.machine = sfn.StateMachine(self, "Machine", definition_body=sfn.DefinitionBody.from_chainable(chain),
+            state_machine_name=f"EcoRoute-{Stack.of(self).stack_name}-EnvironmentalWorkflow",
             timeout=Duration.minutes(12), tracing_enabled=False)
         dispatch_group = logs.LogGroup(self, "DispatchLogs", retention=logs.RetentionDays.ONE_WEEK, removal_policy=RemovalPolicy.DESTROY)
         dispatcher = lambda_.Function(self, "Dispatch", code=code, runtime=lambda_.Runtime.PYTHON_3_11,

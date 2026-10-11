@@ -109,6 +109,8 @@ def test_low_quota_aspect_and_gemini_scoped_secret(tmp_path):
     cdk.Aspects.of(app).add(UnreservedLambda())
     app.synth()
     template = Template.from_stack(core).to_json()
+    machine = resources(template, "AWS::StepFunctions::StateMachine")[0]["Properties"]
+    assert machine["StateMachineName"] == "EcoRoute-LowQuotaCore-EnvironmentalWorkflow"
     assert all("ReservedConcurrentExecutions" not in r["Properties"]
                for r in resources(template, "AWS::Lambda::Function"))
     api = next(r["Properties"] for r in resources(template, "AWS::Lambda::Function")
