@@ -1,5 +1,15 @@
 # API contract — backend foundation and environmental datasets
 
+## Current-hour model coverage - 2026-10-11
+
+Route sampling accepts current-hour modeled Open-Meteo data as well as forecast
+records within30minutes of a segment timestamp, preserving the original status.
+This does not extend observed readings into the future. Null exposure continues
+to mean incomplete coverage; no synthetic concentration replaces missing data.
+Live Mumbai Drive check at22:54 IST: both candidates100% coverage, weighted PM2.5
+46.81 and46.79ug/m3, exposure10.61 and11.02ug h/m3. No schema changes.
+
+
 ## Stored ingestion quality reports - 2026-10-11
 
 GET /api/v1/data/quality?source=open_meteo (or openaq) remains Cognito-protected.

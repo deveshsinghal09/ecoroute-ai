@@ -1,5 +1,14 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Hourly model matching correction - 2026-10-11
+
+Open-Meteo current-hour records may be typed modeled after their valid time passes.
+They now remain eligible for near-future segments within the existing30-minute
+nearest-hour tolerance. Future matching still excludes observations. Geographic,
+quality and collection-freshness checks remain unchanged; modeled provenance and
+coarse45km resolution remain visible. This removes artificial half-hour gaps.
+
+
 ## Environmental query correction - 2026-10-11
 
 AwsRepository omits an unspecified lower sort-key bound, using pk equality and sk <= end.

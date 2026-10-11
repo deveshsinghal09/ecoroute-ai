@@ -1,5 +1,13 @@
 # Credentials and configuration checklist
 
+## Current-hour route fix - 2026-10-11
+
+Deployed and live-verified with existing dev-admin profile in ap-south-1.
+No additional credentials, provider secrets or IAM permissions required for the
+hourly pollution matching repair. Users must select a future driving departure
+when retrying; provider rejection of past times is separate from coverage.
+
+
 ## Data quality diagnostics - 2026-10-11
 
 No new credential or permission is needed for the query correction. dev-admin is the verified

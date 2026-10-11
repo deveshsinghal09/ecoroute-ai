@@ -1,5 +1,13 @@
 # AWS service decisions and IAM boundaries
 
+## Current-hour coverage deployment - 2026-10-11
+
+EcoRouteCore UPDATE_COMPLETE: six Lambda assets updated using existing shared
+package; no resources, IAM, schedules or usage allowances added. API Gateway live
+Mumbai Drive comparison returned100% PM2.5 coverage for both candidates using
+actual Google routes and Open-Meteo model data. No SageMaker job launched.
+
+
 ## Data quality fix - 2026-10-11
 
 Existing environmental table and API role Query grant were reviewed against deployed Core and

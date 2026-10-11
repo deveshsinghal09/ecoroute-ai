@@ -1,5 +1,31 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Current-hour pollution coverage repair - 2026-10-11
+
+Reproduced Gateway of India to Marine Drive, driving, departure22:52 IST: only
+44-45% PM2.5 coverage and null exposure. Current-hour Open-Meteo modeled rows
+were rejected for near-future segments, creating an artificial half-hour gap.
+PollutionIndex now accepts modeled and forecast rows within the existing30-minute
+nearest-hour tolerance; observation extrapolation remains prohibited.
+
+Validation: 82 tests passed across test_routing.py, test_route_forecast.py and
+test_environment.py; Ruff and git diff --check passed. CDK synth and diff passed;
+diff contained six shared Lambda code updates only. EcoRouteCore UPDATE_COMPLETE
+verified via CloudFormation, asset13ec959ef8b9a9fc543eaf3f779099eeaa21bfb7f2fb36ee31deef54594762a1.zip.
+Live POST /api/v1/routes/preview at22:54:24 IST returned HTTP200, both routes100%
+covered:816s /10.60990555ug h/m3 /46.80840683ug/m3 and848s /11.02163864ug h/m3 /
+46.78997538ug/m3. Original22:52 request was rejected after that time passed;
+captured original geometry separately rescored with real provider data at100%.
+Evidence: ignored work/mumbai-hourly-fixed-live.json. No new credentials or IAM
+changes. No frontend change or new frontend tests. Remaining: coarse45km model,
+provider outages and unsupported times can still legitimately lack coverage.
+Commands: pytest targeted modules; ruff check changed files; cdk synth --no-lookups;
+cdk diff EcoRouteCore; cdk deploy EcoRouteCore --app cdk.out --exclusively
+--profile dev-admin --require-approval never; live public route HTTP verification.
+Changed implementation: src/ecoroute/routing/pollution.py, tests/test_routing.py;
+updated the five maintained project documents. No new resources or training.
+
+
 ## Data quality query repair - 2026-10-11
 
 User reported storage_unavailable, request reference 52714503ddd74a5db081f0aa13042a67.
