@@ -58,6 +58,16 @@ def test_policies_fit_managed_limit_and_use_explicit_actions():
     assert "lambda:FunctionArn" in create["Condition"]["ArnLike"]
 
 
+def test_execution_can_resolve_only_its_bootstrap_version_parameter():
+    policy = policies(ACCOUNT, REGION)["EcoRouteExecuteStorage"]
+    parameter = f"arn:aws:ssm:{REGION}:{ACCOUNT}:parameter/cdk-bootstrap/hnb659fds/version"
+    for action in ("ssm:GetParameter", "ssm:GetParameters"):
+        assert permits_resource(policy, action, parameter)
+        assert not permits_resource(policy, action,
+            f"arn:aws:ssm:{REGION}:{ACCOUNT}:parameter/other/private")
+    assert "ssm:PutParameter" not in actions(policy)
+
+
 def test_bootstrap_removes_admin_and_cross_account_deployment_grants():
     keys = ("FileAssetsBucketKmsKeyId", "Qualifier", "TrustedAccounts", "TrustedAccountsForLookup",
             "CloudFormationExecutionPolicies", "PublicAccessBlockConfiguration", "UseExamplePermissionsBoundary",

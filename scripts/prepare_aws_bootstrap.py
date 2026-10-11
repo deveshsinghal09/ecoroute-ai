@@ -63,6 +63,8 @@ def policies(account, region):
                    "cloudformation:GetTemplate cloudformation:GetTemplateSummary "
                    "cloudformation:DescribeChangeSet cloudformation:ListChangeSets")
     storage = document([
+        allow("ssm:GetParameter ssm:GetParameters",
+              arn("ssm", f"parameter/cdk-bootstrap/{QUALIFIER}/version"), regional),
         allow("s3:CreateBucket s3:DeleteBucket s3:GetBucketLocation s3:GetBucketAcl s3:PutBucketAcl "
               "s3:GetBucketPolicy s3:PutBucketPolicy s3:DeleteBucketPolicy s3:GetBucketCORS "
               "s3:PutBucketCORS s3:GetBucketVersioning s3:PutBucketVersioning "
