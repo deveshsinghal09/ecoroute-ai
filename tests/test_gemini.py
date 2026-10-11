@@ -101,7 +101,8 @@ def test_new_flash_signature_is_discarded_but_extra_measurements_are_rejected():
     assert result["mode"] == "deterministic"
 
 
-@pytest.mark.parametrize("value", ['{"api_key":"test-key"}', 'test-key'])
+@pytest.mark.parametrize("value", ['{"api_key":"test-key"}', 'test-key',
+                                  '{"GEMINI_API_KEY":"test-key"}', '{"gemini_api_key":"test-key"}'])
 def test_console_secret_json_or_plaintext(monkeypatch, value):
     from ecoroute.advisory import notifications
     class Secrets:
@@ -110,6 +111,21 @@ def test_console_secret_json_or_plaintext(monkeypatch, value):
     monkeypatch.setattr(notifications, "aws_client", lambda *args: Secrets())
     config = settings().model_copy(update={"gemini_api_key": SecretStr(""), "gemini_secret_arn": "test-reference"})
     assert Gemini(config).key() == "test-key"
+
+
+@pytest.mark.parametrize("value", ['{"other":"test-key"}', '[]', '"test-key"',
+                                  '{"api_key":"a","GEMINI_API_KEY":"b"}',
+                                  '{"api_key":123}', '{"api_key":"a b"}', '{"api_key":""}'])
+def test_secret_format_rejects_unknown_ambiguous_or_invalid_values(monkeypatch, value):
+    from ecoroute.advisory import notifications
+    from ecoroute.advisory.gemini import GeminiUnavailable
+    class Secrets:
+        def get_secret_value(self, **kwargs):
+            return {"SecretString": value}
+    monkeypatch.setattr(notifications, "aws_client", lambda *args: Secrets())
+    config = settings().model_copy(update={"gemini_api_key": SecretStr(""), "gemini_secret_arn": "test-reference"})
+    with pytest.raises(GeminiUnavailable, match="^gemini_secret_invalid$"):
+        Gemini(config).key()
 
 
 def test_oversized_provider_response_falls_back():

@@ -30,13 +30,19 @@ class Gemini:
                 SecretId=self.settings.gemini_secret_arn)
             value = response["SecretString"].strip()
             if value.startswith(("{", "[", '"')):
-                value = json.loads(value)["api_key"]
+                document = json.loads(value)
+                if not isinstance(document, dict):
+                    raise ValueError("secret_not_object")
+                keys = set(document) & {"api_key", "GEMINI_API_KEY", "gemini_api_key"}
+                if len(keys) != 1:
+                    raise ValueError("secret_missing_or_ambiguous_key")
+                value = document[keys.pop()]
         except (BotoCoreError, ClientError):
             raise GeminiUnavailable("gemini_secret_unavailable") from None
         except (ValueError, KeyError, TypeError):
             raise GeminiUnavailable("gemini_secret_invalid") from None
         if not isinstance(value, str) or not value or any(c.isspace() for c in value):
-            raise ValueError("gemini_key_missing")
+            raise GeminiUnavailable("gemini_secret_invalid")
         return value
 
     def arrange(self, system, facts, statements):
