@@ -1,5 +1,28 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Distinct City overview and Journeys tabs — 12 October 2026
+
+- Removed the shared planner branch that made both tabs identical. City overview keeps the
+  existing route form, travel modes, departure, objectives, detour and route factors.
+  Journeys now reviews the current comparison: compared locations, selected route, duration,
+  distance, PM2.5 availability, alternatives and optional departure/arrival details.
+- Added JourneysPanel.tsx and journeys.css; extracted shared RouteOptions.tsx so both screens
+  use identical returned alternatives, route colors, attribution and selection state.
+  No invented journey history, GPS tracking, saved records or new provider calls.
+- Journeys links to Air quality and Insights; Edit journey returns to the existing planner
+  with inputs/consent/selection preserved. No-route state offers Plan a journey. Unsaved planner
+  edits do not relabel old results. Map picking and the city planner hotspot open City overview.
+- Tests:74 unit passed;29 mocked Maps browser passed;35 dashboard browser passed; build passed.
+  Three new browser scenarios cover distinct empty state, alternative selection/navigation,
+  preserved inputs, unchanged request count and missing data. Laptop/mobile screenshots reviewed;
+  no horizontal overflow. Design detector[]; original hidden scrollbars and panel size preserved.
+- No backend, AWS resources, permissions, secrets or API contract changes. Auth and routing
+  calculations remain unchanged. Frontend publication uses the existing Amplify Git integration.
+  Commit author:Devesh Singhal; next meaningful author:Mayank Gupta.
+- Prior air-quality update81b04e9 is published as index-BwNQM46P.js; desktop/mobile replay checks
+  passed and GitHub CI38183430734 succeeded. Positive live signed-in dataset check remains pending.
+
+
 ## Air-quality panel and guest data check — 12 October 2026
 
 - Fixed the guest-facing data-quality action: it previously called protected GET /data/quality

@@ -1,5 +1,12 @@
 # Credentials and configuration checklist
 
+## Journey review interface — 12 October 2026
+
+No new credentials or IAM permissions. City overview uses the existing routing configuration;
+Journeys reviews returned results locally. Guest request-only comparisons remain unsaved and
+private records retain Cognito protection. No saved-history endpoint is exposed by this change.
+
+
 ## Air-quality panel checks — 12 October 2026
 
 No new credentials required for Check route data: it checks an existing comparison locally.

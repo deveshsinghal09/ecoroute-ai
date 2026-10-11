@@ -10,6 +10,62 @@ window.google={maps:{Map:MockMap,OverlayView,RenderingType:{VECTOR:'VECTOR',RAST
 window.ecoGoogleReady();`;
 async function mockMap(page:Page){await page.route('https://maps.googleapis.com/**',route=>route.fulfill({contentType:'application/javascript',body:sdk}));}
 
+test('Journeys has a distinct empty state and sends planning to City overview',async({page})=>{
+ await mockMap(page);await page.goto('/');await page.getByRole('button',{name:'Journeys',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Your journey',exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'No journey to review yet.'})).toBeVisible();
+ await expect(page.getByLabel('Origin',{exact:true})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Compare routes',exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Plan a journey',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Your next journey'})).toBeVisible();
+ await expect(page.getByLabel('Origin',{exact:true})).toBeVisible();
+});
+
+test('Journeys reviews real returned alternatives and links to air, insights and editing without extra calls',async({page})=>{
+ await mockMap(page);let comparisons=0;
+ await page.route('**/api/v1/routes/preview',r=>{comparisons++;return r.fulfill({json:{...recording,persistence:'request_only'}});});
+ await page.goto('/');await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ await page.getByRole('button',{name:'Journeys',exact:true}).click();
+ await expect(page.getByLabel('Origin',{exact:true})).toHaveCount(0);
+ await expect(page.locator('.journey-endpoints')).toContainText('India Gate, New Delhi');
+ await page.locator('.route-option').nth(1).click();
+ await expect(page.locator('.journey-selection')).toContainText('Selected · Route 2');
+ await expect(page.locator('.journey-summary')).toContainText((recording.routes[1].duration_s/60).toFixed(1));
+ await expect(page.getByTestId('selected-exposure')).toHaveText(recording.routes[1].estimated_pm25_exposure_ug_h_m3.toFixed(2));
+ for(const size of [{width:1280,height:720},{width:390,height:844}]){
+  await page.setViewportSize(size);await page.evaluate(()=>document.fonts.ready);
+  expect(await page.locator('.journeys-content').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+  await page.screenshot({path:`../work/journeys-review-${size.width}.png`});
+ }
+ await page.getByRole('button',{name:'View air estimate',exact:true}).click();
+ await expect(page.locator('.air-quality-reading')).toBeVisible();
+ await page.getByRole('button',{name:'Journeys',exact:true}).click();await page.getByRole('button',{name:'Explain this journey',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Your route, made simple.'})).toBeVisible();
+ await page.getByRole('button',{name:'Journeys',exact:true}).click();await page.getByText('Journey timing',{exact:true}).click();
+ await expect(page.locator('.journey-timing')).toContainText('Estimated arrival');
+ await page.getByRole('button',{name:'Edit journey in City overview',exact:true}).click();
+ await expect(page.getByLabel('Origin',{exact:true})).toHaveValue('India Gate, New Delhi');
+ await expect(page.getByRole('checkbox')).toBeChecked();
+ await expect(page.locator('.route-option').nth(1)).toHaveAttribute('aria-pressed','true');
+ expect(comparisons).toBe(1);
+});
+
+test('Journeys preserves compared locations when planner edits are not submitted and labels missing air',async({page})=>{
+ await mockMap(page);const data=structuredClone(recording);
+ for(const route of data.routes){route.estimated_pm25_exposure_ug_h_m3=null;route.pm25_coverage_fraction=0;route.segments=[];}
+ await page.route('**/api/v1/routes/preview',r=>r.fulfill({json:{...data,persistence:'request_only'}}));
+ await page.goto('/');await page.getByLabel('Origin',{exact:true}).fill('India Gate, New Delhi');await page.getByLabel('Destination',{exact:true}).fill('Connaught Place, New Delhi');
+ await page.getByRole('checkbox').check();await page.getByRole('button',{name:'Compare routes',exact:true}).click();await expect(page.locator('.route-option')).toHaveCount(2);
+ await page.getByLabel('Origin',{exact:true}).fill('Gateway of India, Mumbai');
+ await page.getByRole('button',{name:'Journeys',exact:true}).click();
+ await expect(page.locator('.journey-endpoints')).toContainText('India Gate, New Delhi');
+ await expect(page.locator('.journey-endpoints')).not.toContainText('Gateway of India');
+ await expect(page.locator('.journeys-content')).toContainText('Planner settings have changed');
+ await expect(page.locator('.journey-air-summary')).toHaveText('Air estimate unavailable for this journey.');
+ await expect(page.locator('.route-option').first()).toContainText('Exposure unavailable');
+});
+
 test('Air quality empty state explains how to choose a route instead of showing dashes',async({page})=>{
  await mockMap(page);await page.goto('/');await page.getByRole('button',{name:'Air quality',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Choose a route first'})).toBeVisible();

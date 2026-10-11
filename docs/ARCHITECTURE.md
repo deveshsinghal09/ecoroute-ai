@@ -1,5 +1,14 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Planning and journey review — 12 October 2026
+
+City overview owns route inputs and comparison requests. JourneysPanel renders the current
+returned comparison and links to air estimates, Insights and editing. Both use RouteOptions
+and a single App selection state; no second request or separate scoring is introduced.
+Compared location labels remain distinct from unsubmitted planner edits. There is no new
+journey history or tracking service.
+
+
 ## Route air-data checks in the browser — 12 October 2026
 
 AirQualityPanel checks the selected comparison’s existing segment data, coverage and exposure

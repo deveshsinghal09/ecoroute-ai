@@ -1,5 +1,13 @@
 # API contract — backend foundation and environmental datasets
 
+## Distinct planning and journey review — 12 October 2026
+
+City overview submits existing route endpoints; Journeys reviews that same Comparison and
+Route response without another API call. It does not query or fabricate saved journey history.
+Selection, provider attribution, exposure and detour status are shared with the planner/map.
+Editing returns to City overview. No backend endpoint or request/response schema change.
+
+
 ## Air-quality interface behavior — 12 October 2026
 
 Check route data operates on returned Route.segments, pm25_coverage_fraction and exposure metrics;

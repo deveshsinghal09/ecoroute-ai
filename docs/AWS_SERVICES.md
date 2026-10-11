@@ -1,5 +1,13 @@
 # AWS service decisions and IAM boundaries
 
+## Journey review interface — 12 October 2026
+
+Journeys reuses the existing route comparison in browser memory. Opening the tab, selecting an
+alternative or viewing its summary invokes no additional AWS service or paid provider request.
+Only explicitly comparing or explaining continues to use the existing configured backend.
+No new resources or cost assumptions.
+
+
 ## Air-quality interface checks — 12 October 2026
 
 No new AWS resources. Guest route consistency checks run in the browser. Collected dataset reports
