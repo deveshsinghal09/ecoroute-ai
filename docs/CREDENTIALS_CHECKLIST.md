@@ -1,5 +1,9 @@
 # Credentials and configuration checklist
 
+## Live setup/test prerequisites — 2026-10-11
+
+Cognito user not created; authorized Console operator must create one locally without invitation; no passwords/tokens in chat. Collector invoke CLI still denied. Narrow config/iam-integration-checks.json can be attached to devesh_eco for one collector invocation and environmental-only diagnostics; see LIVE_SETUP_AND_TEST.md. No new provider secret required.
+
 ## Provider secrets connected — 2026-10-11
 
 Four provider secrets now discovered and connected by exact ARNs. Google actual name ecoroute/google-route accepted. Runtime Google/ORS route calls verified. OpenAQ/Gemini retrieval not verified; collector invoke permission denied CLI. No new frontend secret required. See PROVIDER_ACTIVATION.md.

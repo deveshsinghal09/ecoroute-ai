@@ -1,5 +1,9 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Live setup/test prerequisites — 2026-10-11
+
+Cognito login form200/codeflow/scopes/callback verified. User reports no account created; positive authentication pending Console user creation (no invitation/password shared). New scripts/check_live_services.py runs bounded public/auth/pipeline checks with hidden local token and sanitized summaries. config/iam-integration-checks.json prepared, not attached: one collector Invoke plus exact environmental metadata partitions and two ingest log groups, no secrets/health/SNS. Public health200, missing/invalid bearer401, CORS204. Pipeline attempt denied InvokeFunction.32checker/advisory/scaffold tests/Ruff passed; initial missing test_auth filename corrected. No synthetic data or real notifications used. docs/LIVE_SETUP_AND_TEST.md provides user creation/policy/test instructions. Authentication, pipeline curation and real alert dedup remain pending.
+
 ## Provider secrets connected — 2026-10-11
 
 All four Secrets Manager metadata entries verified. Actual Google name ecoroute/google-route; exact ARNs wired through ignored context. Core UPDATE_COMPLETE deploy includes rebuilt JSON-compatible routing reader and secret-specific API/collector permissions; Gemini model gemini-2.5-flash, guest preview enabled per prior user request.59targeted tests/security review passed. Real Delhi previews driving/walking/cycling200 with genuine geometries/durations. Full exposure null due no pollution coverage. Six bounded previews total; corrected report field names. Collector invocation denied to CLI, so no raw ingestion/cleaning claim; OpenAQ key validity/Gemini generation unverified. See PROVIDER_ACTIVATION.md for exact manual forecast test. Schedules/IoT remain disabled; no SMS/training. No secret values read by agent; runtime routing retrieved own secrets for actual calls.
