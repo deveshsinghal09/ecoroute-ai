@@ -59,7 +59,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
         app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins,
                            allow_methods=["GET", "POST", "PUT", "DELETE"],
                            allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
-                           allow_credentials=False)
+                           allow_credentials=False, expose_headers=["X-Request-ID", "Retry-After"])
 
     @app.middleware("http")
     async def observability(request: Request, call_next):
@@ -95,7 +95,7 @@ def create_app(settings: Settings | None = None, *, store=None, verifier=None) -
 
     @app.exception_handler(RoutingError)
     async def routing_error(request, exc):
-        return error(request, exc.status, exc.code)
+        return error(request, exc.status, exc.code, exc.headers)
 
     @app.exception_handler(MLUnavailable)
     async def ml_unavailable(request, exc):

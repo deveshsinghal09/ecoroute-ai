@@ -5,7 +5,8 @@ import sqlite3
 import time
 from functools import wraps
 from threading import RLock
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
+import math
 from pathlib import Path
 
 import pyarrow as pa
@@ -16,7 +17,21 @@ from ecoroute.environment.schema import digest
 
 
 class BudgetExceeded(Exception):
-    pass
+    def __init__(self, message, *, window=None, retry_after=None):
+        super().__init__(message)
+        self.window, self.retry_after = window, retry_after
+
+
+def budget_windows(stamp, daily, hourly):
+    return (
+        (stamp.strftime("%Y-%m-%d"), daily, "day", stamp.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)),
+        (stamp.strftime("%Y-%m-%dT%H"), hourly, "hour", stamp.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)),
+    )
+
+
+def exhausted(stamp, window, reset):
+    return BudgetExceeded("provider_request_budget_exhausted", window=window,
+                          retry_after=max(1, math.ceil((reset - stamp).total_seconds())))
 
 
 def pack(rows):
@@ -86,11 +101,11 @@ class LocalRepository:
     def reserve(self, source, daily=100, hourly=30):
         stamp = datetime.now(UTC)
         with self.db:
-            for window, maximum in ((stamp.strftime("%Y-%m-%d"), daily), (stamp.strftime("%Y-%m-%dT%H"), hourly)):
+            for window, maximum, label, reset in budget_windows(stamp, daily, hourly):
                 key = source + ":" + window
                 row = self.db.execute("SELECT count FROM budget WHERE key=?", (key,)).fetchone()
                 if row and row[0] >= maximum:
-                    raise BudgetExceeded("provider_request_budget_exhausted")
+                    raise exhausted(stamp, label, reset)
                 self.db.execute("INSERT INTO budget VALUES(?,1) ON CONFLICT(key) DO UPDATE SET count=count+1", (key,))
 
 
@@ -130,18 +145,25 @@ class AwsRepository:
 
     def reserve(self, source, daily=100, hourly=30):
         stamp = datetime.now(UTC)
-        for window, maximum in ((stamp.strftime("%Y-%m-%d"), daily), (stamp.strftime("%Y-%m-%dT%H"), hourly)):
-            try:
-                self.dynamo.update_item(TableName=self.table,
-                    Key={"pk": {"S": "BUDGET#" + source}, "sk": {"S": window}},
-                    UpdateExpression="SET expires_at = :ttl ADD requests :one",
-                    ConditionExpression="attribute_not_exists(requests) OR requests < :maximum",
-                    ExpressionAttributeValues={":ttl": {"N": str(int(time.time()) + 172800)},
-                        ":one": {"N": "1"}, ":maximum": {"N": str(maximum)}})
-            except ClientError as exc:
-                if exc.response["Error"]["Code"] == "ConditionalCheckFailedException":
-                    raise BudgetExceeded("provider_request_budget_exhausted") from None
-                raise
+        windows = budget_windows(stamp, daily, hourly)
+        updates = []
+        for window, maximum, _, _ in windows:
+            updates.append({"Update": {"TableName": self.table,
+                    "Key": {"pk": {"S": "BUDGET#" + source}, "sk": {"S": window}},
+                    "UpdateExpression": "SET expires_at = :ttl ADD requests :one",
+                    "ConditionExpression": "attribute_not_exists(requests) OR requests < :maximum",
+                    "ExpressionAttributeValues": {":ttl": {"N": str(int(time.time()) + 172800)},
+                        ":one": {"N": "1"}, ":maximum": {"N": str(maximum)}}}})
+        try:
+            # Both counters commit together, so an hourly rejection cannot consume a daily slot.
+            self.dynamo.transact_write_items(TransactItems=updates)
+        except ClientError as exc:
+            if exc.response["Error"]["Code"] == "TransactionCanceledException":
+                for i, reason in enumerate(exc.response.get("CancellationReasons", [])[:2]):
+                    if reason.get("Code") == "ConditionalCheckFailed":
+                        _, _, label, reset = windows[i]
+                        raise exhausted(stamp, label, reset) from None
+            raise
 
 
 def save_raw(repository, envelope):

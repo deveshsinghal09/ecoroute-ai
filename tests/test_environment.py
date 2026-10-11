@@ -211,7 +211,8 @@ def test_aws_metadata_ttl_budget_and_encrypted_upload():
     with Stubber(dynamo) as stub:
         stub.add_response("query", {"Items": [{"pk": {"S": "FILES#openaq"}, "sk": {"S": "x"}, "expires_at": {"N": "1"}, "payload": {"S": "{}"}}]}, {"TableName": "environment", "KeyConditionExpression": ANY, "ExpressionAttributeValues": ANY, "ScanIndexForward": False, "Limit": 20, "ConsistentRead": True})
         assert repo.query("FILES#openaq", limit=20) == ([], False)
-        stub.add_client_error("update_item", service_error_code="ConditionalCheckFailedException")
+        stub.add_client_error("transact_write_items", service_error_code="TransactionCanceledException",
+                              modeled_fields={"CancellationReasons": [{"Code": "ConditionalCheckFailed"}, {"Code": "None"}]})
         with pytest.raises(BudgetExceeded):
             repo.reserve("openaq")
         stub.assert_no_pending_responses()

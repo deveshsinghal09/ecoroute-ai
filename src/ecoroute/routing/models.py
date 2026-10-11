@@ -75,6 +75,6 @@ class DepartureRequest(CompareRequest):
 
 
 class RoutingError(Exception):
-    def __init__(self, code, status=503):
-        self.code, self.status = code, status
+    def __init__(self, code, status=503, headers=None):
+        self.code, self.status, self.headers = code, status, headers
         super().__init__(code)

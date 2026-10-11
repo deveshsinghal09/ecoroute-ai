@@ -168,7 +168,7 @@ class CoreStack(Stack):
                        "ENABLE_AWS_LOCATION": str(enable_location).lower(),
                        "EXPECTED_AWS_ACCOUNT_ID": self.account,
                        "CORS_ORIGINS": json.dumps(frontend_origins),
-                        "LOCATION_DAILY_LIMIT": "100", "LOCATION_HOURLY_LIMIT": "30",
+                        "LOCATION_DAILY_LIMIT": "100", "LOCATION_HOURLY_LIMIT": "100",
                         "ML_INFERENCE_FUNCTION_ARN": ml_inference_arn or "",
                        **{env: data.tables[key].table_name for env, key in table_vars.items()}}
         # Runtime only uses get/put and transactional puts; DynamoDB authorizes transactions via PutItem.
@@ -315,7 +315,7 @@ class CoreStack(Stack):
                                                apigw.CorsHttpMethod.PUT, apigw.CorsHttpMethod.DELETE,
                                                apigw.CorsHttpMethod.OPTIONS],
                                 allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
-                                expose_headers=["X-Request-ID"], max_age=Duration.minutes(5),
+                                expose_headers=["X-Request-ID", "Retry-After"], max_age=Duration.minutes(5),
                             ) if frontend_origins else None,
                             default_authorizer=authorizer, default_authorization_scopes=["ecoroute/read"])
         self.http_api = api

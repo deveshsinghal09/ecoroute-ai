@@ -278,8 +278,11 @@ def create_service(settings, store, objects):
             objects.reserve(
                 "location", settings.location_daily_limit, settings.location_hourly_limit
             )
-        except BudgetExceeded:
-            raise RoutingError("location_request_budget_exhausted", 429) from None
+        except BudgetExceeded as exc:
+            code = {"hour": "location_hourly_budget_exhausted", "day": "location_daily_budget_exhausted"}.get(
+                exc.window, "location_request_budget_exhausted")
+            headers = {"Retry-After": str(exc.retry_after)} if exc.retry_after else None
+            raise RoutingError(code, 429, headers=headers) from None
 
     if settings.routing_provider == "google":
         def google_key():
