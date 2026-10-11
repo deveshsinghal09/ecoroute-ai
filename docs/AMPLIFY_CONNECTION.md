@@ -1,5 +1,9 @@
 # Connect the deployed Amplify frontend
 
+## Redeployment verification — 2026-10-11
+
+Redeployment verified: public page/JS200; AWS API and Cognito configuration included in bundle. API health200 with exact Amplify CORS, private endpoint401. Console environment step completed by user. Provider connections and real Cognito login still unverified.
+
 Verified frontend: https://main.d3txif33djiy59.amplifyapp.com/
 Verified API: https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com
 

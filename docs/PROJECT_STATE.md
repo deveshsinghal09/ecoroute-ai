@@ -1,5 +1,9 @@
 # EcoRoute AI project state â€” Phases 1â€“7
 
+## Redeployment verification — 2026-10-11
+
+Amplify redeployment verified live: frontend200/JS200; bundle contains real AWS API URL, Cognito client/domain. API health200 with exact Amplify Allow-Origin; private wearable endpoint401 without token. Report work/amplify-redeployment-verification.json. This verifies configuration/assets/public API, not browser login or provider routing. live_domain_providers=false remains; no successful user authentication or pollution/ML/wearable event claimed. No new deployment/resource/test suite run this follow-up.
+
 ## Core live verification — 2026-10-11
 
 Core CREATE_COMPLETE verified after mapping cleanup and public-route scope fix. Data reused unchanged. Explicit authorization_scopes=[] removes inherited JWT scopes on NONE routes; protected routes retain scopes.18infra tests/Ruff passed. API https://j1lgox7e00.execute-api.ap-south-1.amazonaws.com: health200/profileaws/live_domain_providersfalse, OpenAPI200, wearable/latest401, ready401, hosted-origin OPTIONS204 exact Allow-Origin. Two schedules disabled/12Core alarms in deployed template. CloudWatch read denied, delivery not verified. Provider secrets not uploaded, guest routes disabled, no model/training or device event tested. Amplify app management denied; Console environment/rebuild pending (docs/AMPLIFY_CONNECTION.md). Local ignored frontend configuration updated with public identifiers, preserving keys. Core recovery inventories recorded retained pools; no pool deleted. Public frontend previously verified200; no claim of frontend integration until redeploy checked. Original CloudFront stack remains failed; user Amplify outside CDK cleanup. Commands: scoped-role cleanup, pinnedCDK Coredeploy, HTTPGET/OPTIONS, GetTemplate/ListStackResources, FilterLogEvents denied. No real notifications or continuous workflows activated.
