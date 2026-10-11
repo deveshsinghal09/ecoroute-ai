@@ -1,0 +1,25 @@
+flowchart LR
+    Browser[React dashboard] --> Hosting[AWS Amplify]
+    Browser --> Maps[Google Maps JavaScript]
+    Browser --> Identity[Cognito sign-in / PKCE]
+    Browser --> Gateway[API Gateway]
+    Identity -. JWT for protected APIs .-> Gateway
+    Gateway --> API[Lambda / FastAPI]
+    Secrets[Secrets Manager] -. provider credentials .-> API
+    API --> Routes[Google Routes / Places or configured routing adapter]
+    API --> Forecast[Open-Meteo / CAMS]
+    API --> Score[Deterministic segment exposure and ranking]
+    Score --> Explain[Gemini or Bedrock / deterministic fallback]
+    API --> DB[(DynamoDB: ownership, metadata, state)]
+    Schedule[Scheduler: disabled by default] -.-> Collect[Collector Lambda]
+    Collect --> Providers[Open-Meteo / authorized OpenAQ]
+    Collect --> Raw[(S3 raw JSON)]
+    Raw --> Queue[SQS / DLQ]
+    Queue --> Clean[Cleaning Lambda]
+    Clean --> Curated[(S3 curated Parquet)]
+    Clean --> DB
+    Curated -. approved data and training only .-> ML[Step Functions / SageMaker]
+    ML -. verified artifact only .-> Inference[On-demand model inference]
+    Bridge[Consenting device / companion] -. optional .-> IoT[IoT Core / validation Lambda]
+    IoT --> DB
+    API --> Logs[CloudWatch logs / alarms]

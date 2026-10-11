@@ -1,5 +1,32 @@
 # EcoRoute AI project state — Phases 1–7
 
+## README and CI repair - 2026-10-11
+
+User subsequently authorized committing and pushing these changes under Devesh Singhal.
+GitHub About homepage updated and verified:
+https://main.d3txif33djiy59.amplifyapp.com/ . No deployment performed.
+README rebuilt with supplied dashboard screenshots, architecture image, editable Mermaid,
+quick start, security configuration, real-versus-conditional status and recorded local ML metrics.
+New documentation assets live under docs/assets/.
+
+Inspected failed GitHub run38159851057: backend tests ran before pinned CDK installation;
+frontend RoutePreferences import crashed in Node when no browser window/configured redirect existed.
+Moved npm ci before pytest; guarded browser-origin fallback and added two regression tests.
+Updated obsolete browser test for user-removed training controls. Moved manual integration notes
+into export_api.py so deterministic API export preserves them. CDK app now honors CDK_OUTDIR,
+allowing isolated synthesis without replacing the deployment assembly.
+
+Checks executed: full pytest365 passed/1 optional container skip; frontend55 unit tests passed;
+initial browser suite28 passed/1 obsolete test failed, corrected dashboard suite13 passed;
+all10 map tests passed. Production build, Ruff, pip check, npm audit (zero vulnerabilities),
+API export drift check, local health/auth smoke and tracked-secret scan passed. Default CDK
+synth passed to work/ci-review-cdk. Existing-template security review passed (not live IAM proof).
+Docker daemon unavailable: container build/import stages not rerun locally. Hosted Linux CI
+has not rerun with these uncommitted changes; existing red crosses cannot be cleared by local edits.
+Commands and evidence include gh run view --log-failed, pytest, npm test/build/test:e2e,
+export_api.py, smoke_local.py, check_repo.py and cdk synth --no-lookups.
+
+
 ## Sidebar spacing and Insights cleanup - 2026-10-11
 
 Removed Sources & route limitations disclosure and Insights training evaluation/model check controls. Preserved provider attribution and coarse-model footnote. Sidebar cards now size to content, wrap labels and keep consistent padding without adding scrollbars. Production build passed; four Playwright layout checks passed at 1280x720, 1366x768, 1024x640 and 390x844. Visual screenshot reviewed. No backend or API changes; Amplify deployment not verified in this change.

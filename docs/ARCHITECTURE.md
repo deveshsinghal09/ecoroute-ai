@@ -1,5 +1,10 @@
 # EcoRoute AI architecture — Phases 1–7
 
+## Repository overview diagrams
+
+The [README architecture](../README.md#architecture) pairs the supplied system overview image with an editable Mermaid diagram. Diagram source: [architecture.mmd](assets/architecture.mmd). Conditional paths are not deployment claims; use PROJECT_STATE.md for verification history.
+
+
 ## Hourly model matching correction - 2026-10-11
 
 Open-Meteo current-hour records may be typed modeled after their valid time passes.

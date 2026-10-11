@@ -1,227 +1,215 @@
+<div align="center">
+
 # EcoRoute AI
 
-## Actual Health Connect phone data
+### Know your route. Understand your exposure.
 
-The Wearable section can read the installed Android Health Connect to Webhook app through the
-existing local backend. No Cognito/AWS setup is needed for its expiring, loopback-only pairing
-mode; health reads remain authenticated and consent-based. Run scripts/health_connect.py
---configure-local --base-url http://PHONE_LAN_IP:8787 --check, restart local servers, then enter
-the private work/health-connect-pairing.txt key in Wearable. Do not paste tokens into chat.
-The browser's time zone controls daily summaries. Missing readings stay unavailable and
-ambiguous/projected totals are not guessed. [Full setup and limitations](docs/HEALTH_CONNECT.md).
+An AWS-native journey planner that combines genuine road routes, environmental forecasts and transparent exposure calculations to help people compare their travel options.
 
-Start AWS configuration with the [ordered Console and PowerShell guide](docs/AWS_SETUP_FROM_ZERO.md).
-It reuses the existing IAM profile and CDK resources, documents the required permissions
-and distinguishes credential setup from approved provisioning and feature activation.
+![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776ab?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-Serverless-ff9900)
+![CDK](https://img.shields.io/badge/IaC-Python_CDK-232f3e)
 
-## Selectable AWS service integrations
+**Real routes · Pollution forecasts · Estimated exposure · Grounded explanations · Consent-based wearables**
 
-The existing API/data/ML/workflow services now have optional ECS/Fargate, EC2, EKS,
-existing-customer App Runner and Lightsail proxy profiles; CloudFront/Route 53 or Amplify
-hosting; and an RDS/Aurora aggregate route-report pipeline. The default remains serverless.
-No AWS resources are deployed or enabled by selecting the safe example configuration.
-[Integration, credentials, costs and cleanup](docs/MULTISERVICE_INTEGRATION.md) explains
-the exact dependencies and remaining deployment prerequisites. Start with the offline plan:
+[Open application](https://main.d3txif33djiy59.amplifyapp.com/) · [Getting started](#run-locally) · [Architecture](#architecture) · [API contract](docs/FRONTEND_INTEGRATION.md)
 
-```powershell
-.venv\Scripts\python.exe scripts/service_plan.py
-.venv\Scripts\python.exe scripts/manage_cloud.py plan
+</div>
+
+> [!IMPORTANT]
+> EcoRoute compares **estimated environmental exposure**, not medical risk or dose. Coarse atmospheric models cannot establish precise street-level pollution differences. Missing data stays unavailable; wearable heart rate does not prove a pollution effect.
+
+## Experience
+
+![EcoRoute city dashboard with the silver, charcoal and orange interface](docs/assets/city-dashboard.jpg)
+
+A cinematic city dashboard opens into a real route map. Choose public places or map points, select Drive, Walk or Cycle, and compare duration, distance and available pollution estimates. Mode availability depends on the configured routing provider and its coverage.
+
+![Google Maps route comparison with real road geometry and exposure estimates](docs/assets/route-comparison.jpg)
+
+*User-supplied screenshots show an earlier application state, not current pollution readings. Some labels and controls have since changed. The city artwork is illustrative; the journey map uses provider road geometry.*
+
+## What EcoRoute does
+
+| Capability | How it works |
+| --- | --- |
+| Route comparison | Google Routes/Places integration, optional Amazon Location V2 adapters and OpenRouteService cycling support. Provider geometry is preserved; no straight-line substitute is invented. |
+| Environmental data | Open-Meteo/CAMS modeled forecasts and an OpenAQ v3 observation adapter. Source, units, timestamps, freshness and geographic support travel with each record. |
+| Exposure scoring | Segment-level concentration multiplied by traversal time, with fastest, lowest estimated exposure and balanced objectives plus a detour limit. |
+| Insights | Configurable Gemini or Bedrock integration explains approved calculated facts. Deterministic summaries remain available when an LLM cannot be used. |
+| Wearables | Device ownership, consent, revocation and protected telemetry APIs; optional IoT and local Android Health Connect bridges. Physical Noise watch access is not assumed. |
+| Forecasting | Leakage-aware station forecasting, persistence comparison, local evaluation and bounded SageMaker job definitions. A model must be validated before activation. |
+| Operations | Python CDK, scoped IAM, Secrets Manager, structured logs, queues, dead-letter queues and disabled-by-default scheduled workflows. |
+
+## Architecture
+
+The primary deployment uses **AWS Mumbai (`ap-south-1`)** with Amplify hosting and Lambda/API Gateway. Optional compute and database profiles are not needed for the default serverless application.
+
+![EcoRoute AWS architecture, including conditional and disabled workflow paths](docs/assets/aws-architecture.jpeg)
+
+*Architecture overview supplied for this project, reviewed 11 October 2026. Dashed paths are conditional or gated; the diagram is not a claim that every service is active. The explanation provider is configurable; verified recent route explanations used Gemini.*
+
+```mermaid
+flowchart LR
+    Browser[React dashboard] --> Hosting[AWS Amplify]
+    Browser --> Maps[Google Maps JavaScript]
+    Browser --> Identity[Cognito sign-in / PKCE]
+    Browser --> Gateway[API Gateway]
+    Identity -. JWT for protected APIs .-> Gateway
+    Gateway --> API[Lambda / FastAPI]
+    Secrets[Secrets Manager] -. provider credentials .-> API
+    API --> Routes[Google Routes / Places or configured routing adapter]
+    API --> Forecast[Open-Meteo / CAMS]
+    API --> Score[Deterministic segment exposure and ranking]
+    Score --> Explain[Gemini or Bedrock / deterministic fallback]
+    API --> DB[(DynamoDB: ownership, metadata, state)]
+    Schedule[Scheduler: disabled by default] -.-> Collect[Collector Lambda]
+    Collect --> Providers[Open-Meteo / authorized OpenAQ]
+    Collect --> Raw[(S3 raw JSON)]
+    Raw --> Queue[SQS / DLQ]
+    Queue --> Clean[Cleaning Lambda]
+    Clean --> Curated[(S3 curated Parquet)]
+    Clean --> DB
+    Curated -. approved data and training only .-> ML[Step Functions / SageMaker]
+    ML -. verified artifact only .-> Inference[On-demand model inference]
+    Bridge[Consenting device / companion] -. optional .-> IoT[IoT Core / validation Lambda]
+    IoT --> DB
+    API --> Logs[CloudWatch logs / alarms]
 ```
 
-Configure credentials later using the approved CLI profile and Secrets Manager. Deployment,
-paid training, hosting publication and continuous schedules require a separate cost review
-and approval. Do not put AWS/provider secrets in browser VITE variables.
+See [architecture details](docs/ARCHITECTURE.md), [AWS service inventory](docs/AWS_SERVICES.md) and [project state with verification evidence](docs/PROJECT_STATE.md).
 
-## Interactive city dashboard
+## How a route is selected
 
-The requested React/TypeScript + Three.js frontend is now in [frontend/](frontend/README.md).
-It follows the supplied cinematic city reference, with orbit/zoom controls, a route planner,
-real recorded route geometry, source warnings and secure live API mode. Preview data is explicitly
-historical; the city is illustrative. Existing backend behavior and JWT protection are preserved.
+1. Resolve the chosen endpoints and request genuine, mode-compatible road routes.
+2. Divide each route into distance-based segments and estimate segment travel times.
+3. Match pollution data by location and time, preserving freshness and uncertainty.
+4. Calculate concentration-time exposure:
 
-```powershell
-npm --prefix frontend ci
-npm run dev
-```
+   **E = Σ(PM2.5 concentration in µg/m³ × segment duration in hours)**
 
-Open http://127.0.0.1:5173 . This starts the local API and UI; no AWS deployment or paid provider
-request is made on page load. Live Cognito/API configuration remains manual; see the frontend README.
-The earlier backend-only phase notes below are historical and superseded by this user request.
+5. Apply the selected objective and maximum detour. Compare exposure changes against the documented baseline.
 
-Phase7 local integration and demo readiness: [runbook and actual evidence](docs/DEMO_READINESS.md),
-[complete frontend integration contract](docs/FRONTEND_INTEGRATION.md),
-[OpenAPI](docs/openapi.json), [Postman examples](examples/ecoroute.postman_collection.json).
-No AWS deployment/public URL, trained model or supported physical watch connector is claimed.
-Run `python -m scripts.demo_backend` for an isolated authenticated backend scenario; synthetic
-wearable/alert inputs are explicitly labeled and real notifications remain disabled.
+Traffic-aware duration is used when supplied by the routing provider. Optional weather and terrain preferences depend on available data and travel mode. If all candidates share one coarse pollution grid cell, exposure differences can reflect **time spent traveling**, not cleaner individual streets. Partial coverage does not become a complete exposure estimate.
 
-AWS-native backend for pollution-aware navigation in Delhi. **Phase 1 backend foundation and
-Phase 2 environmental pipeline, Phase 3 routing engine, Phase 4 ML workflow and Phase 5 wearable-independent backend, Phase 6 advisories and Phase 7 integration are implemented locally. No AWS resources have been deployed.**
-No frontend, trained ML model, verified Noise watch integration or street-level pollution claim.
+[Routing algorithm](docs/ROUTING.md) · [Route factors](docs/ROUTE_FACTORS.md) · [Provider activation](docs/PROVIDER_ACTIVATION.md)
 
-FastAPI + Pydantic v2, Cognito JWT validation, Lambda/Mangum, CDK Python, S3/DynamoDB adapters,
-Scheduler -> collector Lambda -> raw S3 -> SQS -> cleaning Lambda -> Parquet + metadata.
-AWS target: Mumbai (`ap-south-1`). No idle Fargate service, NAT Gateway or database server.
+## Verified status and limits
 
-## Wearable telemetry and consent
+This table summarizes recorded project evidence; it is not a live health monitor.
 
-Device registration, revocable scoped consent, validated measurements, latest/history/deletion
-and descriptive journey pairing now work through authenticated REST APIs. Optional IoT Core
-mTLS rule/validator and private stream-based S3 history are synthesized; rule disabled and no
-device enrolled. The confirmed watch is Noise ColorFit Pro3 Alpha with NoiseFit Assist; OS and
-authorized export/API support are unverified, so no hardware connector is claimed.
-Run `.\.venv\Scripts\python.exe scripts/simulate_wearable.py` for explicitly synthetic offline
-MQTT-envelope acceptance/deduplication/archive checks. It does not connect to AWS or the watch.
-[WEARABLES.md](docs/WEARABLES.md) covers all seven APIs, adapter contract, IAM/Console enrollment,
-certificate revocation, privacy/retention/deletion and cost proposal. No frontend/mobile app.
+| Area | Recorded status |
+| --- | --- |
+| Hosting | Public Amplify application; backend API Gateway and Lambda deployed. |
+| Routing | Live Google Drive comparisons verified in Delhi and Mumbai. Other modes/locations require provider coverage and configuration. |
+| Air quality | Real Open-Meteo ingestion and curated metadata verified. A Mumbai comparison on 11 October 2026 returned full modeled PM2.5 coverage after the hourly matching repair. |
+| OpenAQ | Adapter exists; actual station availability, credentials and coverage determine measured-data results. |
+| Explanations | Gemini-backed grounded explanations verified; Bedrock is an alternative, not a required active dependency. |
+| ML | Local training/evaluation tooling and SageMaker infrastructure exist. No paid SageMaker training success or approved live Delhi model is claimed here. |
+| Wearables | Secure backend and bridge contracts exist. No claim of verified direct Noise ColorFit Pro3 Alpha cloud telemetry. |
+| Automation | Collection/advisory schedules and SMS remain gated. No claim of a delivered SMS. |
+| CloudFront | Optional hosting path; the current frontend uses Amplify instead. |
 
-Phase5 verification:129 local tests passed,1 Docker skip; default and optional IoT CDK synth
-passed. Both implementation CI runs passed. Do not use legacy /wearables/telemetry writes:
-they now return410; register a device and grant revocable consent first.
+## Local forecasting experiment
 
-## Train and serve station forecasts
+A documented experiment used **420,768 real historical rows from 12 Beijing stations**,
+with chronological splits and 81,979 test examples. It is not a Delhi navigation model.
 
-Install optional numerical dependencies with `.\.venv\Scripts\python.exe -m pip install -r requirements-ml.txt`.
-Run `.\.venv\Scripts\python.exe scripts/train.py --prepare-only` to audit actual curated data.
-Current result:197 records, including192 Open-Meteo modeled/forecast values and5 actual OpenAQ
-PM2.5 observations from GK1 (Oberoi Terrace), attributed to Oberoi under reported CC BY4.0.
-OpenAQ authentication and bounded ingestion passed after confirmed key rotation. Training
-correctly stops with zero eligible samples; no real model metrics or predictions exist. RF/HGB, persistence/provider comparisons,
-leakage-safe chronological preparation, trusted serialization, protected ML APIs and route
-prediction matching are implemented. [ML_WORKFLOW.md](docs/ML_WORKFLOW.md) gives runnable
-training/evaluation, S3 upload, dry-run SageMaker specifications, IAM/quotas, costs and cleanup.
+| Model | Test MAE (µg/m³) | Test RMSE (µg/m³) |
+| --- | ---: | ---: |
+| Persistence baseline | 10.09034 | 19.56450 |
+| Random Forest | 9.75243 | 18.71309 |
+| HistGradientBoosting | 9.87563 | 19.47162 |
 
-Phase4 verification passed120 local tests; the container test is skipped on this laptop while Docker is stopped.
-[CI run37979545452](https://github.com/deveshsinghal09/ecoroute-ai/actions/runs/37979545452)
-passed the real ML Docker build and training/serving test using clearly labelled synthetic mechanics
-fixtures. Those tests do not establish real pollution forecast accuracy. No paid job or endpoint
-starts automatically; actual measured history and explicit deployment/training approval come first.
+These are recorded **local CPU evaluation** results, not SageMaker results or evidence of
+current Indian route accuracy. [Dataset, license, limits and reproduction](docs/LARGE_DATA_TRAINING.md)
+· [Machine-readable report](examples/ml/uci-beijing-training-report.json).
 
 ## Run locally
 
+Prerequisites: **Python 3.11–3.13**, **Node.js 22**, npm, and Git. Docker is needed for container checks. AWS CLI credentials are needed only for explicitly enabled AWS operations.
+
 ```powershell
+git clone https://github.com/deveshsinghal09/ecoroute-ai.git
+cd ecoroute-ai
 py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.lock
-.\.venv\Scripts\python.exe -m pip install --no-deps -e .
-Copy-Item .env.example .env  # only on first setup; preserve an existing .env
-.\scripts\dev.ps1
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.lock
+python -m pip install --no-deps -e .
+npm ci
+npm --prefix frontend ci
+Copy-Item .env.example .env
+Copy-Item frontend/.env.example frontend/.env.local
+npm run dev
 ```
 
-Open `http://127.0.0.1:8000/docs` for the REST contract, or GET `/api/v1/health`.
-`/api/v1/ready` returns 503 until storage and Cognito configuration are available. Health does
-not claim AWS/provider readiness. Local storage lives under ignored `work/`; use a single local
-server/ingestion process for SQLite writes. Docker is optional (`docker compose up --build`);
-the engine on this laptop was stopped, so container execution has not been verified.
+On Linux/macOS, create the environment with `python3 -m venv .venv`, activate with `source .venv/bin/activate`, and use `cp` for the two example files. Copy examples only on first setup; preserve existing configuration.
 
-Protected routes require a valid Cognito access token with `ecoroute/read` or `ecoroute/write`.
-There is no insecure login bypass. Tests inject an ephemeral RSA verifier, isolated SQLite and
-synthetic fixtures; these fixtures are never presented as live observations.
-See [credential setup](docs/CREDENTIALS_CHECKLIST.md) for Cognito and OAuth PKCE prerequisites.
+- Dashboard: `http://127.0.0.1:5173`
+- Local API docs: `http://127.0.0.1:8000/docs`
+- Health: `http://127.0.0.1:8000/api/v1/health`
 
-## Ingest real model data locally
+The local runner starts both servers. Historical preview is not live data; real providers require configuration. Do not enable live features by substituting fabricated measurements.
+
+### Configure providers securely
+
+| Configuration | Where it belongs |
+| --- | --- |
+| Browser Google Maps key | `VITE_GOOGLE_MAPS_API_KEY` in `frontend/.env.local`, or Amplify build variables. Restrict it by website referrer and API. It is public browser configuration. |
+| API base URL and Cognito public IDs | Frontend configuration; see the frontend example file and Amplify guide. |
+| Google Routes, OpenRouteService, OpenAQ and Gemini server keys | Ignored root `.env` for local use; Secrets Manager references for deployed Lambda. Never put them in `VITE_*` variables. |
+| AWS access | Authorized CLI profile with temporary credentials where possible. Never root access keys or committed credentials. |
+
+Follow the [credential checklist](docs/CREDENTIALS_CHECKLIST.md), [Google Maps setup](docs/GOOGLE_MAPS_SETUP.md), [Amplify connection guide](docs/AMPLIFY_CONNECTION.md) and [ordered AWS setup](docs/AWS_SETUP_FROM_ZERO.md). Do not share secrets in issues or chat.
+
+## Development checks
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/ingest_air.py --source open_meteo
+python -m pip install -r requirements-ml.txt
+python -m ruff check .
+python -m pytest -q
+python scripts/smoke_local.py
+python scripts/check_repo.py
+npm --prefix frontend test
+npm --prefix frontend run build
+npm --prefix frontend run test:e2e
+npm run synth
 ```
 
-No key is required for Open-Meteo's eligible noncommercial free service. One real Delhi request
-succeeded on 2026-10-08: 192 records (76 modeled, 116 forecast), two Parquet partitions, no missing
-values in that response. This is a roughly 45 km global model, not measured roadside pollution.
-See [ingestion runbook](docs/INGESTION.md) for provider attribution, backfill, OpenAQ setup,
-actual saved object keys, query examples, limits and reproducible verification.
+Playwright uses Edge locally on Windows and Chromium in CI. Install the appropriate browser when absent. CDK synthesis may require building the Lambda asset first: `python scripts/build_lambda.py`. The GitHub workflow also exercises Docker, API contract export, dependency auditing and infrastructure security checks. Tests do not prove successful live deployment.
 
-OpenAQ requires your own key configured locally. No live OpenAQ coverage or measurements have
-been verified. Missing provider data returns `unavailable`; there is no fabricated fallback.
-The Phase 3 `/api/v1/routes/*` endpoints implement route comparison, optimization, exposure,
-departure analysis and owned retrieval. Trained predictions, school safety and the legacy
-`/navigation/routes` placeholder still return explicit 503 responses.
+## Repository map
 
-## Pollution-aware routing
-
-```powershell
-.\.venv\Scripts\python.exe scripts/demo_routes.py --provider recorded
+```text
+frontend/           React dashboard, maps, wearable showcase and UI tests
+src/ecoroute/       FastAPI APIs, provider adapters, routing, ML and handlers
+infra/              Python CDK stacks and optional deployment profiles
+scripts/            Local development, ingestion, training and operations
+tests/             Backend, infrastructure and security tests
+examples/           API requests, Postman collection and labeled recordings
+docs/               Architecture, credentials, costs and operational evidence
 ```
-
-The demo uses two recorded genuine Delhi road routes and eligible local curated pollution.
-Missing pollution stays unavailable. Real AWS Routes/Places adapters use the `dev-admin` profile
-for IAM user `devesh_eco`; their latest live checks returned AccessDeniedException.
-See [routing runbook](docs/ROUTING.md) for IAM setup, exact commands, API limits, sample results,
-provider attribution and scientific caveats. All routes require consent and protected API scopes.
-
-## Validate without AWS credentials
-
-```powershell
-.\.venv\Scripts\python.exe -m pip check
-.\.venv\Scripts\python.exe -m ruff check .
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe scripts/smoke_local.py
-.\.venv\Scripts\python.exe scripts/check_repo.py
-.\.venv\Scripts\python.exe scripts/diagnose.py --region ap-south-1
-npm.cmd ci --ignore-scripts
-.\.venv\Scripts\python.exe scripts/build_lambda.py
-$env:PATH = "$PWD\.venv\Scripts;$env:PATH"
-npm.cmd run synth
-```
-
-Synthesis builds Core, Data and ML storage templates locally, without provisioning or lookups.
-PyArrow is pinned to 20.x because its manylinux2014 wheel supports Lambda Python 3.11/AL2;
-23.x requires newer glibc. The Linux asset is about 183 MiB uncompressed, below Lambda's limit.
-CI also checks that the built Linux asset imports; Windows cannot execute those native wheels.
-
-## Before deployment
-
-The selected `dev-admin` profile identifies as IAM user `devesh_eco`; Mumbai is configured.
-Identity is verified, but Location and Lambda reads are denied; bootstrap and account quotas
-remain unverified. The old default/root profile belongs to a different account and is no longer
-used. An authorized IAM operator must grant the scoped permissions documented in the runbook.
-Do not add AdministratorAccess to work around failed diagnostic or data-plane calls.
-
-Confirm eligible credit balance/expiry, alert recipient, Cognito callback URL and bootstrap role
-policy. User permits using up to the reported $100 credits; this is a ceiling, not a spending target.
-Review the [$10-15/month demo planning envelope](docs/COSTS_AND_BUDGET.md) and obtain specific
-deployment approval before bootstrap/deploy. Budget alerts do not hard-cap costs.
 
 ## Documentation
 
-- [Current state, checks and blockers](docs/PROJECT_STATE.md)
-- [Architecture](docs/ARCHITECTURE.md) and [AWS services/IAM](docs/AWS_SERVICES.md)
-- [Credential runbook](docs/CREDENTIALS_CHECKLIST.md) and [API contract](docs/API_CONTRACT.md)
-- [Ingestion and real-run evidence](docs/INGESTION.md)
-- [Routing algorithm, live-test blockers and demonstration](docs/ROUTING.md)
-- [Verified official sources](docs/VERIFIED_SOURCES.md)
-- [Joint contribution workflow](CONTRIBUTING.md)
-# Phase 6 backend additions
+- **Build and integrate:** [API contract](docs/API_CONTRACT.md), [frontend integration](docs/FRONTEND_INTEGRATION.md), [OpenAPI](docs/openapi.json), [Postman collection](examples/ecoroute.postman_collection.json).
+- **Data and ML:** [ingestion](docs/INGESTION.md), [ML workflow](docs/ML_WORKFLOW.md), [large-data training](docs/LARGE_DATA_TRAINING.md).
+- **Devices and workflows:** [wearables](docs/WEARABLES.md), [Health Connect](docs/HEALTH_CONNECT.md), [advisories](docs/PHASE6_ADVISORIES.md).
+- **Operate safely:** [costs and budgets](docs/COSTS_AND_BUDGET.md), [deployment profiles and cleanup](docs/MULTISERVICE_INTEGRATION.md), [demo runbook](docs/DEMO_READINESS.md).
 
-Grounded Bedrock explanations with deterministic fallback, complete-window PM2.5 advisories,
-opt-in SMS adapter, school commute comparison/forecast and optional inactive AWS orchestration
-are implemented. **No AWS resources are deployed.** Bedrock, SMS and continuous workflows remain
-disabled pending private configuration and cost approval. No frontend or live notification claim.
+## Costs and cleanup
 
-Run `python scripts/check_advisory.py` for offline SDK/configuration and retained-data checks.
-See [Phase6 runbook](docs/PHASE6_ADVISORIES.md) for API examples, exact credentials/IAM/Console
-steps, scientific limits, costs and activation/cleanup. Put local configuration in ignored .env;
-never put credentials in committed code. Separate meaningful commits use the three supplied
-individual Git authors as requested.
+The previously reviewed small serverless demo estimate was **$5–20/month**, excluding external provider charges, tax, paid ML jobs and SMS. Actual usage, account eligibility and pricing determine the bill. AWS credits do not cover every external provider, and **budget alerts do not hard-cap spending**.
 
-## Google routing integration (2026-10-10)
-See docs/GOOGLE_MAPS_SETUP.md (repository root) for separate server/browser keys, APIs, Cognito,
-restricted secret IAM and verification. Google Routes/Places feed the existing exposure engine;
-Journeys displays Maps JavaScript tiles and route overlays. No real Google service call verified.
-Google comparisons are request-only; saved route-ID workflows are unavailable for those results.
-No AWS resources were deployed. Google charges are separate from AWS credits.
+Do not launch training, enable continuous schedules or add idle compute without reviewing costs. Use the documented cleanup procedure for the exact deployed stacks; retained S3 data, Secrets Manager secrets and separately hosted Amplify resources need explicit review. Never delete shared account infrastructure blindly.
 
-## Current AWS setup
+## Team
 
-Read [AWS readiness, Gemini and SageMaker](docs/AWS_READINESS_AND_GEMINI.md) for actual
-IAM/region/service checks, exact Console steps and the bounded serverless deployment proposal.
-SageMaker remains for genuine measured-data training; Gemini is an optional grounded explanation
-provider. No cloud deployment or training was performed by this preparation. Do not start Studio,
-notebooks or an always-running endpoint to configure the model workflow.
+Built collaboratively by **Devesh Singhal**, **Mayank Gupta** and **Devesh Raj**.
 
+[Devesh Singhal](https://github.com/deveshsinghal09) · [Mayank Gupta](https://github.com/Mayank2142) · [Devesh Raj](https://github.com/DEVESH859)
 
-## Larger training datasets and route factors
-
-Real local training used 420,768 UCI Beijing rows; this is not a verified Delhi model or SageMaker run.
-See [actual metrics and exact AWS setup](docs/LARGE_DATA_TRAINING.md) and [route preferences/prediction API](docs/ROUTE_FACTORS.md).
-Frontend Route factors & forecasts exposes weights and approved-model selection after sign-in.
-A100,000-row synthetic stress-test dataset is available but cannot be promoted to navigation.
+Provider attribution and data licensing remain applicable. See [verified sources](docs/VERIFIED_SOURCES.md) for the project's references.
