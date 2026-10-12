@@ -23,6 +23,12 @@ An AWS-native journey planner built for Delhi that combines genuine road routes,
 > [!IMPORTANT]
 > EcoRoute compares **estimated environmental exposure**, not medical risk or dose. Coarse atmospheric models cannot establish precise street-level pollution differences. Missing data stays unavailable; wearable heart rate does not prove a pollution effect.
 
+## Watch the walkthrough
+
+[![Watch the EcoRoute AI walkthrough on YouTube](https://img.youtube.com/vi/4XNr6BEzIzI/hqdefault.jpg)](https://youtu.be/4XNr6BEzIzI)
+
+**[Watch on YouTube](https://youtu.be/4XNr6BEzIzI)** — Explore route comparisons, air-quality estimates and AI insights.
+
 ## Experience
 
 ![EcoRoute city dashboard with the silver, charcoal and orange interface](docs/assets/city-dashboard.jpg)
