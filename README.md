@@ -4,7 +4,7 @@
 
 ### Know your route. Understand your exposure.
 
-An AWS-native journey planner that combines genuine road routes, environmental forecasts and transparent exposure calculations to help people compare their travel options.
+An AWS-native journey planner built for Delhi that combines genuine road routes, environmental forecasts and transparent exposure calculations to help people compare their travel options.
 
 ![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)
@@ -27,7 +27,7 @@ An AWS-native journey planner that combines genuine road routes, environmental f
 
 ![EcoRoute city dashboard with the silver, charcoal and orange interface](docs/assets/city-dashboard.jpg)
 
-A cinematic city dashboard opens into a real route map. Choose public places or map points, select Drive, Walk or Cycle, and compare duration, distance and available pollution estimates. Mode availability depends on the configured routing provider and its coverage.
+Delhi is the primary city for this project. The city showcase is illustrative artwork, not a reconstruction of Delhi streets. It opens into a real route map; users can choose their own locations, subject to provider coverage. Choose public places or map points, select Drive, Walk or Cycle, and compare duration, distance and available pollution estimates. Mode availability depends on the configured routing provider and its coverage.
 
 ![Google Maps route comparison with real road geometry and exposure estimates](docs/assets/route-comparison.jpg)
 
