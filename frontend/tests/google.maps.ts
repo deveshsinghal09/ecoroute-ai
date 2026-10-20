@@ -40,6 +40,16 @@ test('Journeys reviews real returned alternatives and links to air, insights and
  }
  await page.getByRole('button',{name:'View air estimate',exact:true}).click();
  await expect(page.locator('.air-quality-reading')).toBeVisible();
+ await page.getByText('How exposure is calculated',{exact:true}).click();
+ const calculation=page.locator('details').filter({has:page.getByText('How exposure is calculated',{exact:true})});
+ await expect(calculation).toContainText('69.20 µg/m³');
+ await expect(calculation).toContainText('not the amount absorbed');
+ for(const width of [390,1280]){
+  await page.setViewportSize({width,height:844});
+  expect(await calculation.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+  await calculation.screenshot({path:`../work/exposure-explanation-${width}.png`});
+ }
+
  await page.getByRole('button',{name:'Journeys',exact:true}).click();await page.getByRole('button',{name:'Explain this journey',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Your route, made simple.'})).toBeVisible();
  await page.getByRole('button',{name:'Journeys',exact:true}).click();await page.getByText('Journey timing',{exact:true}).click();
@@ -111,6 +121,8 @@ test('missing route pollution is clearly unavailable and the data check does not
  await expect(page.locator('.air-quality-content')).toContainText('Missing data does not mean clean air');await expect(page.locator('.air-quality-reading')).toHaveCount(0);
  await page.getByRole('button',{name:'Check route data',exact:true}).click();await expect(page.locator('.air-quality-check')).toContainText('0 of 0');
  await expect(page.locator('.air-quality-check')).toContainText('could not be verified');
+ await page.getByText('How exposure is calculated',{exact:true}).click();
+ await expect(page.locator('.air-quality-content')).toContainText('Missing air data is never counted as zero');
 });
 
 test('signed-in dataset check renders a readable result and recovers from AWS failure without exposing provider text',async({page})=>{

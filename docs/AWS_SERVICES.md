@@ -1,5 +1,11 @@
 # AWS service decisions and IAM boundaries
 
+## Reviewer walkthrough - 20 October 2026
+
+See [REVIEWER_WALKTHROUGH.md](REVIEWER_WALKTHROUGH.md) for dated live Delhi evidence, working versus gated services and required configuration. Frontend/documentation publication approved; no API schema, IAM or infrastructure changes. One route comparison and one manual ingestion succeeded; no SMS/training/schedules activated. Detailed Lambda/Scheduler inspection is permission-blocked. Browser Google billing is separate from successful backend routing.
+
+
+
 ## Journey review interface — 12 October 2026
 
 Journeys reuses the existing route comparison in browser memory. Opening the tab, selecting an

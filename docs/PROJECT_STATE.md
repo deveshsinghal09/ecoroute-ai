@@ -1,5 +1,18 @@
 # EcoRoute AI project state — Phases 1–7
 
+## Reviewer evidence update - 20 October 2026 (publication approved)
+
+Verification: 40 routing tests, 74 frontend unit tests, 29 browser tests passed; 2 targeted browser follow-ups passed. Production build passed. Calculation panel screenshots reviewed; no horizontal overflow at 390/1280px.
+
+- New REVIEWER_WALKTHROUGH.md and evidence/delhi-review-2026-10-20.json show a real India Gate to Connaught Place comparison, provenance, coverage, segment calculation and service gates.
+- Live comparison200: three Google routes383/385/476 seconds; forecast111.5 ug/m3; complete coverage; exposure11.86236/11.92431/14.74278 ug*h/m3. Same45km CAMS cell; no demonstrated street-level advantage. This is dated evidence.
+- Manual ingestion verified192 cleaned records/two curated files via DynamoDB metadata. The route lookup is separate, not claimed to read those exact files.
+- Core/Data UPDATE_COMPLETE; ML/IoT CREATE_COMPLETE. Protected endpoints401. Detailed API Lambda/Scheduler reads AccessDeniedException; no new positive-login, SMS, hardware, ML-training or LLM proof.
+- Local Air quality now shows selected-route calculation only when returned segments verify. README links the complete guide. No API schema or infrastructure changes.
+- User approved frontend/documentation publication after local verification. No backend deployment, training, SMS or schedule activation. Google browser billing remains a user-side prerequisite from the last reported error.
+
+
+
 ## Navigation refinement — approved publication, 12 October 2026
 
 - Local preview completed first; user subsequently approved pushing and deploying this update.

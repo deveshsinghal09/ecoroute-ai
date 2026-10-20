@@ -1,0 +1,307 @@
+{
+  "checked_at": "2026-10-20T16:59:34.082542+00:00",
+  "checks": {
+    "EcoRouteData": {
+      "status": "UPDATE_COMPLETE"
+    },
+    "EcoRouteCore": {
+      "status": "UPDATE_COMPLETE"
+    },
+    "EcoRouteML": {
+      "status": "CREATE_COMPLETE"
+    },
+    "EcoRouteIoT": {
+      "status": "CREATE_COMPLETE"
+    },
+    "/api/v1/health": {
+      "http_status": 200
+    },
+    "/api/v1/wearables/latest": {
+      "http_status": 401
+    },
+    "/api/v1/ml/status": {
+      "http_status": 401
+    }
+  },
+  "identity": {
+    "account": "112920804206",
+    "non_root": true
+  },
+  "comparison": {
+    "http_status": 200,
+    "request": {
+      "origin": {
+        "longitude": 77.2295,
+        "latitude": 28.6129
+      },
+      "destination": {
+        "longitude": 77.2167,
+        "latitude": 28.6315
+      },
+      "mode": "driving",
+      "departure_at": "2026-10-20T17:09:42.074110+00:00",
+      "objective": "balanced",
+      "max_detour_percent": 25,
+      "consent_to_store": false,
+      "include_explanation": false
+    },
+    "routes": [
+      {
+        "duration_s": 383.0,
+        "distance_m": 2702,
+        "estimated_pm25_exposure_ug_h_m3": 11.862361111111113,
+        "pm25_coverage_fraction": 1.0,
+        "confidence": "low",
+        "routing_source": {
+          "provider": "google_routes",
+          "fixture": false,
+          "attribution": "Google Maps",
+          "persistence": "request_only",
+          "collected_at": "2026-10-20T16:59:42.626871+00:00",
+          "traffic": {
+            "status": "traffic_aware",
+            "duration_s": 383.0,
+            "historical_baseline_duration_s": 459.0,
+            "difference_from_historical_s": -76.0,
+            "definition": "Google duration uses requested departure/traffic; staticDuration includes historical traffic, not free-flow travel. Traffic is already included in the time score."
+          }
+        },
+        "warnings": [
+          "Google route is request-only; saved route retrieval is unavailable.",
+          "Segment timing assumes uniform speed along the returned geometry.",
+          "Model values have coarse spatial support; small segment geometry does not improve pollution resolution.",
+          "All candidates share one coarse forecast cell: any exposure difference reflects duration/time, not demonstrated street-level pollution differences."
+        ],
+        "recommendation_reason": "Selected among returned provider candidates within the time-detour limit using balanced; not a globally optimal road-network solution.",
+        "detour_percent": 0.0,
+        "within_detour_limit": true,
+        "segment_count": 11,
+        "recomputed_exposure": 11.862361111111113,
+        "samples": [
+          {
+            "duration_s": 35.43257581243965,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          },
+          {
+            "duration_s": 35.43257581243965,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          },
+          {
+            "duration_s": 35.43257581243965,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          }
+        ]
+      },
+      {
+        "duration_s": 385.0,
+        "distance_m": 2830,
+        "estimated_pm25_exposure_ug_h_m3": 11.924305555555554,
+        "pm25_coverage_fraction": 1.0,
+        "confidence": "low",
+        "routing_source": {
+          "provider": "google_routes",
+          "fixture": false,
+          "attribution": "Google Maps",
+          "persistence": "request_only",
+          "collected_at": "2026-10-20T16:59:42.625823+00:00",
+          "traffic": {
+            "status": "traffic_aware",
+            "duration_s": 385.0,
+            "historical_baseline_duration_s": 443.0,
+            "difference_from_historical_s": -58.0,
+            "definition": "Google duration uses requested departure/traffic; staticDuration includes historical traffic, not free-flow travel. Traffic is already included in the time score."
+          }
+        },
+        "warnings": [
+          "Google route is request-only; saved route retrieval is unavailable.",
+          "Segment timing assumes uniform speed along the returned geometry.",
+          "Model values have coarse spatial support; small segment geometry does not improve pollution resolution.",
+          "All candidates share one coarse forecast cell: any exposure difference reflects duration/time, not demonstrated street-level pollution differences."
+        ],
+        "recommendation_reason": "Eligible provider candidate; compare the selected route and objective scores.",
+        "detour_percent": 0.5221932114882533,
+        "within_detour_limit": true,
+        "segment_count": 12,
+        "recomputed_exposure": 11.924305555555554,
+        "samples": [
+          {
+            "duration_s": 34.0065717288505,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          },
+          {
+            "duration_s": 34.0065717288505,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          },
+          {
+            "duration_s": 34.0065717288505,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          }
+        ]
+      },
+      {
+        "duration_s": 476.0,
+        "distance_m": 3370,
+        "estimated_pm25_exposure_ug_h_m3": 14.742777777777777,
+        "pm25_coverage_fraction": 1.0,
+        "confidence": "low",
+        "routing_source": {
+          "provider": "google_routes",
+          "fixture": false,
+          "attribution": "Google Maps",
+          "persistence": "request_only",
+          "collected_at": "2026-10-20T16:59:42.627443+00:00",
+          "traffic": {
+            "status": "traffic_aware",
+            "duration_s": 476.0,
+            "historical_baseline_duration_s": 514.0,
+            "difference_from_historical_s": -38.0,
+            "definition": "Google duration uses requested departure/traffic; staticDuration includes historical traffic, not free-flow travel. Traffic is already included in the time score."
+          }
+        },
+        "warnings": [
+          "Google route is request-only; saved route retrieval is unavailable.",
+          "Segment timing assumes uniform speed along the returned geometry.",
+          "Model values have coarse spatial support; small segment geometry does not improve pollution resolution.",
+          "All candidates share one coarse forecast cell: any exposure difference reflects duration/time, not demonstrated street-level pollution differences."
+        ],
+        "recommendation_reason": "Eligible provider candidate; compare the selected route and objective scores.",
+        "detour_percent": 24.281984334203656,
+        "within_detour_limit": true,
+        "segment_count": 14,
+        "recomputed_exposure": 14.742777777777777,
+        "samples": [
+          {
+            "duration_s": 35.30787766981529,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          },
+          {
+            "duration_s": 35.30787766981529,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          },
+          {
+            "duration_s": 35.30787766981529,
+            "pm25": {
+              "value_ug_m3": 111.5,
+              "status": "forecast",
+              "source": "open_meteo",
+              "location_id": "cams_global:28.8000:77.2000",
+              "reported_at": "2026-10-20T17:00:00Z",
+              "collected_at": "2026-10-20T16:59:43.377618Z",
+              "resolution_km": 45.0,
+              "native_interval_hours": 3.0,
+              "model_run_at": null,
+              "quality_flags": [],
+              "confidence": "low",
+              "uncertainty": "No calibrated uncertainty interval is available."
+            }
+          }
+        ]
+      }
+    ],
+    "spatial_differentiation": "not_resolved_same_model_cell"
+  }
+}

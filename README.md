@@ -29,6 +29,10 @@ An AWS-native journey planner built for Delhi that combines genuine road routes,
 
 **[Watch on YouTube](https://youtu.be/4XNr6BEzIzI)** — Explore route comparisons, air-quality estimates and AI insights.
 
+## Verified route walkthrough
+
+[See one complete Delhi comparison](docs/REVIEWER_WALKTHROUGH.md), including source provenance, coverage, exposure arithmetic and working versus gated AWS services. Results are dated 20 October 2026.
+
 ## Experience
 
 ![EcoRoute city dashboard with the silver, charcoal and orange interface](docs/assets/city-dashboard.jpg)
